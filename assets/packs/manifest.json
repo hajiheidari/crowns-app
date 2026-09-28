@@ -1,0 +1,12 @@
+{
+  "generatorVersion": 1,
+  "epoch": "2026-10-01",
+  "counts": {
+    "daily": 1096,
+    "easy": 400,
+    "medium": 400,
+    "hard": 400,
+    "expert": 400
+  },
+  "builtAt": "deterministic"
+}
