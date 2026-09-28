@@ -1,0 +1,244 @@
+/**
+ * All saved player data: games in progress, streak, per-difficulty stats, settings.
+ * Persisted on every change, so any puzzle resumes after the app is killed.
+ */
+import { useSyncExternalStore } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+import { addDays, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
+import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { persistStorage } from '@/store/storage';
+
+/** One undo step: the cells it touched, with their marks before and after. */
+export interface Move {
+  cells: number[];
+  from: Mark[];
+  to: Mark[];
+}
+
+export interface GameState {
+  /** Player marks only; auto-✕ is derived, never stored. */
+  board: Mark[];
+  undo: Move[];
+  redo: Move[];
+  seconds: number;
+  hints: number;
+  solved: boolean;
+}
+
+export interface DifficultyStats {
+  solved: number;
+  bestSeconds: number | null;
+  totalSeconds: number;
+  hintFree: number;
+}
+
+export interface DailyRecord {
+  streak: number;
+  bestStreak: number;
+  lastSolvedKey: string | null;
+  /** date key → seconds */
+  solved: Record<string, number>;
+}
+
+export interface Settings {
+  autoCross: boolean;
+  tapOrder: 'cross-first' | 'crown-first';
+  dragToMark: boolean;
+  highlightConflicts: boolean;
+  showTimer: boolean;
+  haptics: boolean;
+}
+
+export interface WinResult {
+  seconds: number;
+  hints: number;
+  newBest: boolean;
+  /** Daily streak after this solve (daily puzzles only). */
+  streak?: number;
+}
+
+interface Store {
+  games: Record<string, GameState>;
+  unlimitedIndex: Record<Difficulty, number>;
+  stats: Record<Difficulty, DifficultyStats>;
+  daily: DailyRecord;
+  settings: Settings;
+
+  startGame: (id: string, n: number) => void;
+  commit: (id: string, cells: number[], to: Mark[]) => void;
+  undo: (id: string) => void;
+  redo: (id: string) => void;
+  clear: (id: string) => void;
+  tick: (id: string) => void;
+  complete: (id: string, difficulty: Difficulty) => WinResult | null;
+  updateSettings: (patch: Partial<Settings>) => void;
+}
+
+const newGame = (n: number): GameState => ({
+  board: new Array<Mark>(n * n).fill(EMPTY),
+  undo: [],
+  redo: [],
+  seconds: 0,
+  hints: 0,
+  solved: false,
+});
+
+const perDifficulty = <T>(make: () => T) =>
+  Object.fromEntries(DIFFICULTIES.map((d) => [d, make()])) as Record<Difficulty, T>;
+
+export const DEFAULT_SETTINGS: Settings = {
+  autoCross: true,
+  tapOrder: 'cross-first',
+  dragToMark: true,
+  highlightConflicts: true,
+  showTimer: true,
+  haptics: true,
+};
+
+/** Next mark for a single tap, honoring the "Tap order" setting. */
+export function tapCycle(m: Mark, order: Settings['tapOrder']): Mark {
+  if (order === 'crown-first') return m === EMPTY ? CROWN : m === CROWN ? CROSS : EMPTY;
+  return m === EMPTY ? CROSS : m === CROSS ? CROWN : EMPTY;
+}
+
+/** Streak that is still alive today (solved today or yesterday). */
+export function currentStreak(d: DailyRecord, todayKey: string): number {
+  if (!d.lastSolvedKey) return 0;
+  return d.lastSolvedKey === todayKey || d.lastSolvedKey === addDays(todayKey, -1) ? d.streak : 0;
+}
+
+function applyMove(board: Mark[], cells: number[], marks: Mark[]): Mark[] {
+  const next = board.slice();
+  cells.forEach((c, i) => (next[c] = marks[i]));
+  return next;
+}
+
+export const useGameStore = create<Store>()(
+  persist(
+    (set, get) => {
+      const update = (id: string, fn: (g: GameState) => GameState) => {
+        const g = get().games[id];
+        if (!g || g.solved) return;
+        set({ games: { ...get().games, [id]: fn(g) } });
+      };
+
+      return {
+        games: {},
+        unlimitedIndex: perDifficulty(() => 0),
+        stats: perDifficulty(() => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0 })),
+        daily: { streak: 0, bestStreak: 0, lastSolvedKey: null, solved: {} },
+        settings: DEFAULT_SETTINGS,
+
+        startGame: (id, n) => {
+          const games = { ...get().games };
+          // Finished Unlimited games are not needed any more; dailies stay for the archive.
+          for (const key of Object.keys(games)) {
+            if (key !== id && games[key].solved && !key.startsWith('daily-')) delete games[key];
+          }
+          if (!games[id] || games[id].board.length !== n * n) games[id] = newGame(n);
+          set({ games });
+        },
+
+        commit: (id, cells, to) =>
+          update(id, (g) => {
+            const idx = cells.map((_, i) => i).filter((i) => g.board[cells[i]] !== to[i]);
+            if (!idx.length) return g;
+            const move: Move = {
+              cells: idx.map((i) => cells[i]),
+              from: idx.map((i) => g.board[cells[i]]),
+              to: idx.map((i) => to[i]),
+            };
+            return { ...g, board: applyMove(g.board, move.cells, move.to), undo: [...g.undo, move], redo: [] };
+          }),
+
+        undo: (id) =>
+          update(id, (g) => {
+            const move = g.undo[g.undo.length - 1];
+            if (!move) return g;
+            return { ...g, board: applyMove(g.board, move.cells, move.from), undo: g.undo.slice(0, -1), redo: [...g.redo, move] };
+          }),
+
+        redo: (id) =>
+          update(id, (g) => {
+            const move = g.redo[g.redo.length - 1];
+            if (!move) return g;
+            return { ...g, board: applyMove(g.board, move.cells, move.to), undo: [...g.undo, move], redo: g.redo.slice(0, -1) };
+          }),
+
+        clear: (id) => {
+          const g = get().games[id];
+          if (!g) return;
+          const cells = g.board.map((_, i) => i);
+          get().commit(id, cells, cells.map(() => EMPTY));
+        },
+
+        tick: (id) => update(id, (g) => ({ ...g, seconds: g.seconds + 1 })),
+
+        complete: (id, difficulty) => {
+          const s = get();
+          const g = s.games[id];
+          if (!g || g.solved) return null;
+          const info = puzzleInfo(id);
+          const prev = s.stats[difficulty];
+          const newBest = prev.bestSeconds !== null && g.seconds < prev.bestSeconds;
+          const stats = {
+            ...s.stats,
+            [difficulty]: {
+              solved: prev.solved + 1,
+              bestSeconds: prev.bestSeconds === null ? g.seconds : Math.min(prev.bestSeconds, g.seconds),
+              totalSeconds: prev.totalSeconds + g.seconds,
+              hintFree: prev.hintFree + (g.hints === 0 ? 1 : 0),
+            },
+          };
+          const games = { ...s.games, [id]: { ...g, solved: true, undo: [], redo: [] } };
+          const result: WinResult = { seconds: g.seconds, hints: g.hints, newBest };
+
+          let daily = s.daily;
+          let unlimitedIndex = s.unlimitedIndex;
+          if (info?.mode === 'daily') {
+            const key = info.key;
+            const already = daily.solved[key] !== undefined;
+            const continues = daily.lastSolvedKey === addDays(key, -1);
+            const streak = already ? daily.streak : continues ? daily.streak + 1 : 1;
+            const isLatest = !daily.lastSolvedKey || key >= daily.lastSolvedKey;
+            daily = {
+              streak: isLatest ? streak : daily.streak,
+              bestStreak: Math.max(daily.bestStreak, isLatest ? streak : 0),
+              lastSolvedKey: isLatest ? key : daily.lastSolvedKey,
+              solved: { ...daily.solved, [key]: g.seconds },
+            };
+            result.streak = daily.streak;
+          } else if (info?.mode === 'unlimited' && unlimitedId(difficulty, s.unlimitedIndex[difficulty]) === id) {
+            unlimitedIndex = { ...unlimitedIndex, [difficulty]: s.unlimitedIndex[difficulty] + 1 };
+          }
+
+          set({ games, stats, daily, unlimitedIndex });
+          return result;
+        },
+
+        updateSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
+      };
+    },
+    {
+      name: 'crowns-store',
+      version: 1,
+      storage: persistStorage,
+      partialize: ({ games, unlimitedIndex, stats, daily, settings }) => ({ games, unlimitedIndex, stats, daily, settings }),
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<Store>;
+        return { ...current, ...p, settings: { ...DEFAULT_SETTINGS, ...p.settings } };
+      },
+    },
+  ),
+);
+
+/** True once saved data has been loaded from disk. */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(
+    (onChange) => useGameStore.persist.onFinishHydration(onChange),
+    () => useGameStore.persist.hasHydrated(),
+    () => false,
+  );
+}

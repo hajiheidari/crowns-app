@@ -3,18 +3,42 @@ export const Colors = {
   light: {
     background: '#FAF7F0',
     surface: '#FFFFFF',
+    surfaceMuted: '#F1ECE2',
+    border: '#E4DDD0',
     text: '#1F1B16',
     textSecondary: '#6B645A',
     gold: '#C9A227',
+    goldText: '#8A6D0B',
+    primary: '#1F1B16',
+    onPrimary: '#FAF7F0',
+    danger: '#C62828',
+    gridThick: '#2B2620',
+    gridThin: 'rgba(43, 38, 32, 0.18)',
+    mark: '#2B2620',
+    autoMark: 'rgba(43, 38, 32, 0.28)',
+    flame: '#E8590C',
   },
   dark: {
     background: '#1C1A17',
     surface: '#26231F',
+    surfaceMuted: '#302C27',
+    border: '#3A352F',
     text: '#F3EEE6',
     textSecondary: '#A69E92',
     gold: '#E0BD4A',
+    goldText: '#E0BD4A',
+    primary: '#F3EEE6',
+    onPrimary: '#1C1A17',
+    danger: '#FF6B6B',
+    gridThick: '#0E0D0B',
+    gridThin: 'rgba(0, 0, 0, 0.35)',
+    mark: '#F3EEE6',
+    autoMark: 'rgba(243, 238, 230, 0.35)',
+    flame: '#FF8A3D',
   },
 } as const;
+
+export type Palette = { [K in keyof typeof Colors.light]: string };
 
 export const RegionColors = {
   light: ['#C9B6E4', '#F6C28B', '#A9CBEF', '#B5DDA4', '#D3D3D3', '#F4A6A6', '#F3E49A', '#9FDCD3', '#F2B8D8', '#D2B49C', '#D7EC9A'],

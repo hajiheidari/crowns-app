@@ -32,6 +32,9 @@ Read these before writing code:
 - Work now happens in a cloud container (no Mac). There `api.expo.dev` is blocked, so `npx expo install` fails:
   use `npm install <pkg>@<version from node_modules/expo/bundledNativeModules.json>` and run expo CLI with `EXPO_OFFLINE=1`.
   Preview = `npx expo export --platform web` + screenshot; on-device testing needs EAS builds (Amir's Expo account).
+  Amir plays the web build as an Artifact (https://claude.ai/artifact/TbUGV5pzEns1KCnr39Ne52): the JS bundle is inlined
+  into one HTML page (`web.output` is `single`) and the page resets the URL path to "/" for Expo Router.
+- **M1 done (v0.2.0)**: Home, Game screen, win overlay, persistence (zustand + AsyncStorage), daily streak.
 
 ## Tech stack (decided)
 
