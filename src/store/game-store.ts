@@ -65,6 +65,7 @@ interface Store {
   stats: Record<Difficulty, DifficultyStats>;
   daily: DailyRecord;
   settings: Settings;
+  tutorialSeen: boolean;
 
   startGame: (id: string, n: number) => void;
   commit: (id: string, cells: number[], to: Mark[]) => void;
@@ -74,6 +75,8 @@ interface Store {
   tick: (id: string) => void;
   complete: (id: string, difficulty: Difficulty) => WinResult | null;
   updateSettings: (patch: Partial<Settings>) => void;
+  addHint: (id: string) => void;
+  setTutorialSeen: () => void;
 }
 
 const newGame = (n: number): GameState => ({
@@ -130,6 +133,7 @@ export const useGameStore = create<Store>()(
         stats: perDifficulty(() => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0 })),
         daily: { streak: 0, bestStreak: 0, lastSolvedKey: null, solved: {} },
         settings: DEFAULT_SETTINGS,
+        tutorialSeen: false,
 
         startGame: (id, n) => {
           const games = { ...get().games };
@@ -219,13 +223,24 @@ export const useGameStore = create<Store>()(
         },
 
         updateSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
+
+        addHint: (id) => update(id, (g) => ({ ...g, hints: g.hints + 1 })),
+
+        setTutorialSeen: () => set({ tutorialSeen: true }),
       };
     },
     {
       name: 'crowns-store',
       version: 1,
       storage: persistStorage,
-      partialize: ({ games, unlimitedIndex, stats, daily, settings }) => ({ games, unlimitedIndex, stats, daily, settings }),
+      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen }) => ({
+        games,
+        unlimitedIndex,
+        stats,
+        daily,
+        settings,
+        tutorialSeen,
+      }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Store>;
         return { ...current, ...p, settings: { ...DEFAULT_SETTINGS, ...p.settings } };

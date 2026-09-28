@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { CROWN, formatTime, isSolved, type Mark } from '@/engine';
+import { applyHint, CROWN, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
 import { Board } from '@/features/game/board';
+import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
@@ -24,11 +25,12 @@ export function GameScreen({ id }: { id: string }) {
 
   const game = useGameStore((s) => s.games[id]);
   const settings = useGameStore((s) => s.settings);
-  const { startGame, commit, undo, redo, clear, tick, complete, updateSettings } = useGameStore.getState();
+  const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [win, setWin] = useState<WinResult | null>(null);
+  const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[] } | null>(null);
 
   useEffect(() => {
     if (puzzle) startGame(puzzle.id, puzzle.n);
@@ -88,6 +90,54 @@ export function GameScreen({ id }: { id: string }) {
   const board = game?.board ?? [];
   const crowns = board.filter((m) => m === CROWN).length;
 
+  // A hint belongs to the board it was asked on; any move makes it stale.
+  const activeHint = hint && !solved && !paused && sameBoard(hint.board, board) ? hint : null;
+
+  const askHint = () => {
+    const h = getHint(puzzle, board);
+    if (h.kind !== 'solved') setHint({ hint: h, stage: 1, board });
+  };
+  const applyActiveHint = () => {
+    if (!activeHint) return;
+    const next = applyHint(puzzle, board, activeHint.hint);
+    const cells = next.map((_, i) => i).filter((i) => next[i] !== board[i]);
+    if (activeHint.stage === 1) addHint(id);
+    setHint(null);
+    act(() => commit(id, cells, cells.map((i) => next[i])));
+  };
+
+  let card: { title: string; body: string; primary: { label: string; onPress: () => void } } | null = null;
+  let highlight: Set<number> | undefined;
+  let danger: Set<number> | undefined;
+  if (activeHint) {
+    const h = activeHint.hint;
+    if (h.kind === 'mistake') {
+      danger = new Set(h.cells);
+      card = { title: S.hintMistakeTitle, body: S.hintMistakeBody(h.cells.length), primary: { label: S.hintRemove, onPress: applyActiveHint } };
+    } else if (h.kind === 'reveal') {
+      highlight = new Set([h.cell]);
+      card = { title: S.hintRevealTitle, body: S.hintRevealBody, primary: { label: S.hintApply, onPress: applyActiveHint } };
+    } else if (h.kind === 'step') {
+      highlight = new Set(h.step.focus);
+      if (activeHint.stage === 1) {
+        card = {
+          title: S.hintLookTitle,
+          body: S.hintLookBody,
+          primary: {
+            label: S.hintWhy,
+            onPress: () => {
+              addHint(id);
+              setHint({ ...activeHint, stage: 2 });
+            },
+          },
+        };
+      } else {
+        const e = explainStep(h.step);
+        card = { title: e.title, body: e.body, primary: { label: S.hintApply, onPress: applyActiveHint } };
+      }
+    }
+  }
+
   const goHome = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const goNext = () => {
     if (info.mode !== 'unlimited') return;
@@ -135,6 +185,8 @@ export function GameScreen({ id }: { id: string }) {
               onLongPress={onLongPress}
               onDrag={set}
               onDragTick={onDragTick}
+              highlight={highlight}
+              danger={danger}
             />
           )}
           {paused && (
@@ -144,12 +196,17 @@ export function GameScreen({ id }: { id: string }) {
             </View>
           )}
         </View>
-        {!solved && <Text style={[styles.help, { color: c.textSecondary }]}>{S.controls}</Text>}
+        {card ? (
+          <HintCard title={card.title} body={card.body} primary={card.primary} closeLabel={S.hintClose} onClose={() => setHint(null)} />
+        ) : (
+          !solved && <Text style={[styles.help, { color: c.textSecondary }]}>{S.controls}</Text>
+        )}
       </View>
 
       <View style={styles.toolbar}>
         <ToolButton label={S.undo} glyph="↶" onPress={() => act(() => undo(id))} disabled={locked || !game?.undo.length} />
         <ToolButton label={S.redo} glyph="↷" onPress={() => act(() => redo(id))} disabled={locked || !game?.redo.length} />
+        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} />
         <ToolButton label={S.clear} glyph="⌫" onPress={() => setConfirmClear(true)} disabled={locked || !board.some((m) => m)} />
       </View>
 
@@ -167,6 +224,10 @@ export function GameScreen({ id }: { id: string }) {
       {win && <WinOverlay result={win} isDaily={info.mode === 'daily'} onNext={goNext} onHome={goHome} />}
     </SafeAreaView>
   );
+}
+
+function sameBoard(a: Mark[], b: Mark[]): boolean {
+  return a.length === b.length && a.every((m, i) => m === b[i]);
 }
 
 function IconButton(p: { label: string; a11y: string; onPress: () => void; color: string; disabled?: boolean }) {

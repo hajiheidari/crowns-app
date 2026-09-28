@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.3.0 — 2026-09-28
+- New animated tutorial on first launch shows the rules and controls in under a minute. Open it again any time with "How to play".
+- New Hint button: it shows where to look, explains why in plain words, and can make the move for you. Wrong marks are pointed out first.
+
 ## 0.2.0 — 2026-09-28
 - Play today's daily puzzle and Unlimited puzzles in Easy, Medium, Hard and Expert.
 - Tap to cycle ✕ / crown / empty, long-press for a crown, drag to paint ✕.

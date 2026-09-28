@@ -24,11 +24,17 @@ interface Props {
   onLongPress: (cell: number) => void;
   onDrag: (cells: number[], to: Mark[]) => void;
   onDragTick: () => void;
+  /** Cells outlined in gold (hint focus). */
+  highlight?: Set<number>;
+  /** Cells outlined in red (mistakes, touching cells in the tutorial). */
+  danger?: Set<number>;
+  /** Cell showing a fingertip (tutorial demos). */
+  finger?: number;
 }
 
 type DragMode = 'paint' | 'erase';
 
-export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick }: Props) {
+export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick, highlight, danger, finger }: Props) {
   const { c, regions: regionColors } = usePalette();
   const { n, regions } = puzzle;
   const [width, setWidth] = useState(0);
@@ -146,6 +152,10 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                   mark={mark}
                   auto={auto.has(i)}
                   conflict={conflicts.has(i)}
+                  highlight={highlight?.has(i) ?? false}
+                  danger={danger?.has(i) ?? false}
+                  finger={finger === i}
+                  goldColor={c.gold}
                   rightThick={col < n - 1 && regions[i] !== regions[i + 1]}
                   rightLine={col < n - 1}
                   bottomThick={row < n - 1 && regions[i] !== regions[i + n]}
@@ -172,6 +182,10 @@ interface CellProps {
   mark: Mark;
   auto: boolean;
   conflict: boolean;
+  highlight: boolean;
+  danger: boolean;
+  finger: boolean;
+  goldColor: string;
   rightThick: boolean;
   rightLine: boolean;
   bottomThick: boolean;
@@ -208,6 +222,14 @@ const Cell = memo(function Cell(p: CellProps) {
       {p.mark === CROWN && <CrownIcon size={icon} color={p.conflict ? p.dangerColor : p.markColor} />}
       {p.mark === CROSS && <CrossIcon size={p.size * 0.32} color={p.markColor} width={2} />}
       {p.mark === EMPTY && p.auto && <CrossIcon size={p.size * 0.26} color={p.autoColor} width={1.5} />}
+      {p.highlight && <View pointerEvents="none" style={[styles.ring, { borderColor: p.goldColor }]} />}
+      {p.danger && <View pointerEvents="none" style={[styles.ring, { borderColor: p.dangerColor }]} />}
+      {p.finger && (
+        <View
+          pointerEvents="none"
+          style={[styles.finger, { width: p.size * 0.5, height: p.size * 0.5, borderRadius: p.size * 0.25 }]}
+        />
+      )}
     </View>
   );
 });
@@ -224,4 +246,11 @@ const styles = StyleSheet.create({
   frame: { width: '100%', aspectRatio: 1, borderWidth: THICK + 0.5, borderRadius: 6, overflow: 'hidden' },
   grid: { flex: 1 },
   cell: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
+  ring: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderWidth: 3, borderRadius: 3 },
+  finger: {
+    position: 'absolute',
+    backgroundColor: 'rgba(120, 120, 120, 0.35)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+  },
 });

@@ -35,6 +35,7 @@ Read these before writing code:
   Amir plays the web build as an Artifact (https://claude.ai/artifact/TbUGV5pzEns1KCnr39Ne52): the JS bundle is inlined
   into one HTML page (`web.output` is `single`) and the page resets the URL path to "/" for Expo Router.
 - **M1 done (v0.2.0)**: Home, Game screen, win overlay, persistence (zustand + AsyncStorage), daily streak.
+- **M2 done (v0.3.0)**: animated tutorial (`src/features/tutorial/slides.ts`, Amir asked for a picture/video style tutorial, so it is looping animations on a real 5×5, not text) + 3-stage hints (all free until ads land in M5).
 
 ## Tech stack (decided)
 

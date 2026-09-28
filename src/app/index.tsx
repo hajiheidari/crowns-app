@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,6 +39,7 @@ export default function HomeScreen() {
   const daily = useGameStore((s) => s.daily);
   const todayGame = useGameStore((s) => s.games[todayId]);
   const unlimitedIndex = useGameStore((s) => s.unlimitedIndex);
+  const tutorialSeen = useGameStore((s) => s.tutorialSeen);
 
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);
@@ -53,6 +54,8 @@ export default function HomeScreen() {
         : S.play;
 
   const open = (id: string) => router.push({ pathname: '/play/[id]', params: { id } });
+
+  if (!tutorialSeen) return <Redirect href="/tutorial" />;
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
@@ -99,6 +102,7 @@ export default function HomeScreen() {
         </View>
 
         <Text style={[styles.rules, { color: c.textSecondary }]}>{S.rules}</Text>
+        <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{Constants.expoConfig?.version ?? '?'}</Text>
       </ScrollView>
     </SafeAreaView>
