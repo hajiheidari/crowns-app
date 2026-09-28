@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.3.1 — 2026-09-28
+- The tutorial no longer opens by itself. Tap "How to play" at the bottom of the home screen whenever you want it.
+
 ## 0.3.0 — 2026-09-28
 - New animated tutorial on first launch shows the rules and controls in under a minute. Open it again any time with "How to play".
 - New Hint button: it shows where to look, explains why in plain words, and can make the move for you. Wrong marks are pointed out first.

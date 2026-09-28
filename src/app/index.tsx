@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,7 +39,6 @@ export default function HomeScreen() {
   const daily = useGameStore((s) => s.daily);
   const todayGame = useGameStore((s) => s.games[todayId]);
   const unlimitedIndex = useGameStore((s) => s.unlimitedIndex);
-  const tutorialSeen = useGameStore((s) => s.tutorialSeen);
 
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);
@@ -54,8 +53,6 @@ export default function HomeScreen() {
         : S.play;
 
   const open = (id: string) => router.push({ pathname: '/play/[id]', params: { id } });
-
-  if (!tutorialSeen) return <Redirect href="/tutorial" />;
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
@@ -102,7 +99,12 @@ export default function HomeScreen() {
         </View>
 
         <Text style={[styles.rules, { color: c.textSecondary }]}>{S.rules}</Text>
-        <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
+        <Button
+          label={S.howToPlay}
+          variant="secondary"
+          icon={<Text style={[styles.howIcon, { color: c.text }]}>?</Text>}
+          onPress={() => router.push('/tutorial')}
+        />
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{Constants.expoConfig?.version ?? '?'}</Text>
       </ScrollView>
     </SafeAreaView>
@@ -158,5 +160,6 @@ const styles = StyleSheet.create({
   tileTitle: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
   tileSub: { fontSize: 13 },
   rules: { fontSize: 14, lineHeight: 20, textAlign: 'center', marginTop: 8 },
+  howIcon: { fontSize: 17, fontWeight: '800' },
   footer: { textAlign: 'center', fontSize: 12 },
 });

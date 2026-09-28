@@ -36,6 +36,7 @@ Read these before writing code:
   into one HTML page (`web.output` is `single`) and the page resets the URL path to "/" for Expo Router.
 - **M1 done (v0.2.0)**: Home, Game screen, win overlay, persistence (zustand + AsyncStorage), daily streak.
 - **M2 done (v0.3.0)**: animated tutorial (`src/features/tutorial/slides.ts`, Amir asked for a picture/video style tutorial, so it is looping animations on a real 5×5, not text) + 3-stage hints (all free until ads land in M5).
+  v0.3.1: per Amir, the tutorial is NOT shown automatically on first launch; only via the "How to play" button on Home.
 
 ## Tech stack (decided)
 
