@@ -1,16 +1,18 @@
-import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { CrownIcon } from '@/components/crown-icon';
+import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyId, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { currentStreak, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
+import { APP_VERSION } from '@/constants/version';
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -39,6 +41,19 @@ export default function HomeScreen() {
   const daily = useGameStore((s) => s.daily);
   const todayGame = useGameStore((s) => s.games[todayId]);
   const unlimitedIndex = useGameStore((s) => s.unlimitedIndex);
+  const meta = useGameStore((s) => s.meta);
+  const updateMeta = useGameStore((s) => s.updateMeta);
+  const version = APP_VERSION;
+
+  // First run: remember the install date. Saves from before v0.4.0 have progress but no install date,
+  // so they are treated as updated from 0.3.1 and see "What's new".
+  useEffect(() => {
+    if (meta.installedKey) return;
+    const s = useGameStore.getState();
+    const hadProgress = Object.keys(s.games).length > 0 || s.meta.wins > 0;
+    updateMeta({ installedKey: dateKey(), lastSeenVersion: hadProgress ? '0.3.1' : version });
+  }, [meta.installedKey, updateMeta, version]);
+  const showWhatsNew = !!meta.installedKey && meta.lastSeenVersion !== version;
 
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);
@@ -62,12 +77,20 @@ export default function HomeScreen() {
             <CrownIcon size={30} color={c.gold} />
             <Text style={[styles.wordmark, { color: c.text }]}>{S.appName}</Text>
           </View>
-          <View
-            accessible
-            accessibilityLabel={S.streakDays(streak)}
-            style={[styles.streak, { backgroundColor: c.surfaceMuted }]}>
-            <Text style={styles.flame}>🔥</Text>
-            <Text style={[styles.streakText, { color: streak ? c.flame : c.textSecondary }]}>{streak}</Text>
+          <View style={styles.headerRight}>
+            <View
+              accessible
+              accessibilityLabel={S.streakDays(streak)}
+              style={[styles.streak, { backgroundColor: c.surfaceMuted }]}>
+              <Text style={styles.flame}>🔥</Text>
+              <Text style={[styles.streakText, { color: streak ? c.flame : c.textSecondary }]}>{streak}</Text>
+            </View>
+            <HeaderButton label={S.stats} onPress={() => router.push('/stats')}>
+              <StatsIcon size={22} color={c.text} />
+            </HeaderButton>
+            <HeaderButton label={S.settings} onPress={() => router.push('/settings')}>
+              <SettingsIcon size={22} color={c.text} />
+            </HeaderButton>
           </View>
         </View>
 
@@ -105,9 +128,27 @@ export default function HomeScreen() {
           icon={<Text style={[styles.howIcon, { color: c.text }]}>?</Text>}
           onPress={() => router.push('/tutorial')}
         />
-        <Text style={[styles.footer, { color: c.textSecondary }]}>v{Constants.expoConfig?.version ?? '?'}</Text>
+        <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
+      <WhatsNewSheet
+        visible={showWhatsNew}
+        since={meta.lastSeenVersion}
+        onClose={() => updateMeta({ lastSeenVersion: version })}
+      />
     </SafeAreaView>
+  );
+}
+
+function HeaderButton({ label, onPress, children }: { label: string; onPress: () => void; children: ReactNode }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      hitSlop={6}
+      style={({ pressed }) => [styles.headerButton, { opacity: pressed ? 0.6 : 1 }]}>
+      {children}
+    </Pressable>
   );
 }
 
@@ -141,8 +182,10 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { padding: 20, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  wordmark: { fontFamily: serif, fontSize: 32, fontWeight: '600' },
+  wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600' },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },

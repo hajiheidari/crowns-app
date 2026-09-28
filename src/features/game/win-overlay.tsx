@@ -6,16 +6,18 @@ import { CrownIcon } from '@/components/crown-icon';
 import { formatTime } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
 import type { WinResult } from '@/store/game-store';
-import { S } from '@/strings';
+import { formatClock, S } from '@/strings';
 
 interface Props {
   result: WinResult;
   isDaily: boolean;
   onNext: () => void;
   onHome: () => void;
+  /** Offer the daily reminder here (once, after the first solved daily). */
+  reminderOffer?: { hour: number; onAnswer: (yes: boolean) => void };
 }
 
-export function WinOverlay({ result, isDaily, onNext, onHome }: Props) {
+export function WinOverlay({ result, isDaily, onNext, onHome, reminderOffer }: Props) {
   const { c } = usePalette();
   return (
     <Animated.View entering={FadeIn.duration(250)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
@@ -28,6 +30,20 @@ export function WinOverlay({ result, isDaily, onNext, onHome }: Props) {
           <Badge text={result.hints === 0 ? S.noHints : S.hintsUsed(result.hints)} color={c.textSecondary} bg={c.surfaceMuted} />
           {result.streak !== undefined && <Badge text={`🔥 ${S.streakDays(result.streak)}`} color={c.flame} bg={c.surfaceMuted} />}
         </View>
+        {reminderOffer && (
+          <View style={[styles.offer, { backgroundColor: c.surfaceMuted }]}>
+            <Text style={[styles.offerTitle, { color: c.text }]}>{S.reminderOfferTitle}</Text>
+            <View style={styles.offerRow}>
+              <Button label={S.reminderOfferNo} variant="ghost" onPress={() => reminderOffer.onAnswer(false)} style={styles.flex} />
+              <Button
+                label={S.reminderOfferYes(formatClock(reminderOffer.hour, 0))}
+                variant="secondary"
+                onPress={() => reminderOffer.onAnswer(true)}
+                style={styles.flex}
+              />
+            </View>
+          </View>
+        )}
         <View style={styles.actions}>
           {isDaily ? (
             <Button label={S.backHome} onPress={onHome} />
@@ -59,5 +75,9 @@ const styles = StyleSheet.create({
   badges: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginVertical: 8 },
   badge: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   badgeText: { fontSize: 14, fontWeight: '600' },
+  offer: { alignSelf: 'stretch', borderRadius: 14, padding: 12, gap: 8 },
+  offerTitle: { fontSize: 15, fontWeight: '700', textAlign: 'center' },
+  offerRow: { flexDirection: 'row', gap: 8 },
+  flex: { flex: 1 },
   actions: { alignSelf: 'stretch', gap: 4, marginTop: 8 },
 });

@@ -10,7 +10,7 @@ import { useHydrated } from '@/store/game-store';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  const { c } = usePalette();
+  const { c, dark } = usePalette();
   const hydrated = useHydrated();
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: c.background }}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.background } }} />
-      <StatusBar style="auto" />
+      <StatusBar style={dark ? 'light' : 'dark'} />
     </GestureHandlerRootView>
   );
 }

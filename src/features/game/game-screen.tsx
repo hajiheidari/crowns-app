@@ -13,6 +13,8 @@ import { WinOverlay } from '@/features/game/win-overlay';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import { haptics } from '@/services/haptics';
+import { enableDailyReminder, remindersSupported } from '@/services/notifications';
+import { maybeAskForReview } from '@/services/review';
 import { tapCycle, useGameStore, type WinResult } from '@/store/game-store';
 import { S } from '@/strings';
 
@@ -25,6 +27,7 @@ export function GameScreen({ id }: { id: string }) {
 
   const game = useGameStore((s) => s.games[id]);
   const settings = useGameStore((s) => s.settings);
+  const reminderAsked = useGameStore((s) => s.meta.reminderAsked);
   const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);
@@ -138,9 +141,28 @@ export function GameScreen({ id }: { id: string }) {
     }
   }
 
-  const goHome = () => (router.canGoBack() ? router.back() : router.replace('/'));
+  const reminderOffer =
+    win && info.mode === 'daily' && remindersSupported && !reminderAsked
+      ? {
+          hour: settings.reminder.hour,
+          onAnswer: async (yes: boolean) => {
+            const s = useGameStore.getState();
+            s.updateMeta({ reminderAsked: true });
+            if (yes && (await enableDailyReminder(settings.reminder.hour, 0))) {
+              s.updateSettings({ reminder: { ...settings.reminder, enabled: true } });
+            }
+          },
+        }
+      : undefined;
+
+  const goHome = () => {
+    if (win) maybeAskForReview();
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
   const goNext = () => {
     if (info.mode !== 'unlimited') return;
+    maybeAskForReview();
     const next = unlimitedId(info.difficulty, useGameStore.getState().unlimitedIndex[info.difficulty]);
     router.replace({ pathname: '/play/[id]', params: { id: next } });
   };
@@ -221,7 +243,7 @@ export function GameScreen({ id }: { id: string }) {
           setConfirmClear(false);
         }}
       />
-      {win && <WinOverlay result={win} isDaily={info.mode === 'daily'} onNext={goNext} onHome={goHome} />}
+      {win && <WinOverlay result={win} isDaily={info.mode === 'daily'} onNext={goNext} onHome={goHome} reminderOffer={reminderOffer} />}
     </SafeAreaView>
   );
 }

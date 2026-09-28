@@ -15,6 +15,12 @@ export const DIFFICULTY_SIZES: Record<Difficulty, string> = {
   expert: '9×9 – 11×11',
 };
 
+/** "9:00 AM" style clock label for reminder times. */
+export function formatClock(hour: number, minute: number): string {
+  const h = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
+}
+
 export const S = {
   appName: 'Crowns',
   tagline: 'Daily logic puzzles',
@@ -64,6 +70,46 @@ export const S = {
   skip: 'Skip',
   next: 'Next',
   startPlaying: 'Start playing',
+  whatsNew: "What's new",
+  gotIt: 'Got it',
+  stats: 'Stats',
+  settings: 'Settings',
+  currentStreak: 'Current streak',
+  bestStreak: 'Best streak',
+  dailiesSolved: 'Dailies solved',
+  byDifficulty: 'By difficulty',
+  solvedLabel: 'Solved',
+  bestTime: 'Best',
+  averageTime: 'Average',
+  hintFree: 'No hints',
+  lastTen: 'Last 10 times',
+  noSolvesYet: 'No solves yet',
+  weekdays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+  gameplay: 'Gameplay',
+  autoCross: 'Auto-✕',
+  autoCrossHelp: 'Show faint ✕ on cells a crown rules out',
+  tapOrder: 'Tap order',
+  tapCrossFirst: '✕ first',
+  tapCrownFirst: 'Crown first',
+  dragToMark: 'Drag to mark',
+  highlightConflicts: 'Highlight conflicts',
+  showTimer: 'Show timer',
+  haptics: 'Haptics',
+  appearance: 'Appearance',
+  theme: 'Theme',
+  themeSystem: 'System',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+  reminders: 'Reminders',
+  dailyReminder: 'Daily reminder',
+  reminderTime: 'Time',
+  remindersWebNote: 'Reminders work in the phone app, not in the web preview.',
+  reminderDenied: 'Notifications are turned off for Crowns. You can allow them in your phone settings.',
+  help: 'Help',
+  version: (v: string) => `Version ${v}`,
+  reminderOfferTitle: 'Want a daily reminder?',
+  reminderOfferYes: (t: string) => `Remind me at ${t}`,
+  reminderOfferNo: 'No thanks',
   rules:
     'Place one crown in every row, column and color region. Crowns never touch, not even diagonally.',
   controls: 'Tap: ✕ → crown → empty. Long-press: crown. Drag: paint ✕.',

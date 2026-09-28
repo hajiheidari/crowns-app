@@ -1,0 +1,216 @@
+import { useRouter } from 'expo-router';
+import { useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ScreenHeader } from '@/components/screen-header';
+import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
+import { usePalette } from '@/hooks/use-palette';
+import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
+import { useGameStore, type Settings } from '@/store/game-store';
+import { formatClock, S } from '@/strings';
+import { APP_VERSION } from '@/constants/version';
+
+const REMINDER_HOURS = [7, 9, 12, 18, 20];
+
+export default function SettingsScreen() {
+  const { c } = usePalette();
+  const router = useRouter();
+  const settings = useGameStore((s) => s.settings);
+  const updateSettings = useGameStore((s) => s.updateSettings);
+  const updateMeta = useGameStore((s) => s.updateMeta);
+  const [whatsNew, setWhatsNew] = useState(false);
+  const [denied, setDenied] = useState(false);
+
+  const toggle = (key: keyof Pick<Settings, 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics'>) =>
+    updateSettings({ [key]: !settings[key] });
+
+  const setReminder = async (enabled: boolean, hour = settings.reminder.hour) => {
+    updateMeta({ reminderAsked: true });
+    if (!enabled) {
+      updateSettings({ reminder: { ...settings.reminder, enabled: false } });
+      await disableDailyReminder();
+      return;
+    }
+    const ok = await enableDailyReminder(hour, 0);
+    setDenied(!ok);
+    updateSettings({ reminder: { enabled: ok, hour, minute: 0 } });
+  };
+
+  return (
+    <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
+      <ScreenHeader title={S.settings} />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <Section title={S.gameplay}>
+          <Row label={S.autoCross} help={S.autoCrossHelp}>
+            <Switch value={settings.autoCross} onValueChange={() => toggle('autoCross')} />
+          </Row>
+          <Row label={S.tapOrder}>
+            <Segmented
+              value={settings.tapOrder}
+              options={[
+                { value: 'cross-first', label: S.tapCrossFirst },
+                { value: 'crown-first', label: S.tapCrownFirst },
+              ]}
+              onChange={(tapOrder) => updateSettings({ tapOrder })}
+            />
+          </Row>
+          <Row label={S.dragToMark}>
+            <Switch value={settings.dragToMark} onValueChange={() => toggle('dragToMark')} />
+          </Row>
+          <Row label={S.highlightConflicts}>
+            <Switch value={settings.highlightConflicts} onValueChange={() => toggle('highlightConflicts')} />
+          </Row>
+          <Row label={S.showTimer}>
+            <Switch value={settings.showTimer} onValueChange={() => toggle('showTimer')} />
+          </Row>
+          <Row label={S.haptics} last>
+            <Switch value={settings.haptics} onValueChange={() => toggle('haptics')} />
+          </Row>
+        </Section>
+
+        <Section title={S.appearance}>
+          <Row label={S.theme} last>
+            <Segmented
+              value={settings.theme}
+              options={[
+                { value: 'system', label: S.themeSystem },
+                { value: 'light', label: S.themeLight },
+                { value: 'dark', label: S.themeDark },
+              ]}
+              onChange={(theme) => updateSettings({ theme })}
+            />
+          </Row>
+        </Section>
+
+        <Section title={S.reminders}>
+          <Row label={S.dailyReminder} last={!settings.reminder.enabled}>
+            <Switch
+              value={settings.reminder.enabled}
+              disabled={!remindersSupported}
+              onValueChange={(v) => setReminder(v)}
+            />
+          </Row>
+          {settings.reminder.enabled && (
+            <View style={styles.chips}>
+              {REMINDER_HOURS.map((h) => (
+                <Chip key={h} label={formatClock(h, 0)} selected={settings.reminder.hour === h} onPress={() => setReminder(true, h)} />
+              ))}
+            </View>
+          )}
+          {!remindersSupported && <Text style={[styles.note, { color: c.textSecondary }]}>{S.remindersWebNote}</Text>}
+          {denied && <Text style={[styles.note, { color: c.danger }]}>{S.reminderDenied}</Text>}
+        </Section>
+
+        <Section title={S.help}>
+          <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
+          <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} last />
+        </Section>
+
+        <Text style={[styles.footer, { color: c.textSecondary }]}>{S.version(APP_VERSION)}</Text>
+      </ScrollView>
+      <WhatsNewSheet visible={whatsNew} since={null} onClose={() => setWhatsNew(false)} />
+    </SafeAreaView>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  const { c } = usePalette();
+  return (
+    <View style={styles.section}>
+      <Text style={[styles.sectionTitle, { color: c.textSecondary }]}>{title.toUpperCase()}</Text>
+      <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>{children}</View>
+    </View>
+  );
+}
+
+function Row({ label, help, last, children }: { label: string; help?: string; last?: boolean; children: ReactNode }) {
+  const { c } = usePalette();
+  return (
+    <View style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.border }]}>
+      <View style={styles.rowText}>
+        <Text style={[styles.rowLabel, { color: c.text }]}>{label}</Text>
+        {help && <Text style={[styles.rowHelp, { color: c.textSecondary }]}>{help}</Text>}
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function LinkRow({ label, onPress, last }: { label: string; onPress: () => void; last?: boolean }) {
+  const { c } = usePalette();
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress}>
+      {({ pressed }) => (
+        <View style={{ opacity: pressed ? 0.6 : 1 }}>
+          <Row label={label} last={last}>
+            <Text style={[styles.chevron, { color: c.textSecondary }]}>›</Text>
+          </Row>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+function Segmented<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+}) {
+  const { c } = usePalette();
+  return (
+    <View style={[styles.segmented, { backgroundColor: c.surfaceMuted }]}>
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(o.value)}
+            style={[styles.segment, on && { backgroundColor: c.surface }]}>
+            <Text style={[styles.segmentText, { color: on ? c.text : c.textSecondary }]}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const { c } = usePalette();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={[styles.chip, { backgroundColor: selected ? c.primary : c.surfaceMuted }]}>
+      <Text style={[styles.chipText, { color: selected ? c.onPrimary : c.text }]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  scroll: { padding: 16, gap: 20, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  section: { gap: 8 },
+  sectionTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 1, marginLeft: 4 },
+  card: { borderRadius: 16, borderWidth: 1, paddingHorizontal: 14 },
+  row: { flexDirection: 'row', alignItems: 'center', minHeight: 52, gap: 12, paddingVertical: 8 },
+  rowText: { flex: 1, gap: 2 },
+  rowLabel: { fontSize: 16 },
+  rowHelp: { fontSize: 12 },
+  chevron: { fontSize: 22 },
+  segmented: { flexDirection: 'row', borderRadius: 10, padding: 3 },
+  segment: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  segmentText: { fontSize: 13, fontWeight: '600' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 12 },
+  chip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  chipText: { fontSize: 13, fontWeight: '600' },
+  note: { fontSize: 13, paddingBottom: 12 },
+  footer: { textAlign: 'center', fontSize: 12 },
+});

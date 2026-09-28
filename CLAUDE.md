@@ -37,6 +37,9 @@ Read these before writing code:
 - **M1 done (v0.2.0)**: Home, Game screen, win overlay, persistence (zustand + AsyncStorage), daily streak.
 - **M2 done (v0.3.0)**: animated tutorial (`src/features/tutorial/slides.ts`, Amir asked for a picture/video style tutorial, so it is looping animations on a real 5×5, not text) + 3-stage hints (all free until ads land in M5).
   v0.3.1: per Amir, the tutorial is NOT shown automatically on first launch; only via the "How to play" button on Home.
+- **M3 done (v0.4.0)**: Stats screen (streaks, month calendar, per-difficulty times + sparkline), Settings (gameplay, theme,
+  daily reminder via expo-notifications, help), "What's new" sheet generated from CHANGELOG.md (`npm run changelog`),
+  review prompt after 3 wins (never rewarded). UI version comes from `src/constants/version.ts` (changelog; a test ties it to app.json).
 
 ## Tech stack (decided)
 

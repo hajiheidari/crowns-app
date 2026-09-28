@@ -32,6 +32,8 @@ export interface DifficultyStats {
   bestSeconds: number | null;
   totalSeconds: number;
   hintFree: number;
+  /** Most recent solve times in seconds, oldest first (max 10). */
+  recent: number[];
 }
 
 export interface DailyRecord {
@@ -49,6 +51,17 @@ export interface Settings {
   highlightConflicts: boolean;
   showTimer: boolean;
   haptics: boolean;
+  theme: 'system' | 'light' | 'dark';
+  reminder: { enabled: boolean; hour: number; minute: number };
+}
+
+/** Bookkeeping that is not gameplay: install date, "What's new", review prompt. */
+export interface Meta {
+  installedKey: string | null;
+  lastSeenVersion: string | null;
+  wins: number;
+  reminderAsked: boolean;
+  lastReviewPromptKey: string | null;
 }
 
 export interface WinResult {
@@ -66,6 +79,7 @@ interface Store {
   daily: DailyRecord;
   settings: Settings;
   tutorialSeen: boolean;
+  meta: Meta;
 
   startGame: (id: string, n: number) => void;
   commit: (id: string, cells: number[], to: Mark[]) => void;
@@ -77,6 +91,7 @@ interface Store {
   updateSettings: (patch: Partial<Settings>) => void;
   addHint: (id: string) => void;
   setTutorialSeen: () => void;
+  updateMeta: (patch: Partial<Meta>) => void;
 }
 
 const newGame = (n: number): GameState => ({
@@ -98,7 +113,19 @@ export const DEFAULT_SETTINGS: Settings = {
   highlightConflicts: true,
   showTimer: true,
   haptics: true,
+  theme: 'system',
+  reminder: { enabled: false, hour: 9, minute: 0 },
 };
+
+const DEFAULT_META: Meta = {
+  installedKey: null,
+  lastSeenVersion: null,
+  wins: 0,
+  reminderAsked: false,
+  lastReviewPromptKey: null,
+};
+
+const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
 
 /** Next mark for a single tap, honoring the "Tap order" setting. */
 export function tapCycle(m: Mark, order: Settings['tapOrder']): Mark {
@@ -130,10 +157,11 @@ export const useGameStore = create<Store>()(
       return {
         games: {},
         unlimitedIndex: perDifficulty(() => 0),
-        stats: perDifficulty(() => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0 })),
+        stats: perDifficulty(newStats),
         daily: { streak: 0, bestStreak: 0, lastSolvedKey: null, solved: {} },
         settings: DEFAULT_SETTINGS,
         tutorialSeen: false,
+        meta: DEFAULT_META,
 
         startGame: (id, n) => {
           const games = { ...get().games };
@@ -194,6 +222,7 @@ export const useGameStore = create<Store>()(
               bestSeconds: prev.bestSeconds === null ? g.seconds : Math.min(prev.bestSeconds, g.seconds),
               totalSeconds: prev.totalSeconds + g.seconds,
               hintFree: prev.hintFree + (g.hints === 0 ? 1 : 0),
+              recent: [...prev.recent, g.seconds].slice(-10),
             },
           };
           const games = { ...s.games, [id]: { ...g, solved: true, undo: [], redo: [] } };
@@ -218,7 +247,7 @@ export const useGameStore = create<Store>()(
             unlimitedIndex = { ...unlimitedIndex, [difficulty]: s.unlimitedIndex[difficulty] + 1 };
           }
 
-          set({ games, stats, daily, unlimitedIndex });
+          set({ games, stats, daily, unlimitedIndex, meta: { ...s.meta, wins: s.meta.wins + 1 } });
           return result;
         },
 
@@ -227,23 +256,35 @@ export const useGameStore = create<Store>()(
         addHint: (id) => update(id, (g) => ({ ...g, hints: g.hints + 1 })),
 
         setTutorialSeen: () => set({ tutorialSeen: true }),
+
+        updateMeta: (patch) => set({ meta: { ...get().meta, ...patch } }),
       };
     },
     {
       name: 'crowns-store',
       version: 1,
       storage: persistStorage,
-      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen }) => ({
+      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta }) => ({
         games,
         unlimitedIndex,
         stats,
         daily,
         settings,
         tutorialSeen,
+        meta,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Store>;
-        return { ...current, ...p, settings: { ...DEFAULT_SETTINGS, ...p.settings } };
+        // Fill in fields added by newer app versions so old saves keep working.
+        const stats = perDifficulty(newStats);
+        for (const d of DIFFICULTIES) stats[d] = { ...newStats(), ...p.stats?.[d] };
+        return {
+          ...current,
+          ...p,
+          stats,
+          settings: { ...DEFAULT_SETTINGS, ...p.settings },
+          meta: { ...DEFAULT_META, ...p.meta },
+        };
       },
     },
   ),
