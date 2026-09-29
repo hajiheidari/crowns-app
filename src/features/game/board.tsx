@@ -4,16 +4,19 @@
  *  - long-press → toggle a crown
  *  - drag       → start on empty: paint ✕ on empty cells; start on ✕: erase ✕. Never touches crowns.
  * A drag is previewed locally and committed as ONE move (one undo step) when the finger lifts.
+ * Screen readers get one element per cell ("Row 3, column 4, purple region, crown"): double-tap cycles the mark,
+ * the "Toggle crown" action places or removes a crown.
  */
 import { memo, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { StyleSheet, Text, View, type AccessibilityActionEvent, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Svg, { Path } from 'react-native-svg';
 
 import { CrownIcon } from '@/components/crown-icon';
-import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, type Mark, type Puzzle } from '@/engine';
+import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, REGION_COLOR_NAMES, type Mark, type Puzzle } from '@/engine';
+import { RegionPatterns } from '@/features/game/region-patterns';
 import { usePalette } from '@/hooks/use-palette';
 import type { Settings } from '@/store/game-store';
+import { S } from '@/strings';
 
 interface Props {
   puzzle: Puzzle;
@@ -30,12 +33,14 @@ interface Props {
   danger?: Set<number>;
   /** Cell showing a fingertip (tutorial demos). */
   finger?: number;
+  /** Demo board (tutorial): hidden from screen readers. */
+  decorative?: boolean;
 }
 
 type DragMode = 'paint' | 'erase';
 
-export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick, highlight, danger, finger }: Props) {
-  const { c, regions: regionColors } = usePalette();
+export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick, highlight, danger, finger, decorative }: Props) {
+  const { c, regions: regionColors, dark } = usePalette();
   const { n, regions } = puzzle;
   const [width, setWidth] = useState(0);
   const cellSize = width / n;
@@ -135,9 +140,16 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
 
   return (
-    <View style={[styles.frame, { borderColor: c.gridThick }]}>
+    <View
+      style={[styles.frame, { borderColor: c.gridThick }]}
+      accessibilityLabel={decorative ? undefined : S.boardLabel(n)}
+      accessibilityElementsHidden={decorative}
+      importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}>
       <GestureDetector gesture={gesture}>
         <View style={styles.grid} onLayout={onLayout}>
+          {width > 0 && settings.patterns && (
+            <RegionPatterns puzzle={puzzle} size={width} colors={regionColors} ink={dark ? '#FFFFFF' : '#2B2620'} />
+          )}
           {width > 0 &&
             shown.map((mark, i) => {
               const row = Math.floor(i / n);
@@ -145,10 +157,14 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
               return (
                 <Cell
                   key={i}
+                  index={i}
+                  label={decorative ? undefined : S.cellLabel(row + 1, col + 1, REGION_COLOR_NAMES[regions[i]], cellState(mark, auto.has(i), conflicts.has(i)))}
+                  onTap={locked ? undefined : onTap}
+                  onLongPress={locked ? undefined : onLongPress}
                   left={col * cellSize}
                   top={row * cellSize}
                   size={cellSize}
-                  bg={regionColors[regions[i]]}
+                  bg={settings.patterns ? 'transparent' : regionColors[regions[i]]}
                   mark={mark}
                   auto={auto.has(i)}
                   conflict={conflicts.has(i)}
@@ -174,7 +190,19 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
   );
 }
 
+function cellState(mark: Mark, auto: boolean, conflict: boolean): string {
+  if (mark === CROWN) return conflict ? S.cellConflict : S.cellCrown;
+  if (mark === CROSS) return S.cellCross;
+  return auto ? S.cellAutoCross : S.cellEmpty;
+}
+
+const A11Y_ACTIONS = [{ name: 'activate' }, { name: 'longpress', label: S.cellToggleCrown }];
+
 interface CellProps {
+  index: number;
+  label?: string;
+  onTap?: (cell: number) => void;
+  onLongPress?: (cell: number) => void;
   left: number;
   top: number;
   size: number;
@@ -202,8 +230,17 @@ const THIN = 1;
 
 const Cell = memo(function Cell(p: CellProps) {
   const icon = p.size * 0.6;
+  const onAction = (e: AccessibilityActionEvent) => {
+    if (e.nativeEvent.actionName === 'activate') p.onTap?.(p.index);
+    if (e.nativeEvent.actionName === 'longpress') p.onLongPress?.(p.index);
+  };
   return (
     <View
+      accessible={!!p.label}
+      accessibilityRole={p.onTap ? 'button' : undefined}
+      accessibilityLabel={p.label}
+      accessibilityActions={p.onTap ? A11Y_ACTIONS : undefined}
+      onAccessibilityAction={p.onTap ? onAction : undefined}
       style={[
         styles.cell,
         {
@@ -220,6 +257,7 @@ const Cell = memo(function Cell(p: CellProps) {
       ]}>
       {p.conflict && <View style={[StyleSheet.absoluteFill, { backgroundColor: p.dangerColor, opacity: 0.22 }]} />}
       {p.mark === CROWN && <CrownIcon size={icon} color={p.conflict ? p.dangerColor : p.markColor} />}
+      {p.mark === CROWN && p.conflict && <ConflictBadge size={p.size} color={p.dangerColor} />}
       {p.mark === CROSS && <CrossIcon size={p.size * 0.32} color={p.markColor} width={2} />}
       {p.mark === EMPTY && p.auto && <CrossIcon size={p.size * 0.26} color={p.autoColor} width={1.5} />}
       {p.highlight && <View pointerEvents="none" style={[styles.ring, { borderColor: p.goldColor }]} />}
@@ -234,11 +272,26 @@ const Cell = memo(function Cell(p: CellProps) {
   );
 });
 
+/** Two rotated bars: much cheaper than an SVG per cell when a big board is full of ✕ (low-end Android). */
 function CrossIcon({ size, color, width }: { size: number; color: string; width: number }) {
+  const bar = { position: 'absolute' as const, width: size * 1.13, height: width * 1.4, borderRadius: width, backgroundColor: color };
   return (
-    <Svg width={size} height={size} viewBox="0 0 10 10">
-      <Path d="M1 1 9 9M9 1 1 9" stroke={color} strokeWidth={width * (10 / size) * 1.4} strokeLinecap="round" />
-    </Svg>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={[bar, { transform: [{ rotate: '45deg' }] }]} />
+      <View style={[bar, { transform: [{ rotate: '-45deg' }] }]} />
+    </View>
+  );
+}
+
+/** "!" in the corner, so a broken rule is not shown by red alone. */
+function ConflictBadge({ size, color }: { size: number; color: string }) {
+  const d = Math.max(10, size * 0.3);
+  return (
+    <View pointerEvents="none" style={[styles.badge, { width: d, height: d, borderRadius: d / 2, backgroundColor: color }]}>
+      <Text style={[styles.badgeText, { fontSize: d * 0.72, lineHeight: d }]} allowFontScaling={false}>
+        !
+      </Text>
+    </View>
   );
 }
 
@@ -247,6 +300,8 @@ const styles = StyleSheet.create({
   grid: { flex: 1 },
   cell: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
   ring: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderWidth: 3, borderRadius: 3 },
+  badge: { position: 'absolute', top: 2, right: 2, alignItems: 'center', justifyContent: 'center' },
+  badgeText: { color: '#FFFFFF', fontWeight: '800', textAlign: 'center' },
   finger: {
     position: 'absolute',
     backgroundColor: 'rgba(120, 120, 120, 0.35)',

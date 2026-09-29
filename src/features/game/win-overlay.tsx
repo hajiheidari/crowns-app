@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
@@ -24,9 +25,16 @@ interface Props {
 
 export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive, onChallenge, versus, reminderOffer }: Props) {
   const { c } = usePalette();
+  // Screen readers hear the result right away instead of having to find the card.
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(`${S.youSolvedIt} ${formatTime(result.seconds)}`);
+  }, [result.seconds]);
   return (
     <Animated.View entering={FadeIn.duration(250)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
-      <Animated.View entering={ZoomIn.springify().damping(14)} style={[styles.card, { backgroundColor: c.surface }]}>
+      <Animated.View
+        accessibilityViewIsModal
+        entering={ZoomIn.springify().damping(14)}
+        style={[styles.card, { backgroundColor: c.surface }]}>
         <CrownIcon size={72} color={c.gold} />
         <Text style={[styles.title, { color: c.text }]}>{S.youSolvedIt}</Text>
         <Text style={[styles.time, { color: c.text }]}>{formatTime(result.seconds)}</Text>

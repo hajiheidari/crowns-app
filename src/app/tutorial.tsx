@@ -61,6 +61,7 @@ export default function TutorialScreen() {
             board={frame.board}
             settings={{ ...settings, autoCross: !!frame.autoCross, highlightConflicts: true }}
             locked
+            decorative
             onTap={noop}
             onLongPress={noop}
             onDrag={noop}

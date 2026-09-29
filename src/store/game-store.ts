@@ -52,6 +52,8 @@ export interface Settings {
   showTimer: boolean;
   haptics: boolean;
   theme: 'system' | 'light' | 'dark';
+  /** Color-blind aid: a pattern per region on top of its color. */
+  patterns: boolean;
   reminder: { enabled: boolean; hour: number; minute: number };
 }
 
@@ -130,6 +132,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showTimer: true,
   haptics: true,
   theme: 'system',
+  patterns: false,
   reminder: { enabled: false, hour: 9, minute: 0 },
 };
 

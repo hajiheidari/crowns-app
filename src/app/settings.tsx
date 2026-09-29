@@ -28,14 +28,14 @@ export default function SettingsScreen() {
   const [denied, setDenied] = useState(false);
 
   /** Changes a simple setting and counts which settings people change (name and value only). */
-  const change = <K extends 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'tapOrder' | 'theme'>(
+  const change = <K extends 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'patterns' | 'tapOrder' | 'theme'>(
     key: K,
     value: Settings[K],
   ) => {
     updateSettings({ [key]: value });
     track('setting_changed', { name: key, value: String(value) });
   };
-  const toggle = (key: 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics') => change(key, !settings[key]);
+  const toggle = (key: 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'patterns') => change(key, !settings[key]);
 
   const setReminder = async (enabled: boolean, hour = settings.reminder.hour) => {
     updateMeta({ reminderAsked: true });
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <Section title={S.gameplay}>
           <Row label={S.autoCross} help={S.autoCrossHelp}>
-            <Switch value={settings.autoCross} onValueChange={() => toggle('autoCross')} />
+            <Switch accessibilityLabel={S.autoCross} value={settings.autoCross} onValueChange={() => toggle('autoCross')} />
           </Row>
           <Row label={S.tapOrder}>
             <Segmented
@@ -69,21 +69,21 @@ export default function SettingsScreen() {
             />
           </Row>
           <Row label={S.dragToMark}>
-            <Switch value={settings.dragToMark} onValueChange={() => toggle('dragToMark')} />
+            <Switch accessibilityLabel={S.dragToMark} value={settings.dragToMark} onValueChange={() => toggle('dragToMark')} />
           </Row>
           <Row label={S.highlightConflicts}>
-            <Switch value={settings.highlightConflicts} onValueChange={() => toggle('highlightConflicts')} />
+            <Switch accessibilityLabel={S.highlightConflicts} value={settings.highlightConflicts} onValueChange={() => toggle('highlightConflicts')} />
           </Row>
           <Row label={S.showTimer}>
-            <Switch value={settings.showTimer} onValueChange={() => toggle('showTimer')} />
+            <Switch accessibilityLabel={S.showTimer} value={settings.showTimer} onValueChange={() => toggle('showTimer')} />
           </Row>
           <Row label={S.haptics} last>
-            <Switch value={settings.haptics} onValueChange={() => toggle('haptics')} />
+            <Switch accessibilityLabel={S.haptics} value={settings.haptics} onValueChange={() => toggle('haptics')} />
           </Row>
         </Section>
 
         <Section title={S.appearance}>
-          <Row label={S.theme} last>
+          <Row label={S.theme}>
             <Segmented
               value={settings.theme}
               options={[
@@ -94,11 +94,14 @@ export default function SettingsScreen() {
               onChange={(theme) => change('theme', theme)}
             />
           </Row>
+          <Row label={S.patterns} help={S.patternsHelp} last>
+            <Switch accessibilityLabel={S.patterns} value={settings.patterns} onValueChange={() => toggle('patterns')} />
+          </Row>
         </Section>
 
         <Section title={S.reminders}>
           <Row label={S.dailyReminder} last={!settings.reminder.enabled}>
-            <Switch
+            <Switch accessibilityLabel={S.dailyReminder}
               value={settings.reminder.enabled}
               disabled={!remindersSupported}
               onValueChange={(v) => setReminder(v)}

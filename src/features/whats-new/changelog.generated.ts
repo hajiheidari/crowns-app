@@ -3,6 +3,17 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.0",
+    "date": "2026-09-29",
+    "items": [
+      "New app icon and launch screen.",
+      "Color-blind patterns: turn them on in Settings to give every color region its own pattern.",
+      "A crown that breaks a rule now shows a \"!\" badge, not just red.",
+      "VoiceOver and TalkBack read every cell, for example \"Row 3, column 4, purple region, crown\", and can place crowns.",
+      "Tidier home screen on small phones, and a lighter board on older Android phones."
+    ]
+  },
+  {
     "version": "0.7.0",
     "date": "2026-09-29",
     "items": [

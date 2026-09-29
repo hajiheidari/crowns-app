@@ -2,24 +2,28 @@
   "expo": {
     "name": "Crowns",
     "slug": "crowns",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "crowns",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.amixstudio.crowns"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FAF7F0",
+        "backgroundColor": "#1F1B16",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.amixstudio.crowns"
+      "package": "com.amixstudio.crowns",
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     "web": {
       "output": "single",
@@ -32,7 +36,11 @@
         {
           "backgroundColor": "#FAF7F0",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 180,
+          "dark": {
+            "backgroundColor": "#1C1A17",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ],
       "expo-notifications",
@@ -52,6 +60,15 @@
         "expo-tracking-transparency",
         {
           "userTrackingPermission": "Your data is used only to show ads that fit you better. Crowns works the same either way."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
         }
       ]
     ],

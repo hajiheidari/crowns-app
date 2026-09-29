@@ -57,6 +57,11 @@ Read these before writing code:
   exist: `firebase-config.js` drives `app.config.ts` (adds the RNFB plugin, googleServicesFile, static frameworks) and
   `react-native.config.js` (drops RNFB from autolinking otherwise). Ad consent is passed to Firebase consent mode. Web preview keeps
   events in `globalThis.__crownsEvents` for browser tests. Linking Firebase to AdMob (ad revenue per user) is done in the consoles.
+- **M7 (part 1) done (v0.8.0)**: new icon/splash (`assets/images/*`, generated from an SVG: ink #1F1B16 bg, gold crown, 4 pastel tiles),
+  color-blind patterns (`settings.patterns`, `src/features/game/region-patterns.tsx`: one SVG under the cells), "!" badge on conflicting
+  crowns, per-cell screen reader labels + actions in `board.tsx`, ✕ drawn with Views (not SVG) for low-end Android, R8 minify/shrink
+  via expo-build-properties (app.config.ts merges Firebase's static frameworks into that entry), blocked storage/overlay permissions.
+  Still open for M7: pinch-to-zoom for 11×11 on small phones (needs a device to tune), Dynamic Type check, on-device QA.
 
 ## Tech stack (decided)
 

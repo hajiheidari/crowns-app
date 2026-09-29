@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -73,15 +73,19 @@ export default function HomeScreen() {
         ? `${S.continue} ${formatTime(todayGame!.seconds)}`
         : S.play;
 
+  // Small phones (iPhone SE 1st gen, compact Androids): tighter header so the streak pill never overlaps the name.
+  const narrow = useWindowDimensions().width < 360;
   const open = (id: string) => router.push({ pathname: '/play/[id]', params: { id } });
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={[styles.scroll, narrow && styles.scrollNarrow]}>
         <View style={styles.header}>
           <View style={styles.brand}>
-            <CrownIcon size={30} color={c.gold} />
-            <Text style={[styles.wordmark, { color: c.text }]}>{S.appName}</Text>
+            <CrownIcon size={narrow ? 24 : 30} color={c.gold} />
+            <Text style={[styles.wordmark, narrow && styles.wordmarkSmall, { color: c.text }]} numberOfLines={1}>
+              {S.appName}
+            </Text>
           </View>
           <View style={styles.headerRight}>
             <View
@@ -208,12 +212,14 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  scrollNarrow: { padding: 14, gap: 12 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
   row: { flexDirection: 'row', gap: 10 },
   repair: { borderRadius: 14, padding: 12, gap: 4, alignItems: 'center' },
   repairText: { fontSize: 15, fontWeight: '600', textAlign: 'center' },
   flex: { flex: 1 },
-  wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600' },
+  wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600', flexShrink: 1 },
+  wordmarkSmall: { fontSize: 24 },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
