@@ -12,10 +12,11 @@ import { CrownIcon } from '@/components/crown-icon';
 import { ScreenHeader } from '@/components/screen-header';
 import { decodeChallenge, formatTime } from '@/engine';
 import { getPuzzle } from '@/features/puzzles/catalog';
-import { challengeText, puzzleTitle } from '@/features/share/messages';
+import { shareChallenge } from '@/features/share/actions';
+import { puzzleTitle } from '@/features/share/messages';
 import { usePalette } from '@/hooks/use-palette';
-import { shareText } from '@/services/share';
-import { getRefCode, noteInvitedBy, useGameStore } from '@/store/game-store';
+import { track } from '@/services/analytics';
+import { noteInvitedBy, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, S } from '@/strings';
 
 export default function ChallengeRoute() {
@@ -26,7 +27,10 @@ export default function ChallengeRoute() {
   const puzzle = useMemo(() => (challenge ? getPuzzle(challenge.puzzleId) : null), [challenge]);
   const mine = useGameStore((s) => (challenge ? s.games[challenge.puzzleId] : undefined));
 
-  useEffect(() => noteInvitedBy(challenge?.ref), [challenge]);
+  useEffect(() => {
+    noteInvitedBy(challenge?.ref);
+    if (challenge) track('challenge_opened');
+  }, [challenge]);
 
   const home = () => router.replace('/');
 
@@ -69,7 +73,7 @@ export default function ChallengeRoute() {
         </View>
         {mine?.solved ? (
           <>
-            <Button label={S.challengeBack} onPress={() => shareText(challengeText({ puzzleId: puzzle.id, seconds: mine.seconds }, getRefCode()))} />
+            <Button label={S.challengeBack} onPress={() => shareChallenge({ puzzleId: puzzle.id, seconds: mine.seconds })} />
             <Button label={S.home} variant="ghost" onPress={home} />
           </>
         ) : (

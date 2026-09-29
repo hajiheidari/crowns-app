@@ -12,10 +12,10 @@ import { ScreenHeader } from '@/components/screen-header';
 import { dateKey } from '@/engine';
 import { AdBanner } from '@/features/monetization/ad-banner';
 import { archiveLocked, archiveStart } from '@/features/monetization/policy';
+import { watchRewarded } from '@/features/monetization/rewarded';
 import { dailyId } from '@/features/puzzles/catalog';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { usePalette } from '@/hooks/use-palette';
-import { showRewarded } from '@/services/ads';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
 
@@ -33,7 +33,7 @@ export default function ArchiveScreen() {
   const onPressDay = (key: string) => (locked(key) ? setAsking(key) : open(key));
   const unlock = async (key: string) => {
     setAsking(null);
-    if (!(await showRewarded())) return;
+    if (!(await watchRewarded('archive'))) return;
     const m = useGameStore.getState().meta;
     useGameStore.getState().updateMeta({ archiveUnlocked: [...m.archiveUnlocked, key] });
     open(key);

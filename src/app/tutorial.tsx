@@ -9,6 +9,7 @@ import { SLIDES, TUTORIAL_PUZZLE } from '@/features/tutorial/slides';
 import { usePalette } from '@/hooks/use-palette';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
+import { track } from '@/services/analytics';
 
 const FRAME_MS = 900;
 const noop = () => {};
@@ -22,6 +23,7 @@ export default function TutorialScreen() {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    track('tutorial_begin');
     const t = setInterval(() => setTick((k) => k + 1), FRAME_MS);
     return () => clearInterval(t);
   }, []);
@@ -35,6 +37,7 @@ export default function TutorialScreen() {
     setTick(0);
   };
   const finish = () => {
+    track('tutorial_complete', { skipped: !last });
     setTutorialSeen();
     if (router.canGoBack()) router.back();
     else router.replace('/');

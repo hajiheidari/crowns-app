@@ -7,11 +7,11 @@ import { ScreenHeader } from '@/components/screen-header';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
-import { getRefCode, useGameStore, type Settings } from '@/store/game-store';
+import { useGameStore, type Settings } from '@/store/game-store';
 import { formatClock, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
-import { inviteText } from '@/features/share/messages';
-import { shareText } from '@/services/share';
+import { shareInvite } from '@/features/share/actions';
+import { track } from '@/services/analytics';
 import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
 import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
 
@@ -27,8 +27,15 @@ export default function SettingsScreen() {
   const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
 
-  const toggle = (key: keyof Pick<Settings, 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics'>) =>
-    updateSettings({ [key]: !settings[key] });
+  /** Changes a simple setting and counts which settings people change (name and value only). */
+  const change = <K extends 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'tapOrder' | 'theme'>(
+    key: K,
+    value: Settings[K],
+  ) => {
+    updateSettings({ [key]: value });
+    track('setting_changed', { name: key, value: String(value) });
+  };
+  const toggle = (key: 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics') => change(key, !settings[key]);
 
   const setReminder = async (enabled: boolean, hour = settings.reminder.hour) => {
     updateMeta({ reminderAsked: true });
@@ -39,6 +46,7 @@ export default function SettingsScreen() {
     }
     const ok = await enableDailyReminder(hour, 0);
     setDenied(!ok);
+    if (ok && !settings.reminder.enabled) track('reminder_enabled');
     updateSettings({ reminder: { enabled: ok, hour, minute: 0 } });
   };
 
@@ -57,7 +65,7 @@ export default function SettingsScreen() {
                 { value: 'cross-first', label: S.tapCrossFirst },
                 { value: 'crown-first', label: S.tapCrownFirst },
               ]}
-              onChange={(tapOrder) => updateSettings({ tapOrder })}
+              onChange={(tapOrder) => change('tapOrder', tapOrder)}
             />
           </Row>
           <Row label={S.dragToMark}>
@@ -83,7 +91,7 @@ export default function SettingsScreen() {
                 { value: 'light', label: S.themeLight },
                 { value: 'dark', label: S.themeDark },
               ]}
-              onChange={(theme) => updateSettings({ theme })}
+              onChange={(theme) => change('theme', theme)}
             />
           </Row>
         </Section>
@@ -117,7 +125,7 @@ export default function SettingsScreen() {
         <Section title={S.shareSection}>
           <LinkRow
             label={S.inviteFriends}
-            onPress={async () => setInviteNote((await shareText(inviteText(getRefCode()))) === 'copied' ? S.inviteCopied : null)}
+            onPress={async () => setInviteNote((await shareInvite()) === 'copied' ? S.inviteCopied : null)}
             last
           />
           {inviteNote && <Text style={[styles.note, { color: c.textSecondary }]}>{inviteNote}</Text>}
@@ -148,6 +156,7 @@ function PurchasesSection() {
   const buy = () =>
     run(async () => {
       const r = await buyRemoveAds();
+      if (r === 'purchased') track('remove_ads_purchase');
       return r === 'unavailable' ? S.purchaseUnavailable : r === 'failed' ? S.purchaseFailed : null;
     });
   const restore = () =>

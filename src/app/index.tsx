@@ -11,13 +11,13 @@ import { dailyId, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/
 import { AdBanner } from '@/features/monetization/ad-banner';
 import { streakRepairOffer } from '@/features/monetization/policy';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
-import { showRewarded } from '@/services/ads';
+
 import { usePalette } from '@/hooks/use-palette';
-import { inviteText } from '@/features/share/messages';
-import { shareText } from '@/services/share';
-import { currentStreak, getRefCode, noteInvitedBy, useGameStore } from '@/store/game-store';
+import { shareInvite } from '@/features/share/actions';
+import { currentStreak, noteInvitedBy, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
+import { watchRewarded } from '@/features/monetization/rewarded';
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -62,7 +62,7 @@ export default function HomeScreen() {
   const streak = currentStreak(daily, today);
   const repairable = streakRepairOffer(daily, today, meta.lastRepairKey);
   const repair = async () => {
-    if (await showRewarded()) useGameStore.getState().repairStreak(dateKey());
+    if (await watchRewarded('streak_repair')) useGameStore.getState().repairStreak(dateKey());
   };
 
   const state = todayGame?.solved ? 'solved' : todayGame && todayGame.seconds > 0 ? 'continue' : 'play';
@@ -146,7 +146,7 @@ export default function HomeScreen() {
           <Button
             label={S.inviteFriends}
             variant="secondary"
-            onPress={async () => setInviteNote((await shareText(inviteText(getRefCode()))) === 'copied' ? S.inviteCopied : null)}
+            onPress={async () => setInviteNote((await shareInvite()) === 'copied' ? S.inviteCopied : null)}
             style={styles.flex}
           />
         </View>

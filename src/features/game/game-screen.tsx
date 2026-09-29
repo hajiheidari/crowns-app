@@ -11,16 +11,18 @@ import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
 import { hintNeedsAd, interstitialAllowed } from '@/features/monetization/policy';
-import { challengeText } from '@/features/share/messages';
+import { streakMilestone } from '@/features/analytics/events';
+import { watchRewarded } from '@/features/monetization/rewarded';
+import { shareChallenge } from '@/features/share/actions';
 import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import { haptics } from '@/services/haptics';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
-import { showInterstitial, showRewarded } from '@/services/ads';
+import { showInterstitial } from '@/services/ads';
+import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
-import { shareText } from '@/services/share';
-import { currentStreak, getRefCode, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
+import { currentStreak, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
 import { S } from '@/strings';
 
 export function GameScreen({ id, versus }: { id: string; versus?: number }) {
@@ -43,8 +45,18 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[] } | null>(null);
 
   useEffect(() => {
-    if (puzzle) startGame(puzzle.id, puzzle.n);
-  }, [puzzle, startGame]);
+    if (!puzzle || !info) return;
+    const isNew = !useGameStore.getState().games[puzzle.id];
+    startGame(puzzle.id, puzzle.n);
+    if (isNew) track('puzzle_start', { mode: info.mode, difficulty: puzzle.difficulty, n: puzzle.n });
+    return () => {
+      // Leaving a puzzle with marks on it but unsolved counts as abandoning it (it can still be resumed).
+      const g = useGameStore.getState().games[puzzle.id];
+      if (!g || g.solved || !g.board.some((m) => m)) return;
+      const crowns = g.board.filter((m) => m === CROWN).length;
+      track('puzzle_abandon', { mode: info.mode, difficulty: puzzle.difficulty, progress: Math.round((crowns / puzzle.n) * 100) / 100 });
+    };
+  }, [puzzle, info, startGame]);
 
   const solved = !!game?.solved;
   const locked = solved || paused;
@@ -59,6 +71,10 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       if (!puzzle || !g || g.solved || !isSolved(puzzle, g.board)) return;
       const result = complete(id, puzzle.difficulty);
       if (!result) return;
+      const mode = puzzleInfo(id)?.mode ?? 'unlimited';
+      track('puzzle_complete', { mode, difficulty: puzzle.difficulty, n: puzzle.n, seconds: result.seconds, hints: result.hints });
+      const milestone = result.streak !== undefined ? streakMilestone(result.streak) : null;
+      if (milestone) track('streak_milestone', { days: milestone });
       if (useGameStore.getState().settings.haptics) haptics.success();
       setWin(result);
     },
@@ -107,18 +123,26 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const hintCostsAd = hintNeedsAd(removeAds, game?.hints ?? 0);
   const payForHint = (then: () => void) => {
     if (!hintCostsAd) return then();
-    showRewarded().then((earned) => earned && then());
+    watchRewarded('hint').then((earned) => earned && then());
   };
   const paid = (label: string) => (hintCostsAd ? S.withAd(label) : label);
 
   const askHint = () => {
     const h = getHint(puzzle, board);
-    if (h.kind !== 'solved') setHint({ hint: h, stage: 1, board });
+    if (h.kind === 'solved') return;
+    track('hint_used', { stage: 1, level: puzzle.difficulty, via_ad: false });
+    setHint({ hint: h, stage: 1, board });
   };
   const applyActiveHint = () => {
     if (!activeHint) return;
-    if (activeHint.stage === 1) payForHint(applyHintNow);
-    else applyHintNow();
+    // Mistake and reveal hints go straight from "look" to "apply"; that apply is the paid step.
+    const paidStep = activeHint.stage === 1;
+    const apply = () => {
+      track('hint_used', { stage: 3, level: puzzle.difficulty, via_ad: paidStep && hintCostsAd });
+      applyHintNow();
+    };
+    if (paidStep) payForHint(apply);
+    else apply();
   };
   const applyHintNow = () => {
     if (!activeHint) return;
@@ -150,6 +174,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
             label: paid(S.hintWhy),
             onPress: () =>
               payForHint(() => {
+                track('hint_used', { stage: 2, level: puzzle.difficulty, via_ad: hintCostsAd });
                 addHint(id);
                 setHint({ ...activeHint, stage: 2 });
               }),
@@ -170,6 +195,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
             const s = useGameStore.getState();
             s.updateMeta({ reminderAsked: true });
             if (yes && (await enableDailyReminder(settings.reminder.hour, 0))) {
+              track('reminder_enabled');
               s.updateSettings({ reminder: { ...settings.reminder, enabled: true } });
             }
           },
@@ -186,7 +212,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       }
     : null;
   const challenge = () => {
-    if (shareResult) shareText(challengeText(shareResult, getRefCode()));
+    if (shareResult) shareChallenge(shareResult);
   };
 
   const goHome = () => {

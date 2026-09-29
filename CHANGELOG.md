@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.7.0 — 2026-09-29
+- Anonymous usage stats (which puzzles get finished, where hints help) so we can make the game better. No names, emails or accounts, ever.
+
 ## 0.6.0 — 2026-09-29
 - Past puzzles: play earlier daily puzzles from a calendar. The last 7 days are free; older days unlock with a short ad.
 - Your first hint in each puzzle is free. Later hints need a short ad, and if an ad can't load you get the hint anyway.

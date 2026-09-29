@@ -15,6 +15,7 @@ import mobileAds, {
 
 import { AD_UNITS } from '@/constants/monetization';
 import { showTrackingExplainer } from '@/features/monetization/ad-ui';
+import { setAdConsent } from '@/services/analytics';
 
 export const adsSupported = true;
 
@@ -53,6 +54,7 @@ export function initAds(): Promise<void> {
       }
       nonPersonalized = status !== Tracking.PermissionStatus.GRANTED;
     }
+    setAdConsent(canRequest && !nonPersonalized);
     if (!canRequest) return;
     await mobileAds().initialize();
     ready = true;

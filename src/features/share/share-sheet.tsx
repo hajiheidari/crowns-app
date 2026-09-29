@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import type { Puzzle } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
+import { track } from '@/services/analytics';
 import { captureView } from '@/services/capture';
 import { canShareImages, shareImage, shareText } from '@/services/share';
 import { getRefCode } from '@/store/game-store';
@@ -39,9 +40,12 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
 
   const onShareImage = async () => {
     const uri = await captureView(cardRef, PIXELS[format]);
-    if (uri) await shareImage(uri, S.shareResult);
+    if (!uri) return;
+    track('share_result', { type: 'image' });
+    await shareImage(uri, S.shareResult);
   };
   const onShareText = async () => {
+    track('share_result', { type: 'text' });
     const res = await shareText(resultText(result, getRefCode()));
     setNote(res === 'copied' ? S.copied : null);
   };

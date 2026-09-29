@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.7.0",
+    "date": "2026-09-29",
+    "items": [
+      "Anonymous usage stats (which puzzles get finished, where hints help) so we can make the game better. No names, emails or accounts, ever."
+    ]
+  },
+  {
     "version": "0.6.0",
     "date": "2026-09-29",
     "items": [

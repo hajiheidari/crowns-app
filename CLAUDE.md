@@ -52,6 +52,11 @@ Read these before writing code:
   product id `remove_ads`). Web preview uses stand-ins (`ads.ts`, `iap.ts`: fake ads, free test purchase). Still placeholders in
   `src/constants/monetization.ts` (real ad unit ids, RevenueCat keys) and app.json (Google TEST AdMob app ids, only Google's own
   SKAdNetwork id: paste AdMob's full list before release). Real ad ids are used only when `EXPO_PUBLIC_ADS_ENV=production` (eas.json).
+- **M6 done (v0.7.0)**: typed events in `src/features/analytics/events.ts` (spec §6, no personal data), `track()` from
+  `src/services/analytics(.native).ts`. Firebase is OFF until `firebase/GoogleService-Info.plist` + `firebase/google-services.json`
+  exist: `firebase-config.js` drives `app.config.ts` (adds the RNFB plugin, googleServicesFile, static frameworks) and
+  `react-native.config.js` (drops RNFB from autolinking otherwise). Ad consent is passed to Firebase consent mode. Web preview keeps
+  events in `globalThis.__crownsEvents` for browser tests. Linking Firebase to AdMob (ad revenue per user) is done in the consoles.
 
 ## Tech stack (decided)
 
@@ -151,6 +156,6 @@ import {
 - Bundle id / package (permanent after first upload), e.g. `com.<company>.crowns`. Placeholder: `com.amixstudio.crowns`.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
 - Domain for share/challenge links (e.g. `playcrowns.com`) + privacy policy URL.
-- Remove-Ads price (planned $3.99, one-time).
+- ~~Remove-Ads price~~ decided 2026-09-29: $3.99 one-time (Amir confirmed).
 
 @AGENTS.md
