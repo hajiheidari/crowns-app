@@ -4,16 +4,19 @@
  *  - long-press → toggle a crown
  *  - drag       → start on empty: paint ✕ on empty cells; start on ✕: erase ✕. Never touches crowns.
  * A drag is previewed locally and committed as ONE move (one undo step) when the finger lifts.
+ * Boards of ZOOM_MIN_N and up can be pinched to zoom (two fingers also move the zoomed board); one finger keeps marking.
  * Screen readers get one element per cell ("Row 3, column 4, purple region, crown"): double-tap cycles the mark,
  * the "Toggle crown" action places or removes a crown.
  */
-import { memo, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, View, type AccessibilityActionEvent, type LayoutChangeEvent } from 'react-native';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, StyleSheet, Text, View, type AccessibilityActionEvent, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { CrownIcon } from '@/components/crown-icon';
 import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, REGION_COLOR_NAMES, type Mark, type Puzzle } from '@/engine';
 import { RegionPatterns } from '@/features/game/region-patterns';
+import { clampZoom, gestureClock, pinchZoom, toBoard, ZOOM_MIN_N, type ZoomState } from '@/features/game/zoom';
 import { usePalette } from '@/hooks/use-palette';
 import type { Settings } from '@/store/game-store';
 import { S } from '@/strings';
@@ -62,8 +65,27 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
     [puzzle, shown, settings.highlightConflicts],
   );
 
-  const cellAt = (x: number, y: number) => {
+  const zoomable = !decorative && n >= ZOOM_MIN_N;
+  const zoom = useSharedValue<ZoomState>({ s: 1, x: 0, y: 0 });
+  const zoomStart = useSharedValue({ s: 1, x: 0, y: 0, fx: 0, fy: 0 });
+  const zooming = useSharedValue(false);
+  /** When the last pinch ended: lifting the fingers must not count as a tap. */
+  const zoomEndedAt = useSharedValue(0);
+  // On web the pinch focal point comes in page coordinates: subtract where the board sits on the page.
+  const webOffset = useSharedValue({ x: 0, y: 0 });
+  const gridRef = useRef<View>(null);
+  const zoomStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: zoom.get().x }, { translateY: zoom.get().y }, { scale: zoom.get().s }],
+  }));
+
+  // A new puzzle, a pause or a win starts unzoomed.
+  useEffect(() => {
+    zoom.set(withTiming({ s: 1, x: 0, y: 0 }, { duration: 200 }));
+  }, [puzzle.id, locked, zoom]);
+
+  const cellAt = (vx: number, vy: number) => {
     if (!cellSize) return -1;
+    const { x, y } = toBoard(zoom.get(), { x: vx, y: vy }, width);
     const col = Math.floor(x / cellSize);
     const row = Math.floor(y / cellSize);
     return row < 0 || col < 0 || row >= n || col >= n ? -1 : row * n + col;
@@ -79,6 +101,15 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
     onDragTick();
   };
 
+  /** A second finger turned the drag into a pinch: forget the ✕ painted so far. */
+  const dropDrag = () => {
+    const d = drag.current;
+    if (!d) return;
+    d.mode = null;
+    d.changed.clear();
+    setPreview(null);
+  };
+
   // Gesture callbacks run on touch events, not during render, so reading the drag ref there is safe.
   /* eslint-disable react-hooks/refs */
   const gesture = useMemo(() => {
@@ -86,12 +117,14 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
       .runOnJS(true)
       .enabled(!locked && settings.dragToMark)
       .minDistance(8)
+      .maxPointers(1)
       .onBegin((e) => {
         drag.current = { start: cellAt(e.x, e.y), mode: null, changed: new Map(), last: { x: e.x, y: e.y } };
       })
-      .onStart(() => {
+      .onStart((e) => {
         const d = drag.current;
         if (!d || d.start < 0) return;
+        if (e.numberOfPointers > 1 || zooming.get()) return dropDrag();
         const m = board[d.start];
         d.mode = m === EMPTY ? 'paint' : m === CROSS ? 'erase' : null;
         visit(d.start);
@@ -99,6 +132,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
       .onUpdate((e) => {
         const d = drag.current;
         if (!d?.mode) return;
+        if (e.numberOfPointers > 1 || zooming.get()) return dropDrag();
         // Sample along the finger's path so fast swipes don't skip cells.
         const dx = e.x - d.last.x;
         const dy = e.y - d.last.y;
@@ -106,9 +140,10 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
         for (let s = 1; s <= steps; s++) visit(cellAt(d.last.x + (dx * s) / steps, d.last.y + (dy * s) / steps));
         d.last = { x: e.x, y: e.y };
       })
-      .onEnd(() => {
+      .onEnd((_e, success) => {
         const d = drag.current;
-        if (d && d.changed.size) onDrag([...d.changed.keys()], [...d.changed.values()]);
+        // A second finger (pinch) cancels the drag: nothing is committed.
+        if (success && d && d.changed.size) onDrag([...d.changed.keys()], [...d.changed.values()]);
       })
       .onFinalize(() => {
         drag.current = null;
@@ -121,23 +156,69 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
       .minDuration(380)
       .onStart((e) => {
         const cell = cellAt(e.x, e.y);
-        if (cell >= 0) onLongPress(cell);
+        if (cell >= 0 && !zooming.get()) onLongPress(cell);
       });
 
     const tap = Gesture.Tap()
       .runOnJS(true)
       .enabled(!locked)
+      .maxDistance(12)
       .onEnd((e, success) => {
         const cell = cellAt(e.x, e.y);
-        if (success && cell >= 0) onTap(cell);
+        const afterZoom = gestureClock() - zoomEndedAt.get() < 300;
+        if (success && cell >= 0 && e.numberOfPointers <= 1 && !zooming.get() && !afterZoom) onTap(cell);
       });
 
-    return Gesture.Race(pan, longPress, tap);
+    const marks = Gesture.Race(pan, longPress, tap);
+    if (!zoomable) return marks;
+
+    // Zoom callbacks run on the UI thread (worklets) so the board follows the fingers smoothly.
+    const pinch = Gesture.Pinch()
+      .enabled(!locked)
+      .onStart((e) => {
+        zooming.set(true);
+        const o = webOffset.get();
+        zoomStart.set({ ...zoom.get(), fx: e.focalX - o.x, fy: e.focalY - o.y });
+      })
+      .onUpdate((e) => {
+        const st = zoomStart.get();
+        const o = webOffset.get();
+        zoom.set(pinchZoom(st, { x: st.fx, y: st.fy }, e.scale, { x: e.focalX - o.x, y: e.focalY - o.y }, width));
+      })
+      .onEnd(() => {
+        zoomEndedAt.set(gestureClock());
+        if (zoom.get().s < 1.08) zoom.set(withTiming({ s: 1, x: 0, y: 0 }, { duration: 150 }));
+      })
+      .onFinalize(() => {
+        zooming.set(false);
+      });
+    const move = Gesture.Pan()
+      .enabled(!locked)
+      .minPointers(2)
+      .maxPointers(2)
+      .onStart(() => {
+        zooming.set(true);
+        zoomStart.set({ ...zoom.get(), fx: 0, fy: 0 });
+      })
+      .onUpdate((e) => {
+        const st = zoomStart.get();
+        zoom.set(clampZoom({ s: st.s, x: st.x + e.translationX, y: st.y + e.translationY }, width));
+      })
+      .onEnd(() => {
+        zoomEndedAt.set(gestureClock());
+      })
+      .onFinalize(() => {
+        zooming.set(false);
+      });
+    return Gesture.Simultaneous(Gesture.Race(pinch, move), marks);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [board, locked, settings.dragToMark, cellSize, onTap, onLongPress, onDrag, onDragTick]);
+  }, [board, locked, settings.dragToMark, cellSize, width, zoomable, onTap, onLongPress, onDrag, onDragTick]);
   /* eslint-enable react-hooks/refs */
 
-  const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
+  const onLayout = (e: LayoutChangeEvent) => {
+    setWidth(e.nativeEvent.layout.width);
+    if (Platform.OS === 'web') gridRef.current?.measureInWindow((x, y) => webOffset.set({ x, y }));
+  };
 
   return (
     <View
@@ -146,7 +227,8 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
       accessibilityElementsHidden={decorative}
       importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}>
       <GestureDetector gesture={gesture}>
-        <View style={styles.grid} onLayout={onLayout}>
+        <View ref={gridRef} style={styles.grid} onLayout={onLayout}>
+          <Animated.View style={[styles.grid, zoomStyle]}>
           {width > 0 && settings.patterns && (
             <RegionPatterns puzzle={puzzle} size={width} colors={regionColors} ink={dark ? '#FFFFFF' : '#2B2620'} />
           )}
@@ -184,6 +266,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                 />
               );
             })}
+          </Animated.View>
         </View>
       </GestureDetector>
     </View>

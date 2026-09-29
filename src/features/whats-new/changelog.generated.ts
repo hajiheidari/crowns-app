@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.1",
+    "date": "2026-09-29",
+    "items": [
+      "Pinch to zoom on big boards (8×8 and up), and move around with two fingers. One finger still marks as before."
+    ]
+  },
+  {
     "version": "0.8.0",
     "date": "2026-09-29",
     "items": [

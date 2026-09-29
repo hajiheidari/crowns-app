@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.1 — 2026-09-29
+- Pinch to zoom on big boards (8×8 and up), and move around with two fingers. One finger still marks as before.
+
 ## 0.8.0 — 2026-09-29
 - New app icon and launch screen.
 - Color-blind patterns: turn them on in Settings to give every color region its own pattern.

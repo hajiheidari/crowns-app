@@ -10,6 +10,7 @@ import { Board } from '@/features/game/board';
 import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
+import { ZOOM_MIN_N } from '@/features/game/zoom';
 import { hintNeedsAd, interstitialAllowed } from '@/features/monetization/policy';
 import { streakMilestone } from '@/features/analytics/events';
 import { watchRewarded } from '@/features/monetization/rewarded';
@@ -287,7 +288,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
         {card ? (
           <HintCard title={card.title} body={card.body} primary={card.primary} closeLabel={S.hintClose} onClose={() => setHint(null)} />
         ) : (
-          !solved && <Text style={[styles.help, { color: c.textSecondary }]}>{S.controls}</Text>
+          !solved && <Text style={[styles.help, { color: c.textSecondary }]}>{puzzle.n >= ZOOM_MIN_N ? S.controlsZoom : S.controls}</Text>
         )}
         {solved && !win && (
           <View style={styles.solvedActions}>

@@ -124,6 +124,7 @@ export const S = {
   rules:
     'Place one crown in every row, column and color region. Crowns never touch, not even diagonally.',
   controls: 'Tap: ✕ → crown → empty. Long-press: crown. Drag: paint ✕.',
+  controlsZoom: 'Tap: ✕ → crown → empty. Long-press: crown. Drag: paint ✕. Pinch: zoom.',
   shareResult: 'Share result',
   share: 'Share',
   challenge: 'Challenge',

@@ -61,7 +61,10 @@ Read these before writing code:
   color-blind patterns (`settings.patterns`, `src/features/game/region-patterns.tsx`: one SVG under the cells), "!" badge on conflicting
   crowns, per-cell screen reader labels + actions in `board.tsx`, ✕ drawn with Views (not SVG) for low-end Android, R8 minify/shrink
   via expo-build-properties (app.config.ts merges Firebase's static frameworks into that entry), blocked storage/overlay permissions.
-  Still open for M7: pinch-to-zoom for 11×11 on small phones (needs a device to tune), Dynamic Type check, on-device QA.
+  v0.8.1: pinch-to-zoom for n ≥ 8 (`src/features/game/zoom.ts` math + tests; pinch/2-finger pan are UI-thread worklets in
+  `board.tsx`, touches mapped back with `toBoard`; on web the pinch focal is page-based, so the board offset is subtracted).
+  Still open for M7: tune zoom on a real phone, Dynamic Type check, on-device QA (needs EAS: Amir is creating the Expo account,
+  token goes in env var `EXPO_TOKEN`, network must allow expo.dev, api.expo.dev, storage.googleapis.com).
 
 ## Tech stack (decided)
 
