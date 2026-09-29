@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["APPLE_TEAM_ID.com.amixstudio.crowns"],
+        "components": [
+          { "/": "/c/*", "comment": "Challenge links" },
+          { "/": "/", "?": { "r": "?*" }, "comment": "Invite links" }
+        ]
+      }
+    ]
+  }
+}

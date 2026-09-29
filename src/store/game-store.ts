@@ -62,6 +62,10 @@ export interface Meta {
   wins: number;
   reminderAsked: boolean;
   lastReviewPromptKey: string | null;
+  /** Anonymous invite code put in shared links (random, not tied to any person). */
+  ref: string | null;
+  /** Invite code of the friend whose link brought this player (kept for future referral rewards). */
+  invitedBy: string | null;
 }
 
 export interface WinResult {
@@ -123,6 +127,8 @@ const DEFAULT_META: Meta = {
   wins: 0,
   reminderAsked: false,
   lastReviewPromptKey: null,
+  ref: null,
+  invitedBy: null,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -289,6 +295,23 @@ export const useGameStore = create<Store>()(
     },
   ),
 );
+
+/** This install's invite code, created on first use. */
+export function getRefCode(): string {
+  const { meta, updateMeta } = useGameStore.getState();
+  if (meta.ref) return meta.ref;
+  let ref = '';
+  while (ref.length < 6) ref += 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)];
+  updateMeta({ ref });
+  return ref;
+}
+
+/** Remember who invited this player (first link wins; never your own code). */
+export function noteInvitedBy(ref: string | undefined): void {
+  if (!ref || !/^[a-z0-9]{4,12}$/.test(ref)) return;
+  const { meta, updateMeta } = useGameStore.getState();
+  if (!meta.invitedBy && meta.ref !== ref) updateMeta({ invitedBy: ref });
+}
 
 /** True once saved data has been loaded from disk. */
 export function useHydrated(): boolean {

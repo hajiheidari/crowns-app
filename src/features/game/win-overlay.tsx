@@ -13,11 +13,15 @@ interface Props {
   isDaily: boolean;
   onNext: () => void;
   onHome: () => void;
+  onShare: () => void;
+  onChallenge: () => void;
+  /** Friend's time when this game came from a challenge link. */
+  versus?: number;
   /** Offer the daily reminder here (once, after the first solved daily). */
   reminderOffer?: { hour: number; onAnswer: (yes: boolean) => void };
 }
 
-export function WinOverlay({ result, isDaily, onNext, onHome, reminderOffer }: Props) {
+export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onChallenge, versus, reminderOffer }: Props) {
   const { c } = usePalette();
   return (
     <Animated.View entering={FadeIn.duration(250)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
@@ -29,6 +33,22 @@ export function WinOverlay({ result, isDaily, onNext, onHome, reminderOffer }: P
           {result.newBest && <Badge text={S.newBest} color={c.goldText} bg={c.surfaceMuted} />}
           <Badge text={result.hints === 0 ? S.noHints : S.hintsUsed(result.hints)} color={c.textSecondary} bg={c.surfaceMuted} />
           {result.streak !== undefined && <Badge text={`🔥 ${S.streakDays(result.streak)}`} color={c.flame} bg={c.surfaceMuted} />}
+        </View>
+        {versus !== undefined && (
+          <View style={[styles.versus, { backgroundColor: c.surfaceMuted }]}>
+            <View style={styles.vsRow}>
+              <VsTime label={S.you} seconds={result.seconds} strong={result.seconds <= versus} />
+              <Text style={[styles.vsMid, { color: c.textSecondary }]}>vs</Text>
+              <VsTime label={S.friend} seconds={versus} strong={versus <= result.seconds} />
+            </View>
+            <Text style={[styles.vsVerdict, { color: c.text }]}>
+              {result.seconds < versus ? S.vsWin : result.seconds > versus ? S.vsLose : S.vsTie}
+            </Text>
+          </View>
+        )}
+        <View style={styles.shareRow}>
+          <Button label={S.share} variant="secondary" onPress={onShare} style={styles.flex} />
+          <Button label={versus !== undefined ? S.rematch : S.challenge} variant="secondary" onPress={onChallenge} style={styles.flex} />
         </View>
         {reminderOffer && (
           <View style={[styles.offer, { backgroundColor: c.surfaceMuted }]}>
@@ -59,6 +79,16 @@ export function WinOverlay({ result, isDaily, onNext, onHome, reminderOffer }: P
   );
 }
 
+function VsTime({ label, seconds, strong }: { label: string; seconds: number; strong: boolean }) {
+  const { c } = usePalette();
+  return (
+    <View style={styles.vsTime}>
+      <Text style={[styles.vsLabel, { color: c.textSecondary }]}>{label}</Text>
+      <Text style={[styles.vsValue, { color: strong ? c.goldText : c.text, fontWeight: strong ? '700' : '400' }]}>{formatTime(seconds)}</Text>
+    </View>
+  );
+}
+
 function Badge({ text, color, bg }: { text: string; color: string; bg: string }) {
   return (
     <View style={[styles.badge, { backgroundColor: bg }]}>
@@ -79,5 +109,13 @@ const styles = StyleSheet.create({
   offerTitle: { fontSize: 15, fontWeight: '700', textAlign: 'center' },
   offerRow: { flexDirection: 'row', gap: 8 },
   flex: { flex: 1 },
+  shareRow: { flexDirection: 'row', gap: 8, alignSelf: 'stretch' },
+  versus: { alignSelf: 'stretch', borderRadius: 14, padding: 12, gap: 4, alignItems: 'center' },
+  vsRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  vsTime: { alignItems: 'center', minWidth: 90 },
+  vsLabel: { fontSize: 13, fontWeight: '600' },
+  vsValue: { fontSize: 24, fontVariant: ['tabular-nums'] },
+  vsMid: { fontSize: 15, fontWeight: '600' },
+  vsVerdict: { fontSize: 15, fontWeight: '700' },
   actions: { alignSelf: 'stretch', gap: 4, marginTop: 8 },
 });

@@ -40,6 +40,11 @@ Read these before writing code:
 - **M3 done (v0.4.0)**: Stats screen (streaks, month calendar, per-difficulty times + sparkline), Settings (gameplay, theme,
   daily reminder via expo-notifications, help), "What's new" sheet generated from CHANGELOG.md (`npm run changelog`),
   review prompt after 3 wins (never rewarded). UI version comes from `src/constants/version.ts` (changelog; a test ties it to app.json).
+- **M4 done (v0.5.0)**: share sheet (image card square/story via react-native-view-shot + expo-sharing, text via `buildShareText`),
+  challenge links `<LINK_BASE>/c/<code>` → route `src/app/c/[code].tsx` → game with `?vs=<seconds>` (both times on the win card),
+  invite links `/?r=<ref>` (anonymous random `meta.ref`; first inviter kept in `meta.invitedBy` for 1.1 referrals).
+  Static landing page in `web/` (see `web/README.md`). Domain is a placeholder (`src/constants/links.ts`); universal/app links
+  (`associatedDomains`, `intentFilters`) are NOT in app.json yet: add them when the domain is decided. Web preview can't share images.
 
 ## Tech stack (decided)
 

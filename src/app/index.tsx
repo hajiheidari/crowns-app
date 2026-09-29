@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,7 +10,9 @@ import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyId, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
-import { currentStreak, useGameStore } from '@/store/game-store';
+import { inviteText } from '@/features/share/messages';
+import { shareText } from '@/services/share';
+import { currentStreak, getRefCode, noteInvitedBy, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 
@@ -44,15 +46,12 @@ export default function HomeScreen() {
   const meta = useGameStore((s) => s.meta);
   const updateMeta = useGameStore((s) => s.updateMeta);
   const version = APP_VERSION;
+  const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();
+  const [inviteNote, setInviteNote] = useState<string | null>(null);
 
-  // First run: remember the install date. Saves from before v0.4.0 have progress but no install date,
-  // so they are treated as updated from 0.3.1 and see "What's new".
-  useEffect(() => {
-    if (meta.installedKey) return;
-    const s = useGameStore.getState();
-    const hadProgress = Object.keys(s.games).length > 0 || s.meta.wins > 0;
-    updateMeta({ installedKey: dateKey(), lastSeenVersion: hadProgress ? '0.3.1' : version });
-  }, [meta.installedKey, updateMeta, version]);
+  // Opened from an invite link (<LINK_BASE>/?r=<code>).
+  useEffect(() => noteInvitedBy(invitedBy), [invitedBy]);
+
   const showWhatsNew = !!meta.installedKey && meta.lastSeenVersion !== version;
 
   const info = puzzleInfo(todayId);
@@ -122,12 +121,22 @@ export default function HomeScreen() {
         </View>
 
         <Text style={[styles.rules, { color: c.textSecondary }]}>{S.rules}</Text>
-        <Button
-          label={S.howToPlay}
-          variant="secondary"
-          icon={<Text style={[styles.howIcon, { color: c.text }]}>?</Text>}
-          onPress={() => router.push('/tutorial')}
-        />
+        <View style={styles.row}>
+          <Button
+            label={S.howToPlay}
+            variant="secondary"
+            icon={<Text style={[styles.howIcon, { color: c.text }]}>?</Text>}
+            onPress={() => router.push('/tutorial')}
+            style={styles.flex}
+          />
+          <Button
+            label={S.inviteFriends}
+            variant="secondary"
+            onPress={async () => setInviteNote((await shareText(inviteText(getRefCode()))) === 'copied' ? S.inviteCopied : null)}
+            style={styles.flex}
+          />
+        </View>
+        {inviteNote && <Text style={[styles.footer, { color: c.textSecondary }]}>{inviteNote}</Text>}
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
       <WhatsNewSheet
@@ -185,6 +194,8 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  row: { flexDirection: 'row', gap: 10 },
+  flex: { flex: 1 },
   wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600' },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },

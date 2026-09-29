@@ -5,20 +5,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { applyHint, CROWN, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
+import { applyHint, CROWN, dateKey, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
 import { Board } from '@/features/game/board';
 import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
+import { challengeText } from '@/features/share/messages';
+import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import { haptics } from '@/services/haptics';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { maybeAskForReview } from '@/services/review';
-import { tapCycle, useGameStore, type WinResult } from '@/store/game-store';
+import { shareText } from '@/services/share';
+import { currentStreak, getRefCode, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
 import { S } from '@/strings';
 
-export function GameScreen({ id }: { id: string }) {
+export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const { c } = usePalette();
   const router = useRouter();
   const focused = useIsFocused();
@@ -33,6 +36,7 @@ export function GameScreen({ id }: { id: string }) {
   const [paused, setPaused] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [win, setWin] = useState<WinResult | null>(null);
+  const [sharing, setSharing] = useState(false);
   const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[] } | null>(null);
 
   useEffect(() => {
@@ -155,6 +159,19 @@ export function GameScreen({ id }: { id: string }) {
         }
       : undefined;
 
+  // Result to share: the win just now, or a puzzle that was solved earlier.
+  const shareResult = solved
+    ? {
+        puzzleId: id,
+        seconds: win?.seconds ?? game?.seconds ?? 0,
+        hints: win?.hints ?? game?.hints ?? 0,
+        streak: win?.streak ?? (info.mode === 'daily' ? currentStreak(useGameStore.getState().daily, dateKey()) : undefined),
+      }
+    : null;
+  const challenge = () => {
+    if (shareResult) shareText(challengeText(shareResult, getRefCode()));
+  };
+
   const goHome = () => {
     if (win) maybeAskForReview();
     if (router.canGoBack()) router.back();
@@ -223,6 +240,12 @@ export function GameScreen({ id }: { id: string }) {
         ) : (
           !solved && <Text style={[styles.help, { color: c.textSecondary }]}>{S.controls}</Text>
         )}
+        {solved && !win && (
+          <View style={styles.solvedActions}>
+            <Button label={S.shareResult} variant="secondary" onPress={() => setSharing(true)} style={styles.flex} />
+            <Button label={S.challengeFriend} variant="secondary" onPress={challenge} style={styles.flex} />
+          </View>
+        )}
       </View>
 
       <View style={styles.toolbar}>
@@ -243,7 +266,19 @@ export function GameScreen({ id }: { id: string }) {
           setConfirmClear(false);
         }}
       />
-      {win && <WinOverlay result={win} isDaily={info.mode === 'daily'} onNext={goNext} onHome={goHome} reminderOffer={reminderOffer} />}
+      {win && !sharing && (
+        <WinOverlay
+          result={win}
+          isDaily={info.mode === 'daily'}
+          onNext={goNext}
+          onHome={goHome}
+          onShare={() => setSharing(true)}
+          onChallenge={challenge}
+          versus={versus}
+          reminderOffer={reminderOffer}
+        />
+      )}
+      {shareResult && <ShareSheet visible={sharing} puzzle={puzzle} result={shareResult} onClose={() => setSharing(false)} />}
     </SafeAreaView>
   );
 }
@@ -296,6 +331,8 @@ const styles = StyleSheet.create({
   pausedCover: { alignItems: 'center', justifyContent: 'center', gap: 16, borderRadius: 6 },
   pausedText: { fontSize: 22, fontWeight: '700' },
   help: { fontSize: 13, textAlign: 'center' },
+  solvedActions: { flexDirection: 'row', gap: 10, width: '100%', maxWidth: 420 },
+  flex: { flex: 1 },
   toolbar: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingBottom: 12, justifyContent: 'center' },
   tool: { flex: 1, maxWidth: 140, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   toolGlyph: { fontSize: 20 },

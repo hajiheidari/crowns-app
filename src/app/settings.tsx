@@ -7,9 +7,11 @@ import { ScreenHeader } from '@/components/screen-header';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
-import { useGameStore, type Settings } from '@/store/game-store';
+import { getRefCode, useGameStore, type Settings } from '@/store/game-store';
 import { formatClock, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
+import { inviteText } from '@/features/share/messages';
+import { shareText } from '@/services/share';
 
 const REMINDER_HOURS = [7, 9, 12, 18, 20];
 
@@ -20,6 +22,7 @@ export default function SettingsScreen() {
   const updateSettings = useGameStore((s) => s.updateSettings);
   const updateMeta = useGameStore((s) => s.updateMeta);
   const [whatsNew, setWhatsNew] = useState(false);
+  const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
 
   const toggle = (key: keyof Pick<Settings, 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics'>) =>
@@ -105,6 +108,15 @@ export default function SettingsScreen() {
         <Section title={S.help}>
           <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
           <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} last />
+        </Section>
+
+        <Section title={S.shareSection}>
+          <LinkRow
+            label={S.inviteFriends}
+            onPress={async () => setInviteNote((await shareText(inviteText(getRefCode()))) === 'copied' ? S.inviteCopied : null)}
+            last
+          />
+          {inviteNote && <Text style={[styles.note, { color: c.textSecondary }]}>{inviteNote}</Text>}
         </Section>
 
         <Text style={[styles.footer, { color: c.textSecondary }]}>{S.version(APP_VERSION)}</Text>

@@ -3,6 +3,15 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.5.0",
+    "date": "2026-09-29",
+    "items": [
+      "Share your result as a picture (square or story size) or as text. The picture shows the puzzle's colors, never the answer.",
+      "Challenge a friend: send a link to the same puzzle with your time. When they finish, you see both times side by side.",
+      "Invite friends from the home screen or Settings."
+    ]
+  },
+  {
     "version": "0.4.0",
     "date": "2026-09-28",
     "items": [

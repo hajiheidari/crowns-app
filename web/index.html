@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crowns · Daily logic puzzle</title>
+<meta name="description" content="One crown in every row, column and color. A new logic puzzle every day. Free, no subscription.">
+<meta property="og:title" content="Crowns · Daily logic puzzle">
+<meta property="og:description" content="Can you beat my time? A new logic puzzle every day. Free, no subscription.">
+<meta property="og:image" content="https://playcrowns.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FAF7F0">
+<!-- iOS Safari shows an "Open" banner once the App Store id is known: -->
+<!-- <meta name="apple-itunes-app" content="app-id=APP_STORE_ID"> -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z' fill='%23C9A227'/%3E%3C/svg%3E">
+<style>
+  :root { --bg:#FAF7F0; --surface:#FFFFFF; --muted:#F1ECE2; --text:#1F1B16; --text2:#6B645A; --gold:#C9A227; --goldText:#8A6D0B; --border:#E6DFD2; --btn:#1F1B16; --onBtn:#FFFFFF; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1C1A17; --surface:#26231F; --muted:#302C27; --text:#F3EEE6; --text2:#A69E92; --gold:#E0BD4A; --goldText:#E0BD4A; --border:#3A352F; --btn:#F3EEE6; --onBtn:#1C1A17; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:480px; margin:0 auto; padding:40px 16px 32px; display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center; }
+  .brand { display:flex; align-items:center; gap:10px; font:600 40px/1 Georgia, serif; }
+  .brand svg { width:48px; height:48px; }
+  .tag { color:var(--text2); margin:-8px 0 0; }
+  .card { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .card[hidden] { display:none; }
+  .label { font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text2); }
+  .puzzle { font-size:24px; font-weight:700; }
+  .time { font-size:48px; font-weight:300; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .btn { display:block; width:100%; padding:14px 20px; border-radius:14px; background:var(--btn); color:var(--onBtn); font-weight:700; text-decoration:none; }
+  .stores { width:100%; display:flex; gap:10px; }
+  .store { flex:1; padding:12px; border-radius:14px; background:var(--muted); color:var(--text); text-decoration:none; font-weight:600; font-size:15px; }
+  .store small { display:block; color:var(--text2); font-weight:500; font-size:12px; }
+  .rules { color:var(--text2); font-size:15px; }
+  footer { color:var(--text2); font-size:13px; }
+  footer a { color:inherit; }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z" fill="var(--gold)"/></svg>
+    Crowns
+  </div>
+  <p class="tag">Daily logic puzzles. Free, no subscription.</p>
+
+  <section class="card" id="challenge" hidden>
+    <div class="label">You got a challenge</div>
+    <div class="puzzle" id="c-title"></div>
+    <div class="time" id="c-time"></div>
+    <p id="c-body"></p>
+  </section>
+
+  <a class="btn" id="open" href="crowns://">Open in the app</a>
+  <div class="stores">
+    <!-- Replace with the real store links after the first release (see web/README.md). -->
+    <a class="store" id="ios" href="#">App Store<small>Coming soon</small></a>
+    <a class="store" id="android" href="#">Google Play<small>Coming soon</small></a>
+  </div>
+
+  <p class="rules">Place one crown in every row, column and color region. Crowns never touch, not even diagonally.</p>
+  <footer><a href="/privacy">Privacy</a></footer>
+</main>
+<script>
+  // Mirrors decodeChallenge() in src/engine/share.ts: "<puzzleId>.<seconds base36>[.<ref>]".
+  (function () {
+    var EPOCH = Date.UTC(2026, 9, 1); // keep equal to DAILY_EPOCH in src/engine/daily.ts
+    var m = location.pathname.match(/^\/c\/([^/?#]+)/);
+    var ref = new URLSearchParams(location.search).get('r');
+    var open = document.getElementById('open');
+    if (ref && /^[a-z0-9]{4,12}$/.test(ref)) open.href = 'crowns://?r=' + ref;
+    if (!m) return;
+    var code = decodeURIComponent(m[1]).toLowerCase();
+    var parts = code.split('.');
+    if (parts.length < 2 || !/^[a-z0-9-]+$/.test(parts[0])) return;
+    var seconds = parseInt(parts[1], 36);
+    if (!isFinite(seconds) || seconds < 0) return;
+    open.href = 'crowns://c/' + code;
+    var id = parts[0], title = 'A Crowns puzzle';
+    var d = id.match(/^daily-(\d{4})-(\d{2})-(\d{2})$/);
+    var u = id.match(/^(easy|medium|hard|expert)-/);
+    if (d) {
+      var n = Math.round((Date.UTC(+d[1], +d[2] - 1, +d[3]) - EPOCH) / 864e5) + 1;
+      title = n >= 1 ? 'Daily #' + n : 'Daily puzzle';
+    } else if (u) {
+      title = u[1].charAt(0).toUpperCase() + u[1].slice(1) + ' puzzle';
+    }
+    var s = seconds % 60, min = Math.floor(seconds / 60) % 60, h = Math.floor(seconds / 3600);
+    var time = (h ? h + ':' + String(min).padStart(2, '0') : min) + ':' + String(s).padStart(2, '0');
+    document.getElementById('c-title').textContent = title;
+    document.getElementById('c-time').textContent = seconds > 0 ? time : '';
+    document.getElementById('c-body').textContent = seconds > 0
+      ? 'A friend solved it in ' + time + '. Can you beat it?'
+      : 'A friend sent you this puzzle. Can you solve it?';
+    document.getElementById('challenge').hidden = false;
+    open.textContent = 'Play in the app';
+  })();
+</script>
+</body>
+</html>
