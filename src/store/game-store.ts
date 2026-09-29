@@ -66,6 +66,16 @@ export interface Meta {
   ref: string | null;
   /** Invite code of the friend whose link brought this player (kept for future referral rewards). */
   invitedBy: string | null;
+  /** App launches (the first session never shows interstitials). */
+  sessions: number;
+  winsSinceInterstitial: number;
+  lastInterstitialAt: number | null;
+  /** Remove-Ads purchase, cached from the store so it works offline. */
+  removeAds: boolean;
+  /** Archive days unlocked with a rewarded ad. */
+  archiveUnlocked: string[];
+  /** Day the last streak repair was used. */
+  lastRepairKey: string | null;
 }
 
 export interface WinResult {
@@ -96,6 +106,8 @@ interface Store {
   addHint: (id: string) => void;
   setTutorialSeen: () => void;
   updateMeta: (patch: Partial<Meta>) => void;
+  /** Keep a streak alive over one missed day (rewarded ad, spec §5). */
+  repairStreak: (today: string) => void;
 }
 
 const newGame = (n: number): GameState => ({
@@ -129,6 +141,12 @@ const DEFAULT_META: Meta = {
   lastReviewPromptKey: null,
   ref: null,
   invitedBy: null,
+  sessions: 0,
+  winsSinceInterstitial: 0,
+  lastInterstitialAt: null,
+  removeAds: false,
+  archiveUnlocked: [],
+  lastRepairKey: null,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -253,7 +271,7 @@ export const useGameStore = create<Store>()(
             unlimitedIndex = { ...unlimitedIndex, [difficulty]: s.unlimitedIndex[difficulty] + 1 };
           }
 
-          set({ games, stats, daily, unlimitedIndex, meta: { ...s.meta, wins: s.meta.wins + 1 } });
+          set({ games, stats, daily, unlimitedIndex, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
           return result;
         },
 
@@ -264,6 +282,12 @@ export const useGameStore = create<Store>()(
         setTutorialSeen: () => set({ tutorialSeen: true }),
 
         updateMeta: (patch) => set({ meta: { ...get().meta, ...patch } }),
+
+        repairStreak: (today) => {
+          const { daily, meta } = get();
+          // Treat yesterday as played: the streak count stays, and solving today continues it.
+          set({ daily: { ...daily, lastSolvedKey: addDays(today, -1) }, meta: { ...meta, lastRepairKey: today } });
+        },
       };
     },
     {

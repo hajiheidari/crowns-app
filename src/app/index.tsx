@@ -8,7 +8,10 @@ import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyId, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { AdBanner } from '@/features/monetization/ad-banner';
+import { streakRepairOffer } from '@/features/monetization/policy';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
+import { showRewarded } from '@/services/ads';
 import { usePalette } from '@/hooks/use-palette';
 import { inviteText } from '@/features/share/messages';
 import { shareText } from '@/services/share';
@@ -57,6 +60,10 @@ export default function HomeScreen() {
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);
   const streak = currentStreak(daily, today);
+  const repairable = streakRepairOffer(daily, today, meta.lastRepairKey);
+  const repair = async () => {
+    if (await showRewarded()) useGameStore.getState().repairStreak(dateKey());
+  };
 
   const state = todayGame?.solved ? 'solved' : todayGame && todayGame.seconds > 0 ? 'continue' : 'play';
   const cta =
@@ -106,6 +113,13 @@ export default function HomeScreen() {
           <Text style={[styles.countdown, { color: c.textSecondary }]}>
             {S.nextDailyIn} {formatTime(untilMidnight(now))}
           </Text>
+          {repairable !== null && (
+            <View style={[styles.repair, { backgroundColor: c.surfaceMuted }]}>
+              <Text style={[styles.repairText, { color: c.text }]}>🔥 {S.streakBroken(repairable)}</Text>
+              <Button label={S.withAd(S.streakRepair)} variant="ghost" onPress={repair} />
+            </View>
+          )}
+          <Button label={S.archive} variant="ghost" onPress={() => router.push('/archive')} />
         </View>
 
         <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
@@ -139,6 +153,7 @@ export default function HomeScreen() {
         {inviteNote && <Text style={[styles.footer, { color: c.textSecondary }]}>{inviteNote}</Text>}
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
+      <AdBanner />
       <WhatsNewSheet
         visible={showWhatsNew}
         since={meta.lastSeenVersion}
@@ -195,6 +210,8 @@ const styles = StyleSheet.create({
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   row: { flexDirection: 'row', gap: 10 },
+  repair: { borderRadius: 14, padding: 12, gap: 4, alignItems: 'center' },
+  repairText: { fontSize: 15, fontWeight: '600', textAlign: 'center' },
   flex: { flex: 1 },
   wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600' },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },

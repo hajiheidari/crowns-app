@@ -13,7 +13,10 @@
       "autoIncrement": true
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_ADS_ENV": "production"
+      }
     }
   },
   "submit": {

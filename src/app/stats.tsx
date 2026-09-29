@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { dateKey, DIFFICULTIES, formatTime } from '@/engine';
+import { AdBanner } from '@/features/monetization/ad-banner';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { Sparkline } from '@/features/stats/sparkline';
 import { usePalette } from '@/hooks/use-palette';
@@ -58,6 +59,7 @@ export default function StatsScreen() {
           );
         })}
       </ScrollView>
+      <AdBanner />
     </SafeAreaView>
   );
 }

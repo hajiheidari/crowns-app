@@ -10,12 +10,14 @@ import { Board } from '@/features/game/board';
 import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
+import { hintNeedsAd, interstitialAllowed } from '@/features/monetization/policy';
 import { challengeText } from '@/features/share/messages';
 import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import { haptics } from '@/services/haptics';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
+import { showInterstitial, showRewarded } from '@/services/ads';
 import { maybeAskForReview } from '@/services/review';
 import { shareText } from '@/services/share';
 import { currentStreak, getRefCode, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
@@ -31,6 +33,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const game = useGameStore((s) => s.games[id]);
   const settings = useGameStore((s) => s.settings);
   const reminderAsked = useGameStore((s) => s.meta.reminderAsked);
+  const removeAds = useGameStore((s) => s.meta.removeAds);
   const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);
@@ -100,11 +103,24 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   // A hint belongs to the board it was asked on; any move makes it stale.
   const activeHint = hint && !solved && !paused && sameBoard(hint.board, board) ? hint : null;
 
+  // Explaining or applying a hint "uses" it: the first per puzzle is free, later ones cost a rewarded ad.
+  const hintCostsAd = hintNeedsAd(removeAds, game?.hints ?? 0);
+  const payForHint = (then: () => void) => {
+    if (!hintCostsAd) return then();
+    showRewarded().then((earned) => earned && then());
+  };
+  const paid = (label: string) => (hintCostsAd ? S.withAd(label) : label);
+
   const askHint = () => {
     const h = getHint(puzzle, board);
     if (h.kind !== 'solved') setHint({ hint: h, stage: 1, board });
   };
   const applyActiveHint = () => {
+    if (!activeHint) return;
+    if (activeHint.stage === 1) payForHint(applyHintNow);
+    else applyHintNow();
+  };
+  const applyHintNow = () => {
     if (!activeHint) return;
     const next = applyHint(puzzle, board, activeHint.hint);
     const cells = next.map((_, i) => i).filter((i) => next[i] !== board[i]);
@@ -120,10 +136,10 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
     const h = activeHint.hint;
     if (h.kind === 'mistake') {
       danger = new Set(h.cells);
-      card = { title: S.hintMistakeTitle, body: S.hintMistakeBody(h.cells.length), primary: { label: S.hintRemove, onPress: applyActiveHint } };
+      card = { title: S.hintMistakeTitle, body: S.hintMistakeBody(h.cells.length), primary: { label: paid(S.hintRemove), onPress: applyActiveHint } };
     } else if (h.kind === 'reveal') {
       highlight = new Set([h.cell]);
-      card = { title: S.hintRevealTitle, body: S.hintRevealBody, primary: { label: S.hintApply, onPress: applyActiveHint } };
+      card = { title: S.hintRevealTitle, body: S.hintRevealBody, primary: { label: paid(S.hintApply), onPress: applyActiveHint } };
     } else if (h.kind === 'step') {
       highlight = new Set(h.step.focus);
       if (activeHint.stage === 1) {
@@ -131,11 +147,12 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           title: S.hintLookTitle,
           body: S.hintLookBody,
           primary: {
-            label: S.hintWhy,
-            onPress: () => {
-              addHint(id);
-              setHint({ ...activeHint, stage: 2 });
-            },
+            label: paid(S.hintWhy),
+            onPress: () =>
+              payForHint(() => {
+                addHint(id);
+                setHint({ ...activeHint, stage: 2 });
+              }),
           },
         };
       } else {
@@ -177,9 +194,15 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
     if (router.canGoBack()) router.back();
     else router.replace('/');
   };
-  const goNext = () => {
+  const goNext = async () => {
     if (info.mode !== 'unlimited') return;
-    maybeAskForReview();
+    const s = useGameStore.getState();
+    // Interstitials only ever show here: after a finished Unlimited puzzle, once "Next" is tapped.
+    if (interstitialAllowed(s.meta, 'unlimited', Date.now()) && (await showInterstitial())) {
+      s.updateMeta({ winsSinceInterstitial: 0, lastInterstitialAt: Date.now() });
+    } else {
+      maybeAskForReview();
+    }
     const next = unlimitedId(info.difficulty, useGameStore.getState().unlimitedIndex[info.difficulty]);
     router.replace({ pathname: '/play/[id]', params: { id: next } });
   };
@@ -251,7 +274,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       <View style={styles.toolbar}>
         <ToolButton label={S.undo} glyph="↶" onPress={() => act(() => undo(id))} disabled={locked || !game?.undo.length} />
         <ToolButton label={S.redo} glyph="↷" onPress={() => act(() => redo(id))} disabled={locked || !game?.redo.length} />
-        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} />
+        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} badge={hintCostsAd ? '▶' : S.freeBadge} />
         <ToolButton label={S.clear} glyph="⌫" onPress={() => setConfirmClear(true)} disabled={locked || !board.some((m) => m)} />
       </View>
 
@@ -273,6 +296,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           onNext={goNext}
           onHome={goHome}
           onShare={() => setSharing(true)}
+          onArchive={() => router.replace('/archive')}
           onChallenge={challenge}
           versus={versus}
           reminderOffer={reminderOffer}
@@ -301,7 +325,7 @@ function IconButton(p: { label: string; a11y: string; onPress: () => void; color
   );
 }
 
-function ToolButton(p: { label: string; glyph: string; onPress: () => void; disabled?: boolean }) {
+function ToolButton(p: { label: string; glyph: string; onPress: () => void; disabled?: boolean; badge?: string }) {
   const { c } = usePalette();
   return (
     <Pressable
@@ -312,6 +336,9 @@ function ToolButton(p: { label: string; glyph: string; onPress: () => void; disa
       style={({ pressed }) => [styles.tool, { backgroundColor: c.surfaceMuted, opacity: p.disabled ? 0.35 : pressed ? 0.7 : 1 }]}>
       <Text style={[styles.toolGlyph, { color: c.text }]}>{p.glyph}</Text>
       <Text style={[styles.toolLabel, { color: c.text }]}>{p.label}</Text>
+      {p.badge && (
+        <Text style={[styles.toolBadge, { backgroundColor: c.gold, color: '#1F1B16' }]}>{p.badge}</Text>
+      )}
     </Pressable>
   );
 }
@@ -336,5 +363,16 @@ const styles = StyleSheet.create({
   toolbar: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingBottom: 12, justifyContent: 'center' },
   tool: { flex: 1, maxWidth: 140, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   toolGlyph: { fontSize: 20 },
+  toolBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 6,
+    fontSize: 10,
+    fontWeight: '800',
+    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    overflow: 'hidden',
+  },
   toolLabel: { fontSize: 13, fontWeight: '600', marginTop: 2 },
 });

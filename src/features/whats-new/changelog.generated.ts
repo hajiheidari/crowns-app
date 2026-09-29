@@ -3,6 +3,17 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.6.0",
+    "date": "2026-09-29",
+    "items": [
+      "Past puzzles: play earlier daily puzzles from a calendar. The last 7 days are free; older days unlock with a short ad.",
+      "Your first hint in each puzzle is free. Later hints need a short ad, and if an ad can't load you get the hint anyway.",
+      "Missed a day? Repair your streak with a short ad, once a week.",
+      "Remove ads with a one-time purchase: no banners or pop-up ads, and free hints and past puzzles. Restore it anytime from Settings.",
+      "Pop-up ads only ever appear between Unlimited puzzles, never during a puzzle or on the daily."
+    ]
+  },
+  {
     "version": "0.5.0",
     "date": "2026-09-29",
     "items": [

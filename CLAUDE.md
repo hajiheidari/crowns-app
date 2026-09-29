@@ -45,6 +45,13 @@ Read these before writing code:
   invite links `/?r=<ref>` (anonymous random `meta.ref`; first inviter kept in `meta.invitedBy` for 1.1 referrals).
   Static landing page in `web/` (see `web/README.md`). Domain is a placeholder (`src/constants/links.ts`); universal/app links
   (`associatedDomains`, `intentFilters`) are NOT in app.json yet: add them when the domain is decided. Web preview can't share images.
+- **M5 done (v0.6.0)**: ad rules as pure functions in `src/features/monetization/policy.ts` (tested). AdMob via
+  `src/services/ads.native.ts` (UMP → ATT explainer + prompt → init; rewarded pays out if it fails to load; interstitial only on
+  "Next puzzle" in Unlimited). Banner (`ad-banner.native.tsx`) on Home, Stats, Archive. Rewarded: 2nd+ hint per puzzle, archive days
+  older than 7, streak repair (1 missed day, once/week). Remove Ads via RevenueCat (`src/services/iap.native.ts`, entitlement and
+  product id `remove_ads`). Web preview uses stand-ins (`ads.ts`, `iap.ts`: fake ads, free test purchase). Still placeholders in
+  `src/constants/monetization.ts` (real ad unit ids, RevenueCat keys) and app.json (Google TEST AdMob app ids, only Google's own
+  SKAdNetwork id: paste AdMob's full list before release). Real ad ids are used only when `EXPO_PUBLIC_ADS_ENV=production` (eas.json).
 
 ## Tech stack (decided)
 

@@ -14,6 +14,7 @@ interface Props {
   onNext: () => void;
   onHome: () => void;
   onShare: () => void;
+  onArchive?: () => void;
   onChallenge: () => void;
   /** Friend's time when this game came from a challenge link. */
   versus?: number;
@@ -21,7 +22,7 @@ interface Props {
   reminderOffer?: { hour: number; onAnswer: (yes: boolean) => void };
 }
 
-export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onChallenge, versus, reminderOffer }: Props) {
+export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive, onChallenge, versus, reminderOffer }: Props) {
   const { c } = usePalette();
   return (
     <Animated.View entering={FadeIn.duration(250)} style={[StyleSheet.absoluteFill, styles.backdrop]}>
@@ -66,7 +67,10 @@ export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onChallen
         )}
         <View style={styles.actions}>
           {isDaily ? (
-            <Button label={S.backHome} onPress={onHome} />
+            <>
+              <Button label={S.backHome} onPress={onHome} />
+              {onArchive && <Button label={S.archive} variant="ghost" onPress={onArchive} />}
+            </>
           ) : (
             <>
               <Button label={S.nextPuzzle} onPress={onNext} />

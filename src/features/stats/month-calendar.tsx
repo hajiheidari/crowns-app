@@ -7,8 +7,18 @@ import { S } from '@/strings';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+export type DayMark = 'locked' | 'started';
+
+interface Props {
+  solved: Record<string, number>;
+  /** Makes days tappable (archive). Days outside [minKey, today] stay disabled. */
+  onPressDay?: (key: string) => void;
+  minKey?: string;
+  mark?: (key: string) => DayMark | null;
+}
+
 /** Month grid of daily puzzles: solved days filled in gold, today outlined. */
-export function MonthCalendar({ solved }: { solved: Record<string, number> }) {
+export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
   const { c } = usePalette();
   const today = new Date();
   const todayKey = dateKey(today);
@@ -25,7 +35,12 @@ export function MonthCalendar({ solved }: { solved: Record<string, number> }) {
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <NavButton label="‹" a11y="Previous month" onPress={() => setOffset(offset - 1)} />
+        <NavButton
+          label="‹"
+          a11y="Previous month"
+          onPress={() => setOffset(offset - 1)}
+          disabled={!!minKey && dateKey(new Date(first.getFullYear(), first.getMonth(), 0)) < minKey}
+        />
         <Text style={[styles.month, { color: c.text }]}>
           {MONTHS[first.getMonth()]} {first.getFullYear()} · {solvedThisMonth} ✓
         </Text>
@@ -41,18 +56,40 @@ export function MonthCalendar({ solved }: { solved: Record<string, number> }) {
           if (!d) return <View key={i} style={styles.cell} />;
           const key = dateKey(new Date(first.getFullYear(), first.getMonth(), d));
           const done = solved[key] !== undefined;
-          return (
-            <View key={i} style={styles.cell}>
-              <View
-                accessibilityLabel={`${MONTHS[first.getMonth()]} ${d}${done ? ', solved' : ''}`}
-                style={[
-                  styles.day,
-                  done && { backgroundColor: c.gold },
-                  key === todayKey && { borderWidth: 2, borderColor: c.text },
-                ]}>
-                <Text style={[styles.dayText, { color: done ? '#1F1B16' : key > todayKey ? c.border : c.textSecondary }]}>{d}</Text>
-              </View>
+          const inRange = key <= todayKey && (!minKey || key >= minKey);
+          const m = inRange && !done ? mark?.(key) : null;
+          const label = `${MONTHS[first.getMonth()]} ${d}${done ? ', solved' : m === 'locked' ? ', locked' : m === 'started' ? ', started' : ''}`;
+          const day = (
+            <View
+              style={[
+                styles.day,
+                done && { backgroundColor: c.gold },
+                onPressDay && inRange && !done && { backgroundColor: c.surfaceMuted },
+                key === todayKey && { borderWidth: 2, borderColor: c.text },
+              ]}>
+              <Text style={[styles.dayText, { color: done ? '#1F1B16' : !inRange ? c.border : m === 'locked' ? c.textSecondary : c.text }]}>
+                {d}
+              </Text>
+              {m && <Text style={[styles.dayMark, { color: c.goldText }]}>{m === 'locked' ? '🔒' : '•'}</Text>}
             </View>
+          );
+          if (!onPressDay) {
+            return (
+              <View key={i} style={styles.cell} accessibilityLabel={label}>
+                {day}
+              </View>
+            );
+          }
+          return (
+            <Pressable
+              key={i}
+              style={({ pressed }) => [styles.cell, { opacity: pressed ? 0.6 : 1 }]}
+              accessibilityRole="button"
+              accessibilityLabel={label}
+              disabled={!inRange}
+              onPress={() => onPressDay(key)}>
+              {day}
+            </Pressable>
           );
         })}
       </View>
@@ -78,5 +115,6 @@ const styles = StyleSheet.create({
   weekday: { width: `${100 / 7}%`, textAlign: 'center', fontSize: 12, fontWeight: '600', marginBottom: 4 },
   cell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 3 },
   day: { flex: 1, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  dayMark: { position: 'absolute', bottom: 1, fontSize: 9 },
   dayText: { fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] },
 });

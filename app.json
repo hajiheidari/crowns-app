@@ -2,7 +2,7 @@
   "expo": {
     "name": "Crowns",
     "slug": "crowns",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "crowns",
@@ -35,7 +35,25 @@
           "imageWidth": 76
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "delayAppMeasurementInit": true,
+          "skAdNetworkItems": [
+            "cstr6suwn9.skadnetwork"
+          ],
+          "userTrackingUsageDescription": "Your data is used only to show ads that fit you better. Crowns works the same either way."
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Your data is used only to show ads that fit you better. Crowns works the same either way."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

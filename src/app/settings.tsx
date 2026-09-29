@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,6 +12,8 @@ import { formatClock, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { inviteText } from '@/features/share/messages';
 import { shareText } from '@/services/share';
+import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
+import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
 
 const REMINDER_HOURS = [7, 9, 12, 18, 20];
 
@@ -105,6 +107,8 @@ export default function SettingsScreen() {
           {denied && <Text style={[styles.note, { color: c.danger }]}>{S.reminderDenied}</Text>}
         </Section>
 
+        <PurchasesSection />
+
         <Section title={S.help}>
           <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
           <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} last />
@@ -126,6 +130,48 @@ export default function SettingsScreen() {
   );
 }
 
+function PurchasesSection() {
+  const { c } = usePalette();
+  const removeAds = useGameStore((s) => s.meta.removeAds);
+  const [price, setPrice] = useState(REMOVE_ADS_FALLBACK_PRICE);
+  const [note, setNote] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    getRemoveAdsPrice().then(setPrice);
+  }, []);
+
+  const run = async (task: () => Promise<string | null>) => {
+    setBusy(true);
+    setNote(await task());
+    setBusy(false);
+  };
+  const buy = () =>
+    run(async () => {
+      const r = await buyRemoveAds();
+      return r === 'unavailable' ? S.purchaseUnavailable : r === 'failed' ? S.purchaseFailed : null;
+    });
+  const restore = () =>
+    run(async () => {
+      const r = await restorePurchases();
+      return r === 'restored' ? S.restoreDone : r === 'none' ? S.restoreNone : r === 'failed' ? S.purchaseFailed : S.purchaseUnavailable;
+    });
+
+  return (
+    <Section title={S.purchases}>
+      {removeAds ? (
+        <Row label={S.removeAdsOwned} />
+      ) : (
+        <LinkRow label={S.removeAds} value={price} onPress={() => !busy && buy()} />
+      )}
+      {!removeAds && <Text style={[styles.note, { color: c.textSecondary }]}>{S.removeAdsHelp}</Text>}
+      <LinkRow label={S.restorePurchases} onPress={() => !busy && restore()} last={iapMode !== 'test' || !removeAds} />
+      {iapMode === 'test' && removeAds && <LinkRow label={S.undoTestPurchase} onPress={undoTestPurchase} last />}
+      {iapMode === 'test' && <Text style={[styles.note, { color: c.textSecondary }]}>{S.purchaseTestNote}</Text>}
+      {note && <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text>}
+    </Section>
+  );
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const { c } = usePalette();
   return (
@@ -136,7 +182,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Row({ label, help, last, children }: { label: string; help?: string; last?: boolean; children: ReactNode }) {
+function Row({ label, help, last, children }: { label: string; help?: string; last?: boolean; children?: ReactNode }) {
   const { c } = usePalette();
   return (
     <View style={[styles.row, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.border }]}>
@@ -149,14 +195,18 @@ function Row({ label, help, last, children }: { label: string; help?: string; la
   );
 }
 
-function LinkRow({ label, onPress, last }: { label: string; onPress: () => void; last?: boolean }) {
+function LinkRow({ label, onPress, last, value }: { label: string; onPress: () => void; last?: boolean; value?: string }) {
   const { c } = usePalette();
   return (
-    <Pressable accessibilityRole="button" onPress={onPress}>
+    <Pressable accessibilityRole="button" accessibilityLabel={value ? `${label}, ${value}` : label} onPress={onPress}>
       {({ pressed }) => (
         <View style={{ opacity: pressed ? 0.6 : 1 }}>
           <Row label={label} last={last}>
-            <Text style={[styles.chevron, { color: c.textSecondary }]}>›</Text>
+            {value ? (
+              <Text style={[styles.value, { color: c.text }]}>{value}</Text>
+            ) : (
+              <Text style={[styles.chevron, { color: c.textSecondary }]}>›</Text>
+            )}
           </Row>
         </View>
       )}
@@ -216,6 +266,7 @@ const styles = StyleSheet.create({
   rowText: { flex: 1, gap: 2 },
   rowLabel: { fontSize: 16 },
   rowHelp: { fontSize: 12 },
+  value: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
   chevron: { fontSize: 22 },
   segmented: { flexDirection: 'row', borderRadius: 10, padding: 3 },
   segment: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
