@@ -65,6 +65,9 @@ Read these before writing code:
   `board.tsx`, touches mapped back with `toBoard`; on web the pinch focal is page-based, so the board offset is subtracted).
   Still open for M7: tune zoom on a real phone, Dynamic Type check, on-device QA (needs EAS: Amir is creating the Expo account,
   token goes in env var `EXPO_TOKEN`, network must allow expo.dev, api.expo.dev, storage.googleapis.com).
+- v0.8.2: fixed Android crash on launch. Importing `@react-native-firebase/*` without its native module throws, so
+  `analytics.native.ts` now `require`s it lazily and only when `extra.firebaseEnabled` (set by `app.config.ts`) is true.
+  EAS project `@hajiheidaris-team/crowns` is linked in app.json; APKs come from `eas build -p android --profile preview`.
 
 ## Tech stack (decided)
 
