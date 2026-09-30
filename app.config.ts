@@ -10,7 +10,8 @@ type Plugin = NonNullable<ExpoConfig['plugins']>[number];
 const { firebaseEnabled, IOS_FILE, ANDROID_FILE } = require('./firebase-config');
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const base = config as ExpoConfig;
+  // The app reads extra.firebaseEnabled so it never loads the Firebase JS without its native side.
+  const base = { ...(config as ExpoConfig), extra: { ...config.extra, firebaseEnabled } };
   if (!firebaseEnabled) return base;
   return {
     ...base,

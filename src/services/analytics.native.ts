@@ -2,13 +2,34 @@
  * Firebase Analytics. Does nothing until the Firebase config files are added (firebase/README.md),
  * so the app works the same without a Firebase project.
  */
-import { getAnalytics, logEvent, setConsent } from '@react-native-firebase/analytics';
+import Constants from 'expo-constants';
 
 import { toFirebaseParams, type EventName, type EventParams } from '@/features/analytics/events';
 
-function analytics() {
+type FirebaseAnalytics = typeof import('@react-native-firebase/analytics');
+
+// Loaded only in builds that include Firebase: without its native module, importing
+// @react-native-firebase throws and crashes the app on start (seen in the 0.8.1 APK).
+let lib: FirebaseAnalytics | null | undefined;
+
+function firebase(): FirebaseAnalytics | null {
+  if (lib !== undefined) return lib;
+  lib = null;
+  if (Constants.expoConfig?.extra?.firebaseEnabled !== true) return lib;
   try {
-    return getAnalytics();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    lib = require('@react-native-firebase/analytics') as FirebaseAnalytics;
+  } catch {
+    lib = null;
+  }
+  return lib;
+}
+
+function analytics() {
+  const f = firebase();
+  if (!f) return null;
+  try {
+    return f.getAnalytics();
   } catch {
     return null; // Firebase not configured in this build
   }
@@ -18,7 +39,7 @@ export function track<E extends EventName>(name: E, ...params: EventParams<E> ex
   const a = analytics();
   if (!a) return;
   try {
-    Promise.resolve(logEvent(a, name, toFirebaseParams(params[0] as Record<string, string | number | boolean> | undefined))).catch(() => {});
+    Promise.resolve(firebase()!.logEvent(a, name, toFirebaseParams(params[0] as Record<string, string | number | boolean> | undefined))).catch(() => {});
   } catch {
     // Never let analytics break the game.
   }
@@ -28,7 +49,7 @@ export function track<E extends EventName>(name: E, ...params: EventParams<E> ex
 export function setAdConsent(personalizedAds: boolean): void {
   const a = analytics();
   if (!a) return;
-  setConsent(a, {
+  firebase()!.setConsent(a, {
     analytics_storage: true,
     ad_storage: personalizedAds,
     ad_user_data: personalizedAds,

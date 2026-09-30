@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.2 — 2026-09-30
+- Fixed: the Android app closed right after opening.
+
 ## 0.8.1 — 2026-09-29
 - Pinch to zoom on big boards (8×8 and up), and move around with two fingers. One finger still marks as before.
 
