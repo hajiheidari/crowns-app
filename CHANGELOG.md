@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.3 — 2026-10-01
+- If something goes wrong, the app now shows the error on screen instead of closing.
+
 ## 0.8.2 — 2026-09-30
 - Fixed: the Android app closed right after opening.
 

@@ -1,7 +1,11 @@
-import { Stack } from 'expo-router';
+// First import: installs the on-screen error alert before anything else can throw.
+import { describeError } from '@/services/crash-alert';
+
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AdHost } from '@/features/monetization/ad-host';
@@ -42,5 +46,24 @@ export default function RootLayout() {
       <AdHost />
       <StatusBar style={dark ? 'light' : 'dark'} />
     </GestureHandlerRootView>
+  );
+}
+
+/** Shown instead of a blank screen when a screen fails to render, so testers can screenshot the error. */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  SplashScreen.hideAsync().catch(() => {});
+  return (
+    <View style={{ flex: 1, backgroundColor: '#FAF7F0', paddingTop: 64, paddingHorizontal: 20 }}>
+      <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F1B16' }}>Crowns hit an error</Text>
+      <Text style={{ marginTop: 8, color: '#1F1B16' }}>Please send a screenshot of this screen.</Text>
+      <ScrollView style={{ marginTop: 16, flex: 1 }}>
+        <Text selectable style={{ fontFamily: 'monospace', fontSize: 12, color: '#1F1B16' }}>
+          {describeError(error)}
+        </Text>
+      </ScrollView>
+      <Text onPress={retry} style={{ paddingVertical: 20, fontSize: 16, fontWeight: '600', color: '#8A6D0B' }}>
+        Try again
+      </Text>
+    </View>
   );
 }

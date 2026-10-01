@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.3",
+    "date": "2026-10-01",
+    "items": [
+      "If something goes wrong, the app now shows the error on screen instead of closing."
+    ]
+  },
+  {
     "version": "0.8.2",
     "date": "2026-09-30",
     "items": [
