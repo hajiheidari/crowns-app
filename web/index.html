@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crowns · Daily logic puzzle</title>
+<title>Tiaro · Daily logic puzzle</title>
 <meta name="description" content="One crown in every row, column and color. A new logic puzzle every day. Free, no subscription.">
-<meta property="og:title" content="Crowns · Daily logic puzzle">
+<meta property="og:title" content="Tiaro · Daily logic puzzle">
 <meta property="og:description" content="Can you beat my time? A new logic puzzle every day. Free, no subscription.">
-<meta property="og:image" content="https://playcrowns.com/og.png">
+<meta property="og:image" content="https://playtiaro.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -44,7 +44,7 @@
 <main>
   <div class="brand">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z" fill="var(--gold)"/></svg>
-    Crowns
+    Tiaro
   </div>
   <p class="tag">Daily logic puzzles. Free, no subscription.</p>
 
@@ -55,7 +55,7 @@
     <p id="c-body"></p>
   </section>
 
-  <a class="btn" id="open" href="crowns://">Open in the app</a>
+  <a class="btn" id="open" href="tiaro://">Open in the app</a>
   <div class="stores">
     <!-- Replace with the real store links after the first release (see web/README.md). -->
     <a class="store" id="ios" href="#">App Store<small>Coming soon</small></a>
@@ -72,15 +72,15 @@
     var m = location.pathname.match(/^\/c\/([^/?#]+)/);
     var ref = new URLSearchParams(location.search).get('r');
     var open = document.getElementById('open');
-    if (ref && /^[a-z0-9]{4,12}$/.test(ref)) open.href = 'crowns://?r=' + ref;
+    if (ref && /^[a-z0-9]{4,12}$/.test(ref)) open.href = 'tiaro://?r=' + ref;
     if (!m) return;
     var code = decodeURIComponent(m[1]).toLowerCase();
     var parts = code.split('.');
     if (parts.length < 2 || !/^[a-z0-9-]+$/.test(parts[0])) return;
     var seconds = parseInt(parts[1], 36);
     if (!isFinite(seconds) || seconds < 0) return;
-    open.href = 'crowns://c/' + code;
-    var id = parts[0], title = 'A Crowns puzzle';
+    open.href = 'tiaro://c/' + code;
+    var id = parts[0], title = 'A Tiaro puzzle';
     var d = id.match(/^daily-(\d{4})-(\d{2})-(\d{2})$/);
     var u = id.match(/^(easy|medium|hard|expert)-/);
     if (d) {

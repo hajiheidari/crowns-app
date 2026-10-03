@@ -22,7 +22,7 @@ export function formatClock(hour: number, minute: number): string {
 }
 
 export const S = {
-  appName: 'Crowns',
+  appName: 'Tiaro',
   tagline: 'Daily logic puzzles',
   today: 'Today',
   daily: (n: number) => (n >= 1 ? `Daily #${n}` : 'Daily preview'),
@@ -115,7 +115,7 @@ export const S = {
   dailyReminder: 'Daily reminder',
   reminderTime: 'Time',
   remindersWebNote: 'Reminders work in the phone app, not in the web preview.',
-  reminderDenied: 'Notifications are turned off for Crowns. You can allow them in your phone settings.',
+  reminderDenied: 'Notifications are turned off for Tiaro. You can allow them in your phone settings.',
   help: 'Help',
   version: (v: string) => `Version ${v}`,
   reminderOfferTitle: 'Want a daily reminder?',
@@ -140,14 +140,14 @@ export const S = {
   challengeFriend: 'Challenge a friend',
   challengeBack: 'Challenge back',
   challengeMessage: (title: string, time: string, link: string) =>
-    `I solved ${title} in Crowns in ${time} 👑 Can you beat me?\n${link}`,
+    `I solved ${title} in Tiaro in ${time} 👑 Can you beat me?\n${link}`,
   inviteFriends: 'Invite friends',
   shareSection: 'Share',
   inviteCopied: 'Invite link copied. Paste it to a friend!',
   challengeCopied: 'Challenge link copied. Paste it to a friend!',
   copyFailed: "Couldn't copy here. Select this text and copy it:",
   inviteMessage: (link: string) =>
-    `I'm playing Crowns, a free daily logic puzzle 👑 One crown per row, column and color. Try it:\n${link}`,
+    `I'm playing Tiaro, a free daily logic puzzle 👑 One crown per row, column and color. Try it:\n${link}`,
   challengeTitle: 'You got a challenge!',
   challengeBody: (time: string) => `A friend solved this puzzle in ${time}. Can you beat it?`,
   challengeOpenBody: 'A friend sent you this puzzle. Can you solve it?',
@@ -160,9 +160,9 @@ export const S = {
   vsLose: 'Your friend was faster this time.',
   vsTie: "It's a tie!",
   bannerPlaceholder: 'Banner ad appears here in the phone app',
-  trackingTitle: 'Keep Crowns free',
+  trackingTitle: 'Keep Tiaro free',
   trackingBody:
-    'Crowns is free because of ads. On the next screen, iPhone asks if ads may use your activity from other apps. Either answer is fine: the game is the same.',
+    'Tiaro is free because of ads. On the next screen, iPhone asks if ads may use your activity from other apps. Either answer is fine: the game is the same.',
   continueLabel: 'Continue',
   mockAdTag: 'TEST AD',
   mockRewardedTitle: 'A short video ad plays here',

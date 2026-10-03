@@ -17,7 +17,7 @@ test('challenge link round-trips puzzle id, time and invite code', () => {
 
 test('daily result text is spoiler-free and carries the link', () => {
   const text = resultText({ puzzleId: 'daily-2026-10-05', seconds: 95, hints: 0, streak: 4 }, 'abc234');
-  assert.match(text, /^Crowns #5 👑/);
+  assert.match(text, /^Tiaro #5 👑/);
   assert.match(text, /1:35 · no hints ✨/);
   assert.match(text, /4-day streak/);
   assert.ok(text.includes(`${LINK_BASE}/c/daily-2026-10-05.`));
@@ -26,7 +26,7 @@ test('daily result text is spoiler-free and carries the link', () => {
 test('unlimited titles and messages', () => {
   const id = unlimitedId('easy', 0);
   assert.equal(puzzleTitle(id), 'Easy #1');
-  assert.match(resultText({ puzzleId: id, seconds: 30, hints: 2 }, 'abc234'), /^Crowns · Easy #1 👑\n⏱ 0:30 · 2 hints/);
-  assert.match(challengeText({ puzzleId: id, seconds: 30 }, 'abc234'), /Easy #1 in Crowns in 0:30/);
+  assert.match(resultText({ puzzleId: id, seconds: 30, hints: 2 }, 'abc234'), /^Tiaro · Easy #1 👑\n⏱ 0:30 · 2 hints/);
+  assert.match(challengeText({ puzzleId: id, seconds: 30 }, 'abc234'), /Easy #1 in Tiaro in 0:30/);
   assert.ok(inviteText('abc234').endsWith(`${LINK_BASE}/?r=abc234`));
 });

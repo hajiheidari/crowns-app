@@ -23,7 +23,7 @@ if (Platform.OS !== 'web' && errorUtils) {
   errorUtils.setGlobalHandler((error, isFatal) => {
     if (!isFatal || shown) return fallback(error, isFatal);
     shown = true;
-    Alert.alert('Crowns hit an error', `Please send a screenshot of this.\n\n${describeError(error)}`, [
+    Alert.alert('Tiaro hit an error', `Please send a screenshot of this.\n\n${describeError(error)}`, [
       { text: 'Close app', onPress: () => fallback(error, isFatal) },
     ]);
   });

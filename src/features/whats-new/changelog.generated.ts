@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.6",
+    "date": "2026-10-03",
+    "items": [
+      "The game has a new name: Tiaro."
+    ]
+  },
+  {
     "version": "0.8.5",
     "date": "2026-10-03",
     "items": [

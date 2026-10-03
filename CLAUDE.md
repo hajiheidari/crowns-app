@@ -1,6 +1,8 @@
-# Crowns — daily logic puzzle app (iOS + Android)
+# Tiaro — daily logic puzzle app (iOS + Android)
 
-> Working name **"Crowns"**. Final store name and bundle id are NOT decided yet (see "Decisions pending").
+> App name **"Tiaro"** (decided 2026-10-03; store title "Tiaro: Daily Logic Puzzle"). The working name was "Crowns", so the repo,
+> the EAS slug `crowns`, storage keys and code identifiers still say crowns: keep them (changing storage keys loses progress).
+> The bundle id is still NOT decided (see "Decisions pending").
 > Owner: Amir (Dubai). He is not a full-time developer: explain what you did in short, plain language,
 > and ask him before anything that costs money, needs his accounts, or is hard to undo.
 > He writes in Persian; answer him in Persian unless he writes in English. Code, comments and app text are English.
@@ -171,10 +173,12 @@ import {
 
 ## Decisions pending (ask Amir when you reach them)
 
-- App name (candidates: "Crowns: Daily Logic Puzzle", "Regal – Daily Logic", "Crownly"). Check store availability.
+- ~~App name~~ decided 2026-10-03: **Tiaro** (Amir chose it). "Crowns" is taken by two identical games on the App Store,
+  "Regal" is Regal Cinemas' app. Tiaro was free on the App Store (iTunes search) and playtiaro.com / tiaro.app were unregistered.
+  Reserve the name in App Store Connect as soon as the Apple account exists.
 - Bundle id / package (permanent after first upload), e.g. `com.<company>.crowns`. Placeholder: `com.amixstudio.crowns`.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
-- Domain for share/challenge links (e.g. `playcrowns.com`) + privacy policy URL.
+- Domain for share/challenge links (placeholder `playtiaro.com`, not bought yet) + privacy policy URL.
 - ~~Remove-Ads price~~ decided 2026-09-29: $3.99 one-time (Amir confirmed).
 
 @AGENTS.md

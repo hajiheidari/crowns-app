@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Crowns",
+    "name": "Tiaro",
     "slug": "crowns",
-    "version": "0.8.5",
+    "version": "0.8.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "crowns",
+    "scheme": "tiaro",
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.amixstudio.crowns"
@@ -53,13 +53,13 @@
           "skAdNetworkItems": [
             "cstr6suwn9.skadnetwork"
           ],
-          "userTrackingUsageDescription": "Your data is used only to show ads that fit you better. Crowns works the same either way."
+          "userTrackingUsageDescription": "Your data is used only to show ads that fit you better. Tiaro works the same either way."
         }
       ],
       [
         "expo-tracking-transparency",
         {
-          "userTrackingPermission": "Your data is used only to show ads that fit you better. Crowns works the same either way."
+          "userTrackingPermission": "Your data is used only to show ads that fit you better. Tiaro works the same either way."
         }
       ],
       [

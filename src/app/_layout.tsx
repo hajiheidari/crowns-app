@@ -54,7 +54,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   SplashScreen.hideAsync().catch(() => {});
   return (
     <View style={{ flex: 1, backgroundColor: '#FAF7F0', paddingTop: 64, paddingHorizontal: 20 }}>
-      <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F1B16' }}>Crowns hit an error</Text>
+      <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F1B16' }}>Tiaro hit an error</Text>
       <Text style={{ marginTop: 8, color: '#1F1B16' }}>Please send a screenshot of this screen.</Text>
       <ScrollView style={{ marginTop: 16, flex: 1 }}>
         <Text selectable style={{ fontFamily: 'monospace', fontSize: 12, color: '#1F1B16' }}>

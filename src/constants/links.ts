@@ -5,7 +5,7 @@
  *   <LINK_BASE>/c/<code>   challenge link (code from engine `encodeChallenge`)
  *   <LINK_BASE>/?r=<ref>   invite link
  */
-export const LINK_BASE = 'https://playcrowns.com';
+export const LINK_BASE = 'https://playtiaro.com';
 
 export const challengeUrl = (code: string) => `${LINK_BASE}/c/${code}`;
 export const inviteUrl = (ref: string) => `${LINK_BASE}/?r=${ref}`;

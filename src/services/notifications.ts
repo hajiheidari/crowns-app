@@ -26,7 +26,7 @@ export async function enableDailyReminder(hour: number, minute: number): Promise
   if (!granted) return false;
   await Notifications.cancelAllScheduledNotificationsAsync();
   await Notifications.scheduleNotificationAsync({
-    content: { title: 'Your daily Crowns puzzle is ready 👑', body: 'A fresh puzzle is waiting. Keep your streak going!' },
+    content: { title: 'Your daily Tiaro puzzle is ready 👑', body: 'A fresh puzzle is waiting. Keep your streak going!' },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute },
   });
   return true;

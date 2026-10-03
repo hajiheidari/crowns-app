@@ -1,5 +1,5 @@
 /**
- * Challenge landing (spec §3.9). Opened from a link like <LINK_BASE>/c/<code> or crowns://c/<code>.
+ * Challenge landing (spec §3.9). Opened from a link like <LINK_BASE>/c/<code> or tiaro://c/<code>.
  * No server: the code itself carries the puzzle id and the friend's time.
  */
 import { useLocalSearchParams, useRouter } from 'expo-router';
