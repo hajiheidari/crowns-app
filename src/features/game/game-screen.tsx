@@ -239,13 +239,15 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       <View style={styles.topBar}>
         <IconButton label="‹" a11y={S.back} onPress={goHome} color={c.text} />
         <View style={styles.titleBox}>
-          <Text style={[styles.title, { color: c.text }]}>{title}</Text>
+          <Text style={[styles.title, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+            {title}
+          </Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={settings.showTimer ? 'Hide timer' : 'Show timer'}
             onPress={() => updateSettings({ showTimer: !settings.showTimer })}
             hitSlop={8}>
-            <Text style={[styles.timer, { color: c.textSecondary }]}>
+            <Text style={[styles.timer, { color: c.textSecondary }]} maxFontSizeMultiplier={1.3}>
               {settings.showTimer ? formatTime(game?.seconds ?? 0) : '⏱'}
             </Text>
           </Pressable>
@@ -347,7 +349,7 @@ function IconButton(p: { label: string; a11y: string; onPress: () => void; color
       disabled={p.disabled}
       hitSlop={8}
       style={({ pressed }) => [styles.iconButton, { opacity: p.disabled ? 0.3 : pressed ? 0.6 : 1 }]}>
-      <Text style={[styles.iconText, { color: p.color }]}>{p.label}</Text>
+      <Text style={[styles.iconText, { color: p.color }]} maxFontSizeMultiplier={1.2}>{p.label}</Text>
     </Pressable>
   );
 }
@@ -361,10 +363,10 @@ function ToolButton(p: { label: string; glyph: string; onPress: () => void; disa
       onPress={p.onPress}
       disabled={p.disabled}
       style={({ pressed }) => [styles.tool, { backgroundColor: c.surfaceMuted, opacity: p.disabled ? 0.35 : pressed ? 0.7 : 1 }]}>
-      <Text style={[styles.toolGlyph, { color: c.text }]}>{p.glyph}</Text>
-      <Text style={[styles.toolLabel, { color: c.text }]}>{p.label}</Text>
+      <Text style={[styles.toolGlyph, { color: c.text }]} maxFontSizeMultiplier={1.2}>{p.glyph}</Text>
+      <Text style={[styles.toolLabel, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>{p.label}</Text>
       {p.badge && (
-        <Text style={[styles.toolBadge, { backgroundColor: c.gold, color: '#1F1B16' }]}>{p.badge}</Text>
+        <Text style={[styles.toolBadge, { backgroundColor: c.gold, color: '#1F1B16' }]} maxFontSizeMultiplier={1.2}>{p.badge}</Text>
       )}
     </Pressable>
   );
@@ -373,7 +375,7 @@ function ToolButton(p: { label: string; glyph: string; onPress: () => void; disa
 const styles = StyleSheet.create({
   root: { flex: 1 },
   center: { alignItems: 'center', justifyContent: 'center', gap: 16 },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingTop: 4, height: 56 },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingTop: 4, minHeight: 56 },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   iconText: { fontSize: 26, fontWeight: '500' },
   titleBox: { flex: 1, alignItems: 'center' },

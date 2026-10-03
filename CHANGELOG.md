@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.4 — 2026-10-03
+- Works better with large text sizes: titles and buttons no longer get cut off, and settings rows wrap neatly.
+
 ## 0.8.3 — 2026-10-01
 - If something goes wrong, the app now shows the error on screen instead of closing.
 

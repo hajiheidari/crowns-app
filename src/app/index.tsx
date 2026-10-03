@@ -83,7 +83,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.brand}>
             <CrownIcon size={narrow ? 24 : 30} color={c.gold} />
-            <Text style={[styles.wordmark, narrow && styles.wordmarkSmall, { color: c.text }]} numberOfLines={1}>
+            <Text style={[styles.wordmark, narrow && styles.wordmarkSmall, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
               {S.appName}
             </Text>
           </View>
@@ -199,7 +199,7 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
       onPress={onPress}
       style={({ pressed }) => [styles.tile, { backgroundColor: c.surface, borderColor: c.border, opacity: pressed ? 0.75 : 1 }]}>
       <View style={[styles.tileAccent, { backgroundColor: accent }]} />
-      <Text style={[styles.tileTitle, { color: c.text }]}>{DIFFICULTY_LABEL[difficulty]}</Text>
+      <Text style={[styles.tileTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.5}>{DIFFICULTY_LABEL[difficulty]}</Text>
       <Text style={[styles.tileSub, { color: c.textSecondary }]}>{DIFFICULTY_SIZES[difficulty]}</Text>
       <Text style={[styles.tileSub, { color: c.textSecondary }]}>{S.solvedCount(solved)}</Text>
     </Pressable>

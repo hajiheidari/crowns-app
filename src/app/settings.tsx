@@ -247,7 +247,7 @@ function Segmented<T extends string>({
             accessibilityState={{ selected: on }}
             onPress={() => onChange(o.value)}
             style={[styles.segment, on && { backgroundColor: c.surface }]}>
-            <Text style={[styles.segmentText, { color: on ? c.text : c.textSecondary }]}>{o.label}</Text>
+            <Text style={[styles.segmentText, { color: on ? c.text : c.textSecondary }]} maxFontSizeMultiplier={1.4}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -274,8 +274,9 @@ const styles = StyleSheet.create({
   section: { gap: 8 },
   sectionTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 1, marginLeft: 4 },
   card: { borderRadius: 16, borderWidth: 1, paddingHorizontal: 14 },
-  row: { flexDirection: 'row', alignItems: 'center', minHeight: 52, gap: 12, paddingVertical: 8 },
-  rowText: { flex: 1, gap: 2 },
+  // Wraps so a control drops below its label at large font sizes instead of squeezing the label.
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', minHeight: 52, columnGap: 12, rowGap: 8, paddingVertical: 8 },
+  rowText: { flex: 1, minWidth: 76, gap: 2 },
   rowLabel: { fontSize: 16 },
   rowHelp: { fontSize: 12 },
   value: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },

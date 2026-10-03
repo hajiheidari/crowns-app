@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.4",
+    "date": "2026-10-03",
+    "items": [
+      "Works better with large text sizes: titles and buttons no longer get cut off, and settings rows wrap neatly."
+    ]
+  },
+  {
     "version": "0.8.3",
     "date": "2026-10-01",
     "items": [

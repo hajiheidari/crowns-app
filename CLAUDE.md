@@ -68,6 +68,11 @@ Read these before writing code:
 - v0.8.2: fixed Android crash on launch. Importing `@react-native-firebase/*` without its native module throws, so
   `analytics.native.ts` now `require`s it lazily and only when `extra.firebaseEnabled` (set by `app.config.ts`) is true.
   EAS project `@hajiheidaris-team/crowns` is linked in app.json; APKs come from `eas build -p android --profile preview`.
+- v0.8.3: fatal JS errors show in a native alert (`src/services/crash-alert.ts`, imported first in `_layout.tsx`) and render errors in
+  the root `ErrorBoundary`, so testers can screenshot them. Amir's S23 Ultra (Android 14, Persian locale, Iran) still did not open 0.8.2;
+  waiting for his 0.8.3 test. The emulator here has no KVM: boots take 15+ min and sometimes hang.
+- v0.8.4 (M7): large-font pass. Tight texts cap `maxFontSizeMultiplier` (wordmark, tile titles, game top bar, toolbar, segmented
+  controls); Settings rows wrap so controls drop below the label. Dark mode and 320-px-wide layouts checked on web, all screens.
 
 ## Tech stack (decided)
 
