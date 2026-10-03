@@ -13,7 +13,7 @@ import { streakRepairOffer } from '@/features/monetization/policy';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 
 import { usePalette } from '@/hooks/use-palette';
-import { shareInvite } from '@/features/share/actions';
+import { shareInvite, shareNote } from '@/features/share/actions';
 import { currentStreak, noteInvitedBy, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
@@ -150,11 +150,11 @@ export default function HomeScreen() {
           <Button
             label={S.inviteFriends}
             variant="secondary"
-            onPress={async () => setInviteNote((await shareInvite()) === 'copied' ? S.inviteCopied : null)}
+            onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
             style={styles.flex}
           />
         </View>
-        {inviteNote && <Text style={[styles.footer, { color: c.textSecondary }]}>{inviteNote}</Text>}
+        {inviteNote && <Text selectable style={[styles.footer, { color: c.textSecondary }]}>{inviteNote}</Text>}
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
       <AdBanner />

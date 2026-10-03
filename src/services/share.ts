@@ -8,8 +8,10 @@ import { Platform, Share } from 'react-native';
 
 export const canShareImages = Platform.OS === 'ios' || Platform.OS === 'android';
 
-/** Returns 'copied' when the text went to the clipboard instead of a share sheet. */
-export async function shareText(message: string): Promise<'shared' | 'copied' | 'cancelled'> {
+/** 'copied': the web preview put the text on the clipboard instead of a share sheet; 'failed': it could do neither. */
+export type ShareStatus = 'shared' | 'copied' | 'cancelled' | 'failed';
+
+export async function shareText(message: string): Promise<ShareStatus> {
   if (Platform.OS === 'web') {
     const nav = globalThis.navigator as Navigator | undefined;
     if (nav?.share) {
@@ -20,15 +22,42 @@ export async function shareText(message: string): Promise<'shared' | 'copied' | 
         // Cancelled or blocked (e.g. inside an iframe): copy instead.
       }
     }
-    await Clipboard.setStringAsync(message);
-    return 'copied';
+    return (await copyOnWeb(message)) ? 'copied' : 'failed';
   }
   const res = await Share.share({ message });
   return res.action === Share.dismissedAction ? 'cancelled' : 'shared';
 }
 
 export async function copyText(message: string): Promise<void> {
-  await Clipboard.setStringAsync(message);
+  if (Platform.OS === 'web') await copyOnWeb(message);
+  else await Clipboard.setStringAsync(message);
+}
+
+/**
+ * Web copy that reports the truth: expo-clipboard's fallback says "copied" even when the browser refused
+ * (e.g. inside the sandboxed preview frame), so the caller can show the text for copying by hand instead.
+ */
+async function copyOnWeb(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // Clipboard API missing or not allowed here: try the old way.
+  }
+  try {
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(field);
+    return ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function shareImage(uri: string, dialogTitle: string): Promise<void> {

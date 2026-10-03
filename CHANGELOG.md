@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.5 — 2026-10-03
+- Web preview: "Challenge a friend" now says when the link is copied, and shows the link to copy by hand if the browser blocks copying.
+
 ## 0.8.4 — 2026-10-03
 - Works better with large text sizes: titles and buttons no longer get cut off, and settings rows wrap neatly.
 

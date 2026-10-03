@@ -14,7 +14,7 @@ import { ZOOM_MIN_N } from '@/features/game/zoom';
 import { hintNeedsAd, interstitialAllowed } from '@/features/monetization/policy';
 import { streakMilestone } from '@/features/analytics/events';
 import { watchRewarded } from '@/features/monetization/rewarded';
-import { shareChallenge } from '@/features/share/actions';
+import { shareChallenge, shareNote } from '@/features/share/actions';
 import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
@@ -40,6 +40,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);
+  const [challengeNote, setChallengeNote] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [win, setWin] = useState<WinResult | null>(null);
   const [sharing, setSharing] = useState(false);
@@ -212,8 +213,8 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
         streak: win?.streak ?? (info.mode === 'daily' ? currentStreak(useGameStore.getState().daily, dateKey()) : undefined),
       }
     : null;
-  const challenge = () => {
-    if (shareResult) shareChallenge(shareResult);
+  const challenge = async () => {
+    if (shareResult) setChallengeNote(shareNote(await shareChallenge(shareResult), S.challengeCopied));
   };
 
   const goHome = () => {
@@ -298,6 +299,11 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
             <Button label={S.challengeFriend} variant="secondary" onPress={challenge} style={styles.flex} />
           </View>
         )}
+        {solved && !win && challengeNote && (
+          <Text selectable style={[styles.help, { color: c.textSecondary }]}>
+            {challengeNote}
+          </Text>
+        )}
       </View>
 
       <View style={styles.toolbar}>
@@ -327,6 +333,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           onShare={() => setSharing(true)}
           onArchive={() => router.replace('/archive')}
           onChallenge={challenge}
+          challengeNote={challengeNote}
           versus={versus}
           reminderOffer={reminderOffer}
         />

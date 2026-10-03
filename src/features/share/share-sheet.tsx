@@ -15,6 +15,7 @@ import { canShareImages, shareImage, shareText } from '@/services/share';
 import { getRefCode } from '@/store/game-store';
 import { S } from '@/strings';
 
+import { shareNote } from './actions';
 import { puzzleTitle, resultText, type ShareResult } from './messages';
 import { ShareCard, type CardFormat } from './share-card';
 
@@ -46,8 +47,8 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
   };
   const onShareText = async () => {
     track('share_result', { type: 'text' });
-    const res = await shareText(resultText(result, getRefCode()));
-    setNote(res === 'copied' ? S.copied : null);
+    const text = resultText(result, getRefCode());
+    setNote(shareNote({ status: await shareText(text), text }, S.copied));
   };
 
   return (
@@ -84,7 +85,7 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
         </View>
         {canShareImages && <Button label={S.shareImage} onPress={onShareImage} />}
         <Button label={canShareImages ? S.shareText : S.copyText} variant={canShareImages ? 'secondary' : 'primary'} onPress={onShareText} />
-        {note ? <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text> : null}
+        {note ? <Text selectable style={[styles.note, { color: c.textSecondary }]}>{note}</Text> : null}
         {!canShareImages && <Text style={[styles.note, { color: c.textSecondary }]}>{S.imageShareWebNote}</Text>}
       </SafeAreaView>
     </Modal>

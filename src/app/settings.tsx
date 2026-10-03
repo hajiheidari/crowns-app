@@ -10,7 +10,7 @@ import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@
 import { useGameStore, type Settings } from '@/store/game-store';
 import { formatClock, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
-import { shareInvite } from '@/features/share/actions';
+import { shareInvite, shareNote } from '@/features/share/actions';
 import { track } from '@/services/analytics';
 import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
 import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
@@ -128,10 +128,10 @@ export default function SettingsScreen() {
         <Section title={S.shareSection}>
           <LinkRow
             label={S.inviteFriends}
-            onPress={async () => setInviteNote((await shareInvite()) === 'copied' ? S.inviteCopied : null)}
+            onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
             last
           />
-          {inviteNote && <Text style={[styles.note, { color: c.textSecondary }]}>{inviteNote}</Text>}
+          {inviteNote && <Text selectable style={[styles.note, { color: c.textSecondary }]}>{inviteNote}</Text>}
         </Section>
 
         <Text style={[styles.footer, { color: c.textSecondary }]}>{S.version(APP_VERSION)}</Text>

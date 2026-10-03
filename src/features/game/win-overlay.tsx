@@ -17,13 +17,15 @@ interface Props {
   onShare: () => void;
   onArchive?: () => void;
   onChallenge: () => void;
+  /** Shown under the share buttons after a web-preview challenge copied its link. */
+  challengeNote?: string | null;
   /** Friend's time when this game came from a challenge link. */
   versus?: number;
   /** Offer the daily reminder here (once, after the first solved daily). */
   reminderOffer?: { hour: number; onAnswer: (yes: boolean) => void };
 }
 
-export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive, onChallenge, versus, reminderOffer }: Props) {
+export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive, onChallenge, challengeNote, versus, reminderOffer }: Props) {
   const { c } = usePalette();
   // Screen readers hear the result right away instead of having to find the card.
   useEffect(() => {
@@ -59,6 +61,11 @@ export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive
           <Button label={S.share} variant="secondary" onPress={onShare} style={styles.flex} />
           <Button label={versus !== undefined ? S.rematch : S.challenge} variant="secondary" onPress={onChallenge} style={styles.flex} />
         </View>
+        {challengeNote && (
+          <Text selectable style={[styles.note, { color: c.textSecondary }]}>
+            {challengeNote}
+          </Text>
+        )}
         {reminderOffer && (
           <View style={[styles.offer, { backgroundColor: c.surfaceMuted }]}>
             <Text style={[styles.offerTitle, { color: c.text }]}>{S.reminderOfferTitle}</Text>
@@ -110,6 +117,7 @@ function Badge({ text, color, bg }: { text: string; color: string; bg: string })
 }
 
 const styles = StyleSheet.create({
+  note: { fontSize: 13, textAlign: 'center' },
   backdrop: { backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center', padding: 24 },
   card: { width: '100%', maxWidth: 380, borderRadius: 24, padding: 24, alignItems: 'center', gap: 6 },
   title: { fontSize: 28, fontWeight: '700', marginTop: 4 },

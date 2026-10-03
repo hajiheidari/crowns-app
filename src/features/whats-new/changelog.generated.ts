@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.5",
+    "date": "2026-10-03",
+    "items": [
+      "Web preview: \"Challenge a friend\" now says when the link is copied, and shows the link to copy by hand if the browser blocks copying."
+    ]
+  },
+  {
     "version": "0.8.4",
     "date": "2026-10-03",
     "items": [

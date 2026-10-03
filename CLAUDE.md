@@ -73,6 +73,9 @@ Read these before writing code:
   waiting for his 0.8.3 test. The emulator here has no KVM: boots take 15+ min and sometimes hang.
 - v0.8.4 (M7): large-font pass. Tight texts cap `maxFontSizeMultiplier` (wordmark, tile titles, game top bar, toolbar, segmented
   controls); Settings rows wrap so controls drop below the label. Dark mode and 320-px-wide layouts checked on web, all screens.
+- v0.8.5: web share/copy reports the truth (`copyOnWeb` in `src/services/share.ts`; expo-clipboard's web fallback claims success
+  even when the browser refuses). Share actions return `{ status, text }`; `shareNote()` gives the note under each share button
+  ("copied", or the text itself to copy by hand). Challenge links still point at the placeholder domain, so they open nothing yet.
 
 ## Tech stack (decided)
 

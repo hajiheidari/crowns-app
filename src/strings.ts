@@ -144,6 +144,8 @@ export const S = {
   inviteFriends: 'Invite friends',
   shareSection: 'Share',
   inviteCopied: 'Invite link copied. Paste it to a friend!',
+  challengeCopied: 'Challenge link copied. Paste it to a friend!',
+  copyFailed: "Couldn't copy here. Select this text and copy it:",
   inviteMessage: (link: string) =>
     `I'm playing Crowns, a free daily logic puzzle 👑 One crown per row, column and color. Try it:\n${link}`,
   challengeTitle: 'You got a challenge!',

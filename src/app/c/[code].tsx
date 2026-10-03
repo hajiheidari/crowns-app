@@ -3,7 +3,7 @@
  * No server: the code itself carries the puzzle id and the friend's time.
  */
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,7 +12,7 @@ import { CrownIcon } from '@/components/crown-icon';
 import { ScreenHeader } from '@/components/screen-header';
 import { decodeChallenge, formatTime } from '@/engine';
 import { getPuzzle } from '@/features/puzzles/catalog';
-import { shareChallenge } from '@/features/share/actions';
+import { shareChallenge, shareNote } from '@/features/share/actions';
 import { puzzleTitle } from '@/features/share/messages';
 import { usePalette } from '@/hooks/use-palette';
 import { track } from '@/services/analytics';
@@ -26,6 +26,7 @@ export default function ChallengeRoute() {
   const challenge = useMemo(() => (code ? decodeChallenge(code) : null), [code]);
   const puzzle = useMemo(() => (challenge ? getPuzzle(challenge.puzzleId) : null), [challenge]);
   const mine = useGameStore((s) => (challenge ? s.games[challenge.puzzleId] : undefined));
+  const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
     noteInvitedBy(challenge?.ref);
@@ -73,7 +74,17 @@ export default function ChallengeRoute() {
         </View>
         {mine?.solved ? (
           <>
-            <Button label={S.challengeBack} onPress={() => shareChallenge({ puzzleId: puzzle.id, seconds: mine.seconds })} />
+            <Button
+              label={S.challengeBack}
+              onPress={async () =>
+                setNote(shareNote(await shareChallenge({ puzzleId: puzzle.id, seconds: mine.seconds }), S.challengeCopied))
+              }
+            />
+            {note && (
+              <Text selectable style={[styles.note, { color: c.textSecondary }]}>
+                {note}
+              </Text>
+            )}
             <Button label={S.home} variant="ghost" onPress={home} />
           </>
         ) : (
@@ -95,5 +106,6 @@ const styles = StyleSheet.create({
   meta: { fontSize: 15, fontWeight: '600' },
   time: { fontSize: 44, fontWeight: '300', fontVariant: ['tabular-nums'], marginTop: 8 },
   text: { fontSize: 17, lineHeight: 24, textAlign: 'center' },
+  note: { fontSize: 13, textAlign: 'center' },
   verdict: { fontSize: 17, fontWeight: '700' },
 });
