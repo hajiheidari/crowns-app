@@ -1,2 +1,4 @@
 # Netlify / Cloudflare Pages: every challenge link is served by the landing page.
 /c/*  /index.html  200
+/privacy  /privacy.html  200
+/terms    /terms.html    200

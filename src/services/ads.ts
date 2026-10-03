@@ -11,6 +11,13 @@ export const adsReady = () => true;
 
 export async function initAds(): Promise<void> {}
 
+/** The web preview has no consent form. */
+export async function privacyOptionsRequired(): Promise<boolean> {
+  return false;
+}
+
+export async function showPrivacyOptions(): Promise<void> {}
+
 export async function showInterstitial(): Promise<boolean> {
   await showMockAd('interstitial');
   return true;

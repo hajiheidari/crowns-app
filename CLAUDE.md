@@ -81,6 +81,10 @@ Read these before writing code:
 - v0.8.6: renamed to **Tiaro** (user-facing text, scheme `tiaro`, placeholder domain playtiaro.com, landing page).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
+- v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the
+  App Store privacy label and Play Data safety. `web/privacy.html` + `web/terms.html` (served at /privacy, /terms). Settings → Help:
+  Contact support (`SUPPORT_EMAIL`, placeholder support@playtiaro.com), Privacy policy, Terms, and "Ad privacy choices"
+  (UMP `showPrivacyOptionsForm`, shown only when `privacyOptionsRequirementStatus` is REQUIRED).
 
 ## Tech stack (decided)
 

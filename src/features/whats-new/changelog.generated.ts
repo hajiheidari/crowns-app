@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.8",
+    "date": "2026-10-03",
+    "items": [
+      "Settings → Help now has Contact support, Privacy policy and Terms of use, plus Ad privacy choices where the law requires it."
+    ]
+  },
+  {
     "version": "0.8.7",
     "date": "2026-10-03",
     "items": [

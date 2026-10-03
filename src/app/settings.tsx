@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/screen-header';
@@ -9,8 +9,10 @@ import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { useGameStore, type Settings } from '@/store/game-store';
 import { formatClock, S } from '@/strings';
+import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
+import { privacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
 import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
@@ -24,6 +26,10 @@ export default function SettingsScreen() {
   const updateSettings = useGameStore((s) => s.updateSettings);
   const updateMeta = useGameStore((s) => s.updateMeta);
   const [whatsNew, setWhatsNew] = useState(false);
+  const [adChoices, setAdChoices] = useState(false);
+  useEffect(() => {
+    privacyOptionsRequired().then(setAdChoices);
+  }, []);
   const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
 
@@ -122,7 +128,14 @@ export default function SettingsScreen() {
 
         <Section title={S.help}>
           <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
-          <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} last />
+          <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} />
+          <LinkRow
+            label={S.contactSupport}
+            onPress={() => openLink(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(S.supportSubject(APP_VERSION))}`)}
+          />
+          <LinkRow label={S.privacyPolicy} onPress={() => openLink(PRIVACY_URL)} />
+          {adChoices && <LinkRow label={S.adPrivacyChoices} onPress={() => showPrivacyOptions()} />}
+          <LinkRow label={S.termsOfUse} onPress={() => openLink(TERMS_URL)} last />
         </Section>
 
         <Section title={S.shareSection}>
@@ -182,6 +195,11 @@ function PurchasesSection() {
       {note && <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text>}
     </Section>
   );
+}
+
+/** Opens a web page or the mail app; failures (no mail app, offline) are ignored. */
+function openLink(url: string) {
+  Linking.openURL(url).catch(() => {});
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {

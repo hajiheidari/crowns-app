@@ -63,6 +63,23 @@ export function initAds(): Promise<void> {
   return initPromise;
 }
 
+/**
+ * Where the law needs it (EEA, UK, some US states), players must be able to change their ad consent later;
+ * Settings shows a "Privacy choices" row only when Google's consent SDK says so.
+ */
+export async function privacyOptionsRequired(): Promise<boolean> {
+  try {
+    return (await AdsConsent.getConsentInfo()).privacyOptionsRequirementStatus === 'REQUIRED';
+  } catch {
+    return false;
+  }
+}
+
+/** Opens Google's consent form again; the ads SDK applies the new choice to later ad requests. */
+export async function showPrivacyOptions(): Promise<void> {
+  await AdsConsent.showPrivacyOptionsForm().catch(() => null);
+}
+
 function loadInterstitial() {
   if (!ready) return;
   interstitialLoaded = false;

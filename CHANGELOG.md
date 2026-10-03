@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.8 — 2026-10-03
+- Settings → Help now has Contact support, Privacy policy and Terms of use, plus Ad privacy choices where the law requires it.
+
 ## 0.8.7 — 2026-10-03
 - New app id for the stores (com.espadna.tiaro). On Android this installs as a new app: remove the old test version first.
 
