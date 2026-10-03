@@ -2,13 +2,13 @@
   "expo": {
     "name": "Tiaro",
     "slug": "crowns",
-    "version": "0.8.6",
+    "version": "0.8.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tiaro",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.amixstudio.crowns"
+      "bundleIdentifier": "com.espadna.tiaro"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.amixstudio.crowns",
+      "package": "com.espadna.tiaro",
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",

@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["APPLE_TEAM_ID.com.amixstudio.crowns"],
+        "appIDs": ["APPLE_TEAM_ID.com.espadna.tiaro"],
         "components": [
           { "/": "/c/*", "comment": "Challenge links" },
           { "/": "/", "?": { "r": "?*" }, "comment": "Invite links" }

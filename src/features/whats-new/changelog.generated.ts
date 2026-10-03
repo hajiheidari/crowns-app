@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.7",
+    "date": "2026-10-03",
+    "items": [
+      "New app id for the stores (com.espadna.tiaro). On Android this installs as a new app: remove the old test version first."
+    ]
+  },
+  {
     "version": "0.8.6",
     "date": "2026-10-03",
     "items": [

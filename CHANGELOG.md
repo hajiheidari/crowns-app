@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.7 — 2026-10-03
+- New app id for the stores (com.espadna.tiaro). On Android this installs as a new app: remove the old test version first.
+
 ## 0.8.6 — 2026-10-03
 - The game has a new name: Tiaro.
 
