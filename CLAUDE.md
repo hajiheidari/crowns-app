@@ -78,6 +78,9 @@ Read these before writing code:
 - v0.8.5: web share/copy reports the truth (`copyOnWeb` in `src/services/share.ts`; expo-clipboard's web fallback claims success
   even when the browser refuses). Share actions return `{ status, text }`; `shareNote()` gives the note under each share button
   ("copied", or the text itself to copy by hand). Challenge links still point at the placeholder domain, so they open nothing yet.
+- v0.8.6: renamed to **Tiaro** (user-facing text, scheme `tiaro`, placeholder domain playtiaro.com, landing page).
+- M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
+  made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 
 ## Tech stack (decided)
 
