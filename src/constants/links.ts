@@ -13,7 +13,7 @@ export const PRIVACY_URL = `${LINK_BASE}/privacy`;
 export const PRIVACY_URL_FA = `${LINK_BASE}/privacy-fa`;
 export const TERMS_URL = `${LINK_BASE}/terms`;
 /** Support address chosen by Amir (shown in Settings, the privacy policy and the store listings). */
-export const SUPPORT_EMAIL = 'sepanta.hesaban@gmail.com';
+export const SUPPORT_EMAIL = 'tiaro.support@gmail.com';
 
 export const challengeUrl = (code: string) => `${LINK_BASE}/c/${code}`;
 export const inviteUrl = (ref: string) => `${LINK_BASE}/?r=${ref}`;

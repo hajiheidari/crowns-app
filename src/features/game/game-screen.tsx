@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BackButton } from '@/components/back-button';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { applyHint, CROWN, dateKey, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
@@ -24,7 +25,7 @@ import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
 import { currentStreak, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
-import { ARROW_BACK, arrowStyle, getLanguage, S } from '@/strings';
+import { getLanguage, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export function GameScreen({ id, versus }: { id: string; versus?: number }) {
@@ -239,7 +240,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
       <View style={styles.topBar}>
-        <IconButton label={ARROW_BACK} arrow a11y={S.back} onPress={goHome} color={c.text} />
+        <BackButton onPress={goHome} />
         <View style={styles.titleBox}>
           <Text style={[styles.title, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
             {title}
@@ -348,7 +349,7 @@ function sameBoard(a: Mark[], b: Mark[]): boolean {
   return a.length === b.length && a.every((m, i) => m === b[i]);
 }
 
-function IconButton(p: { label: string; a11y: string; onPress: () => void; color: string; disabled?: boolean; arrow?: boolean }) {
+function IconButton(p: { label: string; a11y: string; onPress: () => void; color: string; disabled?: boolean }) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -357,7 +358,7 @@ function IconButton(p: { label: string; a11y: string; onPress: () => void; color
       disabled={p.disabled}
       hitSlop={8}
       style={({ pressed }) => [styles.iconButton, { opacity: p.disabled ? 0.3 : pressed ? 0.6 : 1 }]}>
-      <Text style={[styles.iconText, { color: p.color }, p.arrow && arrowStyle()]} maxFontSizeMultiplier={1.2}>{p.label}</Text>
+      <Text style={[styles.iconText, { color: p.color }]} maxFontSizeMultiplier={1.2}>{p.label}</Text>
     </Pressable>
   );
 }
@@ -383,7 +384,16 @@ function ToolButton(p: { label: string; glyph: string; onPress: () => void; disa
 const styles = StyleSheet.create({
   root: { flex: 1 },
   center: { alignItems: 'center', justifyContent: 'center', gap: 16 },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingTop: 4, minHeight: 56 },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingTop: 4,
+    minHeight: 56,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
+  },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   iconText: { fontSize: 26, fontWeight: '500' },
   titleBox: { flex: 1, alignItems: 'center' },
