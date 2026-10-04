@@ -1,7 +1,7 @@
 // Cloudflare Workers static site for playtiaro.com: serves web/ as-is (no build step).
 // web/_redirects sends challenge links to the landing page; web/_headers fixes the AASA content type.
 {
-  "name": "tiaro-web",
+  "name": "crowns-app",
   "compatibility_date": "2026-10-01",
   "assets": { "directory": "./web" }
 }
