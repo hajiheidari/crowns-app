@@ -1,11 +1,11 @@
 /**
- * Public links. The domain is a placeholder until Amir picks one (CLAUDE.md "Decisions pending");
- * change LINK_BASE and the `web/` landing page together.
+ * Public links, on Espadna's own domain (Amir's choice 2026-10-04: nothing may depend on playtiaro.com,
+ * which may not be renewed). The site is the `crowns-app` Worker (wrangler.jsonc); the landing page is espadna.com/tiaro-app/.
  *
  *   <LINK_BASE>/c/<code>   challenge link (code from engine `encodeChallenge`)
  *   <LINK_BASE>/?r=<ref>   invite link
  */
-export const LINK_BASE = 'https://playtiaro.com';
+export const LINK_BASE = 'https://tiaro.espadna.com';
 
 /** Pages on the same site as the links (`web/privacy.html`, `web/terms.html`). Stores need the privacy URL too. */
 export const PRIVACY_URL = `${LINK_BASE}/privacy`;

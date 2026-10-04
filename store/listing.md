@@ -10,8 +10,8 @@ Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS ke
 - **Category:** Games → Puzzle (App Store secondary: Board). Google Play: Game → Puzzle.
 - **Price:** Free, with one in-app purchase "Remove Ads" $3.99 (non-consumable, id `remove_ads`).
 - **Contains ads:** Yes.
-- **Support URL:** https://playtiaro.com · **Privacy policy:** https://playtiaro.com/privacy
-- **Marketing URL (optional):** https://playtiaro.com
+- **Support URL:** https://espadna.com/tiaro-app/ · **Privacy policy:** https://tiaro.espadna.com/privacy
+- **Marketing URL (optional):** https://espadna.com/tiaro-app/
 
 ## App Store (iOS)
 

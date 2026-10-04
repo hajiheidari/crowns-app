@@ -13,8 +13,8 @@
 - **رده‌ی سنی:** ۳+ (بدون خشونت و محتوای نامناسب)
 - **قیمت:** رایگان، با تبلیغات. خرید درون‌برنامه‌ای «حذف تبلیغات» (۹۹٬۰۰۰ تومان) بعد از اضافه شدن پرداخت بازار.
 - **ایمیل پشتیبانی:** tiaro.support@gmail.com
-- **وب‌سایت:** https://playtiaro.com
-- **حریم خصوصی:** https://playtiaro.com/privacy-fa
+- **وب‌سایت:** https://espadna.com/tiaro-app/fa/
+- **حریم خصوصی:** https://tiaro.espadna.com/privacy-fa
 
 ## توضیح کوتاه
 

@@ -1,4 +1,4 @@
-// Cloudflare Workers static site for playtiaro.com (see scripts/build-site.mjs).
+// Cloudflare Workers static site for tiaro.espadna.com (+ the espadna.com/tiaro-app* route, and playtiaro.com while it lasts) (see scripts/build-site.mjs).
 // `wrangler deploy` runs the build first; unknown paths (/c/<code>, /stats, …) get the web game's index.html.
 {
   "name": "crowns-app",

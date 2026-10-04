@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tiaro",
     "slug": "crowns",
-    "version": "0.9.4",
+    "version": "0.9.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tiaro",
@@ -10,7 +10,7 @@
     "ios": {
       "bundleIdentifier": "com.espadna.tiaro",
       "associatedDomains": [
-        "applinks:playtiaro.com"
+        "applinks:tiaro.espadna.com"
       ]
     },
     "android": {
@@ -34,12 +34,12 @@
           "data": [
             {
               "scheme": "https",
-              "host": "playtiaro.com",
+              "host": "tiaro.espadna.com",
               "pathPrefix": "/c/"
             },
             {
               "scheme": "https",
-              "host": "playtiaro.com",
+              "host": "tiaro.espadna.com",
               "path": "/"
             }
           ],

@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.9.5",
+    "date": "2026-10-04",
+    "items": [
+      "Challenge and invite links now use tiaro.espadna.com."
+    ]
+  },
+  {
     "version": "0.9.4",
     "date": "2026-10-04",
     "items": [

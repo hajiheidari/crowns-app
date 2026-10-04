@@ -1,7 +1,7 @@
 /**
  * Web preview stand-in for AdMob (ads.native.ts): no real ads, but a short fake ad shows where
  * a rewarded or interstitial ad would appear, so the flow can be tried in a browser.
- * The public site (playtiaro.com) shows no ads at all and gives rewards for free.
+ * The public site (tiaro.espadna.com) shows no ads at all and gives rewards for free.
  */
 import { PUBLIC_SITE } from '@/constants/store';
 import { showMockAd } from '@/features/monetization/ad-ui';

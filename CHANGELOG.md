@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.5 — 2026-10-04
+- Challenge and invite links now use tiaro.espadna.com.
+
 ## 0.9.4 — 2026-10-04
 - Tiaro's web game is also at tiaro.espadna.com, with a page about the game in English, Persian and Arabic.
 
