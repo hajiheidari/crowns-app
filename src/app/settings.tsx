@@ -9,7 +9,7 @@ import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { useGameStore, type Settings } from '@/store/game-store';
 import { ARROW_FORWARD, arrowStyle, formatClock, S } from '@/strings';
-import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
+import { PRIVACY_URL, PRIVACY_URL_FA, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { STORE } from '@/constants/store';
@@ -143,7 +143,7 @@ export default function SettingsScreen() {
             label={S.contactSupport}
             onPress={() => openLink(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(S.supportSubject(APP_VERSION))}`)}
           />
-          <LinkRow label={S.privacyPolicy} onPress={() => openLink(PRIVACY_URL)} />
+          <LinkRow label={S.privacyPolicy} onPress={() => openLink(STORE === 'bazaar' ? PRIVACY_URL_FA : PRIVACY_URL)} />
           {adChoices && <LinkRow label={S.adPrivacyChoices} onPress={() => showPrivacyOptions()} />}
           <LinkRow label={S.termsOfUse} onPress={() => openLink(TERMS_URL)} last />
         </Section>

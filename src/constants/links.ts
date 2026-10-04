@@ -9,6 +9,8 @@ export const LINK_BASE = 'https://playtiaro.com';
 
 /** Pages on the same site as the links (`web/privacy.html`, `web/terms.html`). Stores need the privacy URL too. */
 export const PRIVACY_URL = `${LINK_BASE}/privacy`;
+/** Persian privacy page (describes the Cafe Bazaar build: Adivery ads, Bazaar billing). */
+export const PRIVACY_URL_FA = `${LINK_BASE}/privacy-fa`;
 export const TERMS_URL = `${LINK_BASE}/terms`;
 /** Support address chosen by Amir (shown in Settings, the privacy policy and the store listings). */
 export const SUPPORT_EMAIL = 'sepanta.hesaban@gmail.com';
