@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.9.6",
+    "date": "2026-10-04",
+    "items": [
+      "Tiaro's website is espadna.com/tiaro-app; the web game is tiaro.espadna.com."
+    ]
+  },
+  {
     "version": "0.9.5",
     "date": "2026-10-04",
     "items": [
@@ -28,7 +35,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     "version": "0.9.2",
     "date": "2026-10-04",
     "items": [
-      "Play Tiaro in your browser at playtiaro.com, ad-free. Challenge links open the puzzle there too."
+      "Play Tiaro in your browser, ad-free. Challenge links open the puzzle there too."
     ]
   },
   {
@@ -50,7 +57,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     "version": "0.8.10",
     "date": "2026-10-04",
     "items": [
-      "Challenge and invite links (playtiaro.com) open straight in the app once it is installed."
+      "Challenge and invite links open straight in the app once it is installed."
     ]
   },
   {

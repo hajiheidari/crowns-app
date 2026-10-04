@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.6 — 2026-10-04
+- Tiaro's website is espadna.com/tiaro-app; the web game is tiaro.espadna.com.
+
 ## 0.9.5 — 2026-10-04
 - Challenge and invite links now use tiaro.espadna.com.
 
@@ -13,7 +16,7 @@ Each entry is also shown in the in-app "What's new" sheet.
 - New support email: tiaro.support@gmail.com.
 
 ## 0.9.2 — 2026-10-04
-- Play Tiaro in your browser at playtiaro.com, ad-free. Challenge links open the puzzle there too.
+- Play Tiaro in your browser, ad-free. Challenge links open the puzzle there too.
 
 ## 0.9.1 — 2026-10-04
 - Persian uses the Persian (solar) calendar, with weeks starting on Saturday.
@@ -23,7 +26,7 @@ Each entry is also shown in the in-app "What's new" sheet.
 - Tiaro now speaks Persian (فارسی): change the language in Settings → Appearance. The board, hints and tutorial are all translated.
 
 ## 0.8.10 — 2026-10-04
-- Challenge and invite links (playtiaro.com) open straight in the app once it is installed.
+- Challenge and invite links open straight in the app once it is installed.
 
 ## 0.8.9 — 2026-10-04
 - Contact support now opens an email to the real support address.

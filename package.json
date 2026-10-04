@@ -1,7 +1,7 @@
 {
   "name": "crowns",
   "main": "expo-router/entry",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "dependencies": {
     "@expo/ui": "~57.0.20",
     "@react-native-async-storage/async-storage": "2.2.0",
