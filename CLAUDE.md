@@ -186,8 +186,8 @@ import {
 - ~~Bundle id / package~~ decided 2026-10-03: **`com.espadna.tiaro`** (Amir's brand is Espadna) for both iOS and Android.
   Permanent after the first store upload.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
-- Domain: Amir bought one on 2026-10-04 (confirm it is playtiaro.com); hosting for `web/` not set up yet. Then add
-  `associatedDomains` / Android `intentFilters` to app.json and the real Apple Team ID to `web/.well-known/`.
+- Domain **playtiaro.com** (bought 2026-10-04, on Cloudflare). v0.8.10 added `associatedDomains` + Android `intentFilters`.
+  Still open: host `web/` on Cloudflare Pages (Amir), Apple Team ID in AASA, Play/Bazaar signing SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar (Iran) account is active (2026-10-04). Needs a separate Android build: AdMob, Google Play billing/RevenueCat and
   probably Firebase don't work in Iran. Scope (free-only build vs Bazaar billing + local ad network) is Amir's call.

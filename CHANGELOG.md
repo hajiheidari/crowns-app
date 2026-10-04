@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.10 — 2026-10-04
+- Challenge and invite links (playtiaro.com) open straight in the app once it is installed.
+
 ## 0.8.9 — 2026-10-04
 - Contact support now opens an email to the real support address.
 

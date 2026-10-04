@@ -2,13 +2,16 @@
   "expo": {
     "name": "Tiaro",
     "slug": "crowns",
-    "version": "0.8.9",
+    "version": "0.8.10",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tiaro",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.espadna.tiaro"
+      "bundleIdentifier": "com.espadna.tiaro",
+      "associatedDomains": [
+        "applinks:playtiaro.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -23,6 +26,28 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "playtiaro.com",
+              "pathPrefix": "/c/"
+            },
+            {
+              "scheme": "https",
+              "host": "playtiaro.com",
+              "path": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
       ]
     },
     "web": {

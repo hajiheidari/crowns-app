@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.8.10",
+    "date": "2026-10-04",
+    "items": [
+      "Challenge and invite links (playtiaro.com) open straight in the app once it is installed."
+    ]
+  },
+  {
     "version": "0.8.9",
     "date": "2026-10-04",
     "items": [
