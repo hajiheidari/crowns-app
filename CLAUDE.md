@@ -83,7 +83,7 @@ Read these before writing code:
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the
   App Store privacy label and Play Data safety. `web/privacy.html` + `web/terms.html` (served at /privacy, /terms). Settings → Help:
-  Contact support (`SUPPORT_EMAIL`, placeholder support@playtiaro.com), Privacy policy, Terms, and "Ad privacy choices"
+  Contact support (`SUPPORT_EMAIL` = sepanta.hesaban@gmail.com, Amir's choice), Privacy policy, Terms, and "Ad privacy choices"
   (UMP `showPrivacyOptionsForm`, shown only when `privacyOptionsRequirementStatus` is REQUIRED).
 
 ## Tech stack (decided)
@@ -186,7 +186,11 @@ import {
 - ~~Bundle id / package~~ decided 2026-10-03: **`com.espadna.tiaro`** (Amir's brand is Espadna) for both iOS and Android.
   Permanent after the first store upload.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
-- Domain for share/challenge links (placeholder `playtiaro.com`, not bought yet) + privacy policy URL.
+- Domain: Amir bought one on 2026-10-04 (confirm it is playtiaro.com); hosting for `web/` not set up yet. Then add
+  `associatedDomains` / Android `intentFilters` to app.json and the real Apple Team ID to `web/.well-known/`.
+- "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
+- Cafe Bazaar (Iran) account is active (2026-10-04). Needs a separate Android build: AdMob, Google Play billing/RevenueCat and
+  probably Firebase don't work in Iran. Scope (free-only build vs Bazaar billing + local ad network) is Amir's call.
 - ~~Remove-Ads price~~ decided 2026-09-29: $3.99 one-time (Amir confirmed).
 
 @AGENTS.md

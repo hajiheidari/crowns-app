@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.8.9 — 2026-10-04
+- Contact support now opens an email to the real support address.
+
 ## 0.8.8 — 2026-10-03
 - Settings → Help now has Contact support, Privacy policy and Terms of use, plus Ad privacy choices where the law requires it.
 

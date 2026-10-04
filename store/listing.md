@@ -2,6 +2,7 @@
 
 English (US). Lengths are checked by `store/tools/check-listing.mjs`; limits in brackets.
 Never use other companies' brand names here (LinkedIn, NYT, Queens, Zip, Tango): Apple and Google reject them.
+Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS keyword in a later update and keep it only if the update is approved.
 
 ## Both stores
 
