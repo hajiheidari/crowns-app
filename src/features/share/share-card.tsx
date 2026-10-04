@@ -3,13 +3,14 @@
  * Always drawn in the light brand colors so shared images look the same everywhere.
  */
 import { forwardRef } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { CrownIcon } from '@/components/crown-icon';
 import { LINK_BASE } from '@/constants/links';
 import { Colors, RegionColors } from '@/constants/theme';
 import { formatTime, type Puzzle } from '@/engine';
 import { S } from '@/strings';
+import { Text } from '@/components/text';
 
 export type CardFormat = 'square' | 'story';
 

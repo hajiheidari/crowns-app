@@ -3,14 +3,15 @@
  * stand-in for full-screen ads. Mounted once in the root layout.
  */
 import { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { CrownIcon } from '@/components/crown-icon';
 import { usePalette } from '@/hooks/use-palette';
-import { S } from '@/strings';
+import { dirStyle, S } from '@/strings';
 
 import { useAdUi, type AdPrompt } from './ad-ui';
+import { Text } from '@/components/text';
 
 export function AdHost() {
   const prompt = useAdUi((s) => s.prompt);
@@ -42,7 +43,7 @@ function TrackingExplainer({ onContinue }: { onContinue: () => void }) {
   const { c } = usePalette();
   return (
     <Modal transparent animationType="fade">
-      <View style={styles.backdrop}>
+      <View style={[styles.backdrop, dirStyle()]}>
         <View style={[styles.card, { backgroundColor: c.surface }]}>
           <CrownIcon size={48} color={c.gold} />
           <Text style={[styles.title, { color: c.text }]}>{S.trackingTitle}</Text>
@@ -66,7 +67,7 @@ function MockAd({ prompt, onDone }: { prompt: Extract<AdPrompt, { kind: 'mock' }
   const rewarded = prompt.format === 'rewarded';
   return (
     <Modal transparent animationType="fade">
-      <View style={[styles.backdrop, styles.dark]}>
+      <View style={[styles.backdrop, styles.dark, dirStyle()]}>
         <View style={[styles.card, { backgroundColor: c.surface }]}>
           <Text style={[styles.tag, { color: c.textSecondary, borderColor: c.border }]}>{S.mockAdTag}</Text>
           <Text style={[styles.title, { color: c.text }]}>{rewarded ? S.mockRewardedTitle : S.mockInterstitialTitle}</Text>

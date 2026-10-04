@@ -8,6 +8,7 @@ import { persist } from 'zustand/middleware';
 
 import { addDays, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
 import { persistStorage } from '@/store/storage';
 
 /** One undo step: the cells it touched, with their marks before and after. */
@@ -55,6 +56,8 @@ export interface Settings {
   /** Color-blind aid: a pattern per region on top of its color. */
   patterns: boolean;
   reminder: { enabled: boolean; hour: number; minute: number };
+  /** UI language; the Bazaar build starts in Persian, others in English. */
+  language: Language;
 }
 
 /** Bookkeeping that is not gameplay: install date, "What's new", review prompt. */
@@ -134,6 +137,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
   patterns: false,
   reminder: { enabled: false, hour: 9, minute: 0 },
+  language: DEFAULT_LANGUAGE,
 };
 
 const DEFAULT_META: Meta = {

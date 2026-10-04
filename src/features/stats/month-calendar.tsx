@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { dateKey } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
 import { S } from '@/strings';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+import { Text } from '@/components/text';
 
 export type DayMark = 'locked' | 'started';
 
@@ -36,15 +35,15 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
     <View style={styles.root}>
       <View style={styles.header}>
         <NavButton
-          label="‹"
-          a11y="Previous month"
+          label={S.chevronBack}
+          a11y={S.prevMonth}
           onPress={() => setOffset(offset - 1)}
           disabled={!!minKey && dateKey(new Date(first.getFullYear(), first.getMonth(), 0)) < minKey}
         />
         <Text style={[styles.month, { color: c.text }]}>
-          {MONTHS[first.getMonth()]} {first.getFullYear()} · {solvedThisMonth} ✓
+          {S.monthTitle(first.getMonth(), first.getFullYear(), solvedThisMonth)}
         </Text>
-        <NavButton label="›" a11y="Next month" onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
+        <NavButton label={S.chevronForward} a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
       </View>
       <View style={styles.grid}>
         {S.weekdays.map((d, i) => (
@@ -58,7 +57,7 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
           const done = solved[key] !== undefined;
           const inRange = key <= todayKey && (!minKey || key >= minKey);
           const m = inRange && !done ? mark?.(key) : null;
-          const label = `${MONTHS[first.getMonth()]} ${d}${done ? ', solved' : m === 'locked' ? ', locked' : m === 'started' ? ', started' : ''}`;
+          const label = S.dayLabel(first.getMonth(), d, done ? 'solved' : m === 'locked' ? 'locked' : m === 'started' ? 'started' : '');
           const day = (
             <View
               style={[

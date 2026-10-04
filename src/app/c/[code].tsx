@@ -4,7 +4,7 @@
  */
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -18,6 +18,7 @@ import { usePalette } from '@/hooks/use-palette';
 import { track } from '@/services/analytics';
 import { noteInvitedBy, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, S } from '@/strings';
+import { Text } from '@/components/text';
 
 export default function ChallengeRoute() {
   const { c } = usePalette();

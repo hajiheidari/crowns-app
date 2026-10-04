@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.0 — 2026-10-04
+- Tiaro now speaks Persian (فارسی): change the language in Settings → Appearance. The board, hints and tutorial are all translated.
+
 ## 0.8.10 — 2026-10-04
 - Challenge and invite links (playtiaro.com) open straight in the app once it is installed.
 

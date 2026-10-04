@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 
 import { formatTime } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
+import { Text } from '@/components/text';
+import { S } from '@/strings';
 
 const H = 44;
 const PAD = 5;
@@ -41,7 +43,7 @@ export function Sparkline({ values }: { values: number[] }) {
       </View>
       <View style={styles.labels}>
         <Text style={[styles.label, { color: c.text }]}>{formatTime(values[last])}</Text>
-        <Text style={[styles.sub, { color: c.textSecondary }]}>best {formatTime(min)}</Text>
+        <Text style={[styles.sub, { color: c.textSecondary }]}>{S.sparkBest(formatTime(min))}</Text>
       </View>
     </View>
   );

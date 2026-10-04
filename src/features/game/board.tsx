@@ -9,17 +9,18 @@
  * the "Toggle crown" action places or removes a crown.
  */
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, StyleSheet, Text, View, type AccessibilityActionEvent, type LayoutChangeEvent } from 'react-native';
+import { Platform, StyleSheet, View, type AccessibilityActionEvent, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { CrownIcon } from '@/components/crown-icon';
-import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, REGION_COLOR_NAMES, type Mark, type Puzzle } from '@/engine';
+import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, regionColorName, type Mark, type Puzzle } from '@/engine';
 import { RegionPatterns } from '@/features/game/region-patterns';
 import { clampZoom, gestureClock, pinchZoom, toBoard, ZOOM_MIN_N, type ZoomState } from '@/features/game/zoom';
 import { usePalette } from '@/hooks/use-palette';
 import type { Settings } from '@/store/game-store';
-import { S } from '@/strings';
+import { getLanguage, S } from '@/strings';
+import { Text } from '@/components/text';
 
 interface Props {
   puzzle: Puzzle;
@@ -222,7 +223,8 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
 
   return (
     <View
-      style={[styles.frame, { borderColor: c.gridThick }]}
+      // The grid keeps row/column order in every language (spec §7: the board must NOT mirror in RTL).
+      style={[styles.frame, { borderColor: c.gridThick, direction: 'ltr' }]}
       accessibilityLabel={decorative ? undefined : S.boardLabel(n)}
       accessibilityElementsHidden={decorative}
       importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}>
@@ -240,7 +242,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                 <Cell
                   key={i}
                   index={i}
-                  label={decorative ? undefined : S.cellLabel(row + 1, col + 1, REGION_COLOR_NAMES[regions[i]], cellState(mark, auto.has(i), conflicts.has(i)))}
+                  label={decorative ? undefined : S.cellLabel(row + 1, col + 1, regionColorName(regions[i], getLanguage()), cellState(mark, auto.has(i), conflicts.has(i)))}
                   onTap={locked ? undefined : onTap}
                   onLongPress={locked ? undefined : onLongPress}
                   left={col * cellSize}

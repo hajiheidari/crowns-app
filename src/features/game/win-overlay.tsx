@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
@@ -8,6 +8,7 @@ import { formatTime } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
 import type { WinResult } from '@/store/game-store';
 import { formatClock, S } from '@/strings';
+import { Text } from '@/components/text';
 
 interface Props {
   result: WinResult;
@@ -49,7 +50,7 @@ export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive
           <View style={[styles.versus, { backgroundColor: c.surfaceMuted }]}>
             <View style={styles.vsRow}>
               <VsTime label={S.you} seconds={result.seconds} strong={result.seconds <= versus} />
-              <Text style={[styles.vsMid, { color: c.textSecondary }]}>vs</Text>
+              <Text style={[styles.vsMid, { color: c.textSecondary }]}>{S.vs}</Text>
               <VsTime label={S.friend} seconds={versus} strong={versus <= result.seconds} />
             </View>
             <Text style={[styles.vsVerdict, { color: c.text }]}>

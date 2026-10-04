@@ -1,15 +1,16 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Board } from '@/features/game/board';
-import { SLIDES, TUTORIAL_PUZZLE } from '@/features/tutorial/slides';
+import { SLIDES, slideText, TUTORIAL_PUZZLE } from '@/features/tutorial/slides';
 import { usePalette } from '@/hooks/use-palette';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
 import { track } from '@/services/analytics';
+import { Text } from '@/components/text';
 
 const FRAME_MS = 900;
 const noop = () => {};
@@ -71,8 +72,8 @@ export default function TutorialScreen() {
             finger={frame.finger}
           />
         </View>
-        <Text style={[styles.title, { color: c.text }]}>{slide.title}</Text>
-        <Text style={[styles.text, { color: c.textSecondary }]}>{slide.body}</Text>
+        <Text style={[styles.title, { color: c.text }]}>{slideText(slide).title}</Text>
+        <Text style={[styles.text, { color: c.textSecondary }]}>{slideText(slide).body}</Text>
       </View>
 
       <View style={styles.dots}>

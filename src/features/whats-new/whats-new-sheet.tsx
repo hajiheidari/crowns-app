@@ -1,11 +1,12 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { usePalette } from '@/hooks/use-palette';
-import { S } from '@/strings';
+import { dirStyle, S } from '@/strings';
 
 import { CHANGELOG } from './changelog.generated';
+import { Text } from '@/components/text';
 
 /** Compares "1.2.3" style versions. */
 export function compareVersions(a: string, b: string): number {
@@ -29,7 +30,7 @@ export function WhatsNewSheet({ visible, since, onClose }: Props) {
   return (
     <Modal transparent visible={visible} animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
-      <SafeAreaView edges={['bottom']} style={[styles.sheet, { backgroundColor: c.surface }]}>
+      <SafeAreaView edges={['bottom']} style={[styles.sheet, { backgroundColor: c.surface }, dirStyle()]}>
         <View style={[styles.grabber, { backgroundColor: c.border }]} />
         <Text style={[styles.title, { color: c.text }]}>{S.whatsNew}</Text>
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>

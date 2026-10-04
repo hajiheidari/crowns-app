@@ -4,8 +4,9 @@ import { describeError } from '@/services/crash-alert';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AdHost } from '@/features/monetization/ad-host';
@@ -15,12 +16,25 @@ import { initPurchases } from '@/services/iap';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
 import { useGameStore, useHydrated } from '@/store/game-store';
+import { setLanguage } from '@/i18n';
+import { dirStyle, S } from '@/strings';
+import { Text } from '@/components/text';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+const VAZIRMATN = {
+  'Vazirmatn-Regular': require('../../assets/fonts/Vazirmatn-Regular.ttf'),
+  'Vazirmatn-Medium': require('../../assets/fonts/Vazirmatn-Medium.ttf'),
+  'Vazirmatn-SemiBold': require('../../assets/fonts/Vazirmatn-SemiBold.ttf'),
+  'Vazirmatn-Bold': require('../../assets/fonts/Vazirmatn-Bold.ttf'),
+};
 
 export default function RootLayout() {
   const { c, dark } = usePalette();
   const hydrated = useHydrated();
+  const language = useGameStore((s) => s.settings.language);
+  // Persian text uses Vazirmatn (see components/text.tsx); English keeps the system font.
+  const [fontsLoaded, fontError] = useFonts(VAZIRMATN);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -38,11 +52,15 @@ export default function RootLayout() {
   }, [hydrated]);
 
   // Saved games must be loaded before any screen reads or writes them.
-  if (!hydrated) return null;
+  if (!hydrated || (!fontsLoaded && !fontError)) return null;
+
+  // Text reads the language at render time; remounting on change (key) redraws every screen.
+  setLanguage(language);
+  const dir = dirStyle();
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: c.background }}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.background } }} />
+    <GestureHandlerRootView key={language} style={[{ flex: 1, backgroundColor: c.background }, dir]}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: [{ backgroundColor: c.background }, dir] }} />
       <AdHost />
       <StatusBar style={dark ? 'light' : 'dark'} />
     </GestureHandlerRootView>
@@ -54,15 +72,15 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   SplashScreen.hideAsync().catch(() => {});
   return (
     <View style={{ flex: 1, backgroundColor: '#FAF7F0', paddingTop: 64, paddingHorizontal: 20 }}>
-      <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F1B16' }}>Tiaro hit an error</Text>
-      <Text style={{ marginTop: 8, color: '#1F1B16' }}>Please send a screenshot of this screen.</Text>
+      <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F1B16' }}>{S.crashTitle}</Text>
+      <Text style={{ marginTop: 8, color: '#1F1B16' }}>{S.crashScreenBody}</Text>
       <ScrollView style={{ marginTop: 16, flex: 1 }}>
         <Text selectable style={{ fontFamily: 'monospace', fontSize: 12, color: '#1F1B16' }}>
           {describeError(error)}
         </Text>
       </ScrollView>
       <Text onPress={retry} style={{ paddingVertical: 20, fontSize: 16, fontWeight: '600', color: '#8A6D0B' }}>
-        Try again
+        {S.tryAgain}
       </Text>
     </View>
   );

@@ -1,6 +1,6 @@
 import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -24,7 +24,8 @@ import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
 import { currentStreak, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
-import { S } from '@/strings';
+import { getLanguage, S } from '@/strings';
+import { Text } from '@/components/text';
 
 export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const { c } = usePalette();
@@ -183,7 +184,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           },
         };
       } else {
-        const e = explainStep(h.step);
+        const e = explainStep(h.step, { lang: getLanguage() });
         card = { title: e.title, body: e.body, primary: { label: S.hintApply, onPress: applyActiveHint } };
       }
     }
@@ -238,14 +239,14 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
       <View style={styles.topBar}>
-        <IconButton label="‹" a11y={S.back} onPress={goHome} color={c.text} />
+        <IconButton label={S.chevronBack} a11y={S.back} onPress={goHome} color={c.text} />
         <View style={styles.titleBox}>
           <Text style={[styles.title, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
             {title}
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={settings.showTimer ? 'Hide timer' : 'Show timer'}
+            accessibilityLabel={settings.showTimer ? S.hideTimer : S.showTimer}
             onPress={() => updateSettings({ showTimer: !settings.showTimer })}
             hitSlop={8}>
             <Text style={[styles.timer, { color: c.textSecondary }]} maxFontSizeMultiplier={1.3}>

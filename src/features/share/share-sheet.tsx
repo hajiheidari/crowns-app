@@ -3,7 +3,7 @@
  * Wordle-style text. Image sharing needs the phone app; the web preview copies the text.
  */
 import { useRef, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -13,11 +13,12 @@ import { track } from '@/services/analytics';
 import { captureView } from '@/services/capture';
 import { canShareImages, shareImage, shareText } from '@/services/share';
 import { getRefCode } from '@/store/game-store';
-import { S } from '@/strings';
+import { dirStyle, S } from '@/strings';
 
 import { shareNote } from './actions';
 import { puzzleTitle, resultText, type ShareResult } from './messages';
 import { ShareCard, type CardFormat } from './share-card';
+import { Text } from '@/components/text';
 
 interface Props {
   visible: boolean;
@@ -54,7 +55,7 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
   return (
     <Modal transparent visible={visible} animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={S.hintClose} />
-      <SafeAreaView edges={['bottom']} style={[styles.sheet, { backgroundColor: c.surface }]}>
+      <SafeAreaView edges={['bottom']} style={[styles.sheet, { backgroundColor: c.surface }, dirStyle()]}>
         <View style={[styles.grabber, { backgroundColor: c.border }]} />
         <Text style={[styles.title, { color: c.text }]}>{S.shareResult}</Text>
         <View style={[styles.segment, { backgroundColor: c.surfaceMuted }]}>

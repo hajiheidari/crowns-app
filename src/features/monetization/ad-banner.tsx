@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { usePalette } from '@/hooks/use-palette';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
+import { Text } from '@/components/text';
 
 /** Web preview: marks where the phone app shows its banner ad. */
 export function AdBanner() {

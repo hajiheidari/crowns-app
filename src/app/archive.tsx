@@ -4,7 +4,7 @@
  */
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -18,6 +18,7 @@ import { MonthCalendar } from '@/features/stats/month-calendar';
 import { usePalette } from '@/hooks/use-palette';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
+import { Text } from '@/components/text';
 
 export default function ArchiveScreen() {
   const { c } = usePalette();

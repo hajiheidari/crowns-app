@@ -1,8 +1,9 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { usePalette } from '@/hooks/use-palette';
-import { S } from '@/strings';
+import { dirStyle, S } from '@/strings';
+import { Text } from '@/components/text';
 
 interface Props {
   visible: boolean;
@@ -18,7 +19,7 @@ export function ConfirmDialog({ visible, title, body, confirmLabel, onConfirm, o
   const { c } = usePalette();
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onCancel}>
-      <Pressable style={styles.backdrop} onPress={onCancel}>
+      <Pressable style={[styles.backdrop, dirStyle()]} onPress={onCancel}>
         <Pressable style={[styles.card, { backgroundColor: c.surface }]} onPress={() => {}}>
           <Text style={[styles.title, { color: c.text }]}>{title}</Text>
           <Text style={[styles.body, { color: c.textSecondary }]}>{body}</Text>

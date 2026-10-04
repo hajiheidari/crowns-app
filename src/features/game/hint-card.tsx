@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
 import { usePalette } from '@/hooks/use-palette';
+import { Text } from '@/components/text';
 
 interface Props {
   title: string;

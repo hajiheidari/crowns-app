@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/screen-header';
@@ -12,10 +12,12 @@ import { formatClock, S } from '@/strings';
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
+import { LANGUAGES } from '@/i18n';
 import { privacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
 import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
+import { Text } from '@/components/text';
 
 const REMINDER_HOURS = [7, 9, 12, 18, 20];
 
@@ -34,7 +36,7 @@ export default function SettingsScreen() {
   const [denied, setDenied] = useState(false);
 
   /** Changes a simple setting and counts which settings people change (name and value only). */
-  const change = <K extends 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'patterns' | 'tapOrder' | 'theme'>(
+  const change = <K extends 'autoCross' | 'dragToMark' | 'highlightConflicts' | 'showTimer' | 'haptics' | 'patterns' | 'tapOrder' | 'theme' | 'language'>(
     key: K,
     value: Settings[K],
   ) => {
@@ -89,6 +91,13 @@ export default function SettingsScreen() {
         </Section>
 
         <Section title={S.appearance}>
+          <Row label={S.language}>
+            <Segmented
+              value={settings.language}
+              options={LANGUAGES.map((l) => ({ value: l, label: S.languageNames[l] }))}
+              onChange={(language) => change('language', language)}
+            />
+          </Row>
           <Row label={S.theme}>
             <Segmented
               value={settings.theme}
@@ -235,7 +244,7 @@ function LinkRow({ label, onPress, last, value }: { label: string; onPress: () =
             {value ? (
               <Text style={[styles.value, { color: c.text }]}>{value}</Text>
             ) : (
-              <Text style={[styles.chevron, { color: c.textSecondary }]}>›</Text>
+              <Text style={[styles.chevron, { color: c.textSecondary }]}>{S.chevronForward}</Text>
             )}
           </Row>
         </View>

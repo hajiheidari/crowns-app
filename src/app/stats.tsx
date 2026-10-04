@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/screen-header';
@@ -9,6 +9,7 @@ import { Sparkline } from '@/features/stats/sparkline';
 import { usePalette } from '@/hooks/use-palette';
 import { currentStreak, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, S } from '@/strings';
+import { Text } from '@/components/text';
 
 export default function StatsScreen() {
   const { c } = usePalette();

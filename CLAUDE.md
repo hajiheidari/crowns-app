@@ -79,6 +79,12 @@ Read these before writing code:
   even when the browser refuses). Share actions return `{ status, text }`; `shareNote()` gives the note under each share button
   ("copied", or the text itself to copy by hand). Challenge links still point at the placeholder domain, so they open nothing yet.
 - v0.8.6: renamed to **Tiaro** (user-facing text, scheme `tiaro`, placeholder domain playtiaro.com, landing page).
+- v0.9.0 (Bazaar phase A, Persian): `src/i18n/{en,fa}.ts` (same shape; TS checks fa), `S` in `src/strings.ts` is a Proxy over the
+  current language (`setLanguage` from `settings.language`; root layout re-keys on change). Default language: `fa` when
+  `EXPO_PUBLIC_STORE=bazaar` (`src/constants/store.ts`), else `en`; Settings → Appearance → Language switches. RTL = Yoga
+  `direction: 'rtl'` via `dirStyle()` on the root, every Stack screen (contentStyle) and inside each Modal; the board pins 'ltr'.
+  `src/components/text.tsx` replaces RN Text everywhere: Vazirmatn by weight (assets/fonts, loaded with useFonts) + Persian digits.
+  Engine `explainStep(step, { lang: 'fa' })` and `regionColorName(i, 'fa')` give Persian hints. "What's new" stays English.
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

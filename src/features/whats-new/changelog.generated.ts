@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.9.0",
+    "date": "2026-10-04",
+    "items": [
+      "Tiaro now speaks Persian (فارسی): change the language in Settings → Appearance. The board, hints and tutorial are all translated."
+    ]
+  },
+  {
     "version": "0.8.10",
     "date": "2026-10-04",
     "items": [

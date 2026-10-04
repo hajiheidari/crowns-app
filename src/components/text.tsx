@@ -1,0 +1,55 @@
+/**
+ * App-wide Text. In Persian it uses Vazirmatn (picked by weight; Android would fake-bold a single file)
+ * and shows digits as Persian digits. In English it is exactly React Native's Text.
+ */
+import { Children, isValidElement, type ReactNode } from 'react';
+import { Text as RNText, StyleSheet, type TextProps } from 'react-native';
+
+import { getLanguage, localDigits } from '@/i18n';
+
+const FA_FONT: Record<string, string> = {
+  '100': 'Vazirmatn-Regular',
+  '200': 'Vazirmatn-Regular',
+  '300': 'Vazirmatn-Regular',
+  '400': 'Vazirmatn-Regular',
+  normal: 'Vazirmatn-Regular',
+  '500': 'Vazirmatn-Medium',
+  '600': 'Vazirmatn-SemiBold',
+  '700': 'Vazirmatn-Bold',
+  bold: 'Vazirmatn-Bold',
+  '800': 'Vazirmatn-Bold',
+  '900': 'Vazirmatn-Bold',
+};
+
+function persianDigits(children: ReactNode): ReactNode {
+  return Children.map(children, (child) => {
+    if (typeof child === 'string') return localDigits(child);
+    if (typeof child === 'number') return localDigits(String(child));
+    return isValidElement(child) ? child : child;
+  });
+}
+
+export function Text({ style, children, ...rest }: TextProps) {
+  if (getLanguage() !== 'fa') {
+    return (
+      <RNText style={style} {...rest}>
+        {children}
+      </RNText>
+    );
+  }
+  const flat = StyleSheet.flatten(style) ?? {};
+  // Code-like text (error details) keeps its monospace font and Latin digits.
+  if (flat.fontFamily === 'monospace') {
+    return (
+      <RNText style={style} {...rest}>
+        {children}
+      </RNText>
+    );
+  }
+  const fontFamily = FA_FONT[String(flat.fontWeight ?? '400')] ?? FA_FONT['400'];
+  return (
+    <RNText style={[style, { fontFamily, fontWeight: 'normal' }]} {...rest}>
+      {persianDigits(children)}
+    </RNText>
+  );
+}

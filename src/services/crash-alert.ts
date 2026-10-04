@@ -4,6 +4,8 @@
  */
 import { Alert, Platform } from 'react-native';
 
+import { S } from '@/strings';
+
 type Handler = (error: unknown, isFatal?: boolean) => void;
 type ErrorUtilsType = { getGlobalHandler(): Handler; setGlobalHandler(h: Handler): void };
 
@@ -23,8 +25,8 @@ if (Platform.OS !== 'web' && errorUtils) {
   errorUtils.setGlobalHandler((error, isFatal) => {
     if (!isFatal || shown) return fallback(error, isFatal);
     shown = true;
-    Alert.alert('Tiaro hit an error', `Please send a screenshot of this.\n\n${describeError(error)}`, [
-      { text: 'Close app', onPress: () => fallback(error, isFatal) },
+    Alert.alert(S.crashTitle, `${S.crashBody}\n\n${describeError(error)}`, [
+      { text: S.crashClose, onPress: () => fallback(error, isFatal) },
     ]);
   });
 }

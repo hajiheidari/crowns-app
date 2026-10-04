@@ -5,6 +5,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { S } from '@/strings';
+
 export const remindersSupported = Platform.OS === 'ios' || Platform.OS === 'android';
 
 if (remindersSupported) {
@@ -26,7 +28,7 @@ export async function enableDailyReminder(hour: number, minute: number): Promise
   if (!granted) return false;
   await Notifications.cancelAllScheduledNotificationsAsync();
   await Notifications.scheduleNotificationAsync({
-    content: { title: 'Your daily Tiaro puzzle is ready 👑', body: 'A fresh puzzle is waiting. Keep your streak going!' },
+    content: { title: S.notifTitle, body: S.notifBody },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute },
   });
   return true;

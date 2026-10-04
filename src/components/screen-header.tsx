@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { usePalette } from '@/hooks/use-palette';
 import { S } from '@/strings';
+import { Text } from '@/components/text';
 
 export function ScreenHeader({ title }: { title: string }) {
   const { c } = usePalette();
@@ -15,7 +16,7 @@ export function ScreenHeader({ title }: { title: string }) {
         hitSlop={8}
         onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         style={styles.back}>
-        <Text style={[styles.backText, { color: c.text }]}>‹</Text>
+        <Text style={[styles.backText, { color: c.text }]}>{S.chevronBack}</Text>
       </Pressable>
       <Text style={[styles.title, { color: c.text }]}>{title}</Text>
       <View style={styles.back} />
