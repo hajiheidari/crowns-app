@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { usePalette } from '@/hooks/use-palette';
-import { S } from '@/strings';
+import { ARROW_BACK, arrowStyle, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export function ScreenHeader({ title }: { title: string }) {
@@ -16,7 +16,7 @@ export function ScreenHeader({ title }: { title: string }) {
         hitSlop={8}
         onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         style={styles.back}>
-        <Text style={[styles.backText, { color: c.text }]}>{S.chevronBack}</Text>
+        <Text style={[styles.backText, { color: c.text }, arrowStyle()]}>{ARROW_BACK}</Text>
       </Pressable>
       <Text style={[styles.title, { color: c.text }]}>{title}</Text>
       <View style={styles.back} />

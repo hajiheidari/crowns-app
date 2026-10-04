@@ -2,7 +2,7 @@
 import type { Difficulty } from '@/engine';
 import { S } from '@/i18n';
 
-export { dirStyle, getLanguage, isRTL, localDigits, S } from '@/i18n';
+export { ARROW_BACK, ARROW_FORWARD, arrowStyle, dirStyle, getLanguage, isRTL, localDigits, S } from '@/i18n';
 
 const byDifficulty = (pick: () => Record<Difficulty, string>) =>
   new Proxy({} as Record<Difficulty, string>, { get: (_target, d) => pick()[d as Difficulty] });

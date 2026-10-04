@@ -55,8 +55,9 @@ export default function RootLayout() {
   if (!hydrated || (!fontsLoaded && !fontError)) return null;
 
   // Text reads the language at render time; remounting on change (key) redraws every screen.
+  // Pass `language` explicitly: the React Compiler would cache a no-argument call here forever.
   setLanguage(language);
-  const dir = dirStyle();
+  const dir = dirStyle(language);
 
   return (
     <GestureHandlerRootView key={language} style={[{ flex: 1, backgroundColor: c.background }, dir]}>

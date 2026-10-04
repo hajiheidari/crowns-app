@@ -8,7 +8,7 @@ import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { useGameStore, type Settings } from '@/store/game-store';
-import { formatClock, S } from '@/strings';
+import { ARROW_FORWARD, arrowStyle, formatClock, S } from '@/strings';
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
@@ -244,7 +244,7 @@ function LinkRow({ label, onPress, last, value }: { label: string; onPress: () =
             {value ? (
               <Text style={[styles.value, { color: c.text }]}>{value}</Text>
             ) : (
-              <Text style={[styles.chevron, { color: c.textSecondary }]}>{S.chevronForward}</Text>
+              <Text style={[styles.chevron, { color: c.textSecondary }, arrowStyle()]}>{ARROW_FORWARD}</Text>
             )}
           </Row>
         </View>

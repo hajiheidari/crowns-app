@@ -24,7 +24,7 @@ import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
 import { currentStreak, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
-import { getLanguage, S } from '@/strings';
+import { ARROW_BACK, arrowStyle, getLanguage, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export function GameScreen({ id, versus }: { id: string; versus?: number }) {
@@ -239,7 +239,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
       <View style={styles.topBar}>
-        <IconButton label={S.chevronBack} a11y={S.back} onPress={goHome} color={c.text} />
+        <IconButton label={ARROW_BACK} arrow a11y={S.back} onPress={goHome} color={c.text} />
         <View style={styles.titleBox}>
           <Text style={[styles.title, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
             {title}
@@ -348,7 +348,7 @@ function sameBoard(a: Mark[], b: Mark[]): boolean {
   return a.length === b.length && a.every((m, i) => m === b[i]);
 }
 
-function IconButton(p: { label: string; a11y: string; onPress: () => void; color: string; disabled?: boolean }) {
+function IconButton(p: { label: string; a11y: string; onPress: () => void; color: string; disabled?: boolean; arrow?: boolean }) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -357,7 +357,7 @@ function IconButton(p: { label: string; a11y: string; onPress: () => void; color
       disabled={p.disabled}
       hitSlop={8}
       style={({ pressed }) => [styles.iconButton, { opacity: p.disabled ? 0.3 : pressed ? 0.6 : 1 }]}>
-      <Text style={[styles.iconText, { color: p.color }]} maxFontSizeMultiplier={1.2}>{p.label}</Text>
+      <Text style={[styles.iconText, { color: p.color }, p.arrow && arrowStyle()]} maxFontSizeMultiplier={1.2}>{p.label}</Text>
     </Pressable>
   );
 }

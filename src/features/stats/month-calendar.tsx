@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { dateKey } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
-import { S } from '@/strings';
+import { ARROW_BACK, ARROW_FORWARD, arrowStyle, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export type DayMark = 'locked' | 'started';
@@ -35,7 +35,7 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
     <View style={styles.root}>
       <View style={styles.header}>
         <NavButton
-          label={S.chevronBack}
+          label={ARROW_BACK}
           a11y={S.prevMonth}
           onPress={() => setOffset(offset - 1)}
           disabled={!!minKey && dateKey(new Date(first.getFullYear(), first.getMonth(), 0)) < minKey}
@@ -43,7 +43,7 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
         <Text style={[styles.month, { color: c.text }]}>
           {S.monthTitle(first.getMonth(), first.getFullYear(), solvedThisMonth)}
         </Text>
-        <NavButton label={S.chevronForward} a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
+        <NavButton label={ARROW_FORWARD} a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
       </View>
       <View style={styles.grid}>
         {S.weekdays.map((d, i) => (
@@ -100,7 +100,7 @@ function NavButton({ label, a11y, onPress, disabled }: { label: string; a11y: st
   const { c } = usePalette();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={a11y} onPress={onPress} disabled={disabled} hitSlop={10}>
-      <Text style={[styles.nav, { color: c.text, opacity: disabled ? 0.25 : 1 }]}>{label}</Text>
+      <Text style={[styles.nav, { color: c.text, opacity: disabled ? 0.25 : 1 }, arrowStyle()]}>{label}</Text>
     </Pressable>
   );
 }

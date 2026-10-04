@@ -26,8 +26,6 @@ export const fa: Dict = {
   hideTimer: 'پنهان کردن زمان',
   prevMonth: 'ماه قبل',
   nextMonth: 'ماه بعد',
-  chevronBack: '›',
-  chevronForward: '‹',
   dateLabel: (key: string) => {
     const [, m, d] = key.split('-').map(Number);
     return `${d} ${MONTHS[m - 1]}`;

@@ -24,9 +24,6 @@ export const en = {
   hideTimer: 'Hide timer',
   prevMonth: 'Previous month',
   nextMonth: 'Next month',
-  /** Arrow glyphs that point "back" and "forward" in this language's reading direction. */
-  chevronBack: '‹',
-  chevronForward: '›',
   dateLabel: (key: string) => {
     const [, m, d] = key.split('-').map(Number);
     return `${MONTHS[m - 1].slice(0, 3)} ${d}`;
