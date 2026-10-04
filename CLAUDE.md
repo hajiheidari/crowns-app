@@ -200,7 +200,8 @@ import {
   Permanent after the first store upload.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
 - Domain **playtiaro.com** (bought 2026-10-04, on Cloudflare). v0.8.10 added `associatedDomains` + Android `intentFilters`.
-  Still open: host `web/` on Cloudflare Pages (Amir), Apple Team ID in AASA, Play/Bazaar signing SHA-256 in assetlinks.json.
+  Site: Cloudflare Workers Builds, Worker `crowns-app`, `wrangler.jsonc` serves `web/` (deploy command `npx wrangler deploy`, no build
+  command); production branch must be the branch that has `wrangler.jsonc`. Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).
   Waiting for the Poolakey RSA key from the Bazaar panel.
