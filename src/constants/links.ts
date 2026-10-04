@@ -1,6 +1,6 @@
 /**
- * Public links, on Espadna's own domain (Amir's choice 2026-10-04: nothing may depend on playtiaro.com,
- * which may not be renewed). The site is the `crowns-app` Worker (wrangler.jsonc); the landing page is espadna.com/tiaro-app/.
+ * Public links, on Espadna's own domain (Amir 2026-10-04: Tiaro has no domain of its own;
+ * playtiaro.com was dropped). The site is the `crowns-app` Worker (wrangler.jsonc); the landing page is espadna.com/tiaro-app/.
  *
  *   <LINK_BASE>/c/<code>   challenge link (code from engine `encodeChallenge`)
  *   <LINK_BASE>/?r=<ref>   invite link

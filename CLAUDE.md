@@ -200,8 +200,7 @@ import {
   Permanent after the first store upload.
 - Apple Developer account type (individual vs organization with D-U-N-S) and Google Play account type.
 - ~~Domain~~ decided 2026-10-04: everything on Espadna's domain: game **tiaro.espadna.com** (`LINK_BASE`, app links, AASA),
-  landing **espadna.com/tiaro-app/** (en, `fa/`, `ar/`). Amir: no dependency on playtiaro.com (may not be renewed); it still points at
-  the Worker. Hosting and Cloudflare setup: `web/README.md`. Tiaro's pages live only in this repo (Amir wants each project separate).
+  landing **espadna.com/tiaro-app/** (en, `fa/`, `ar/`). Amir dropped playtiaro.com (2026-10-04, detached from the Worker): never use it.
   Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).

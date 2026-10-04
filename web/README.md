@@ -16,7 +16,6 @@ How the addresses reach the Worker (set once in Cloudflare, not in `wrangler.jso
 - `tiaro.espadna.com`: Worker custom domain.
 - `espadna.com/tiaro-app*`: Worker **route** on the espadna.com zone. The rest of espadna.com (studio home) is another
   Worker (`espadna-site`, in the pantomime repo); it only lists Tiaro as a product card.
-- `playtiaro.com`: old custom domain. Nothing depends on it; it can expire.
 
 `_redirects` must not point at `/index.html` (Cloudflare rejects it as a loop).
 
