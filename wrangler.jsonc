@@ -1,7 +1,8 @@
-// Cloudflare Workers static site for playtiaro.com: serves web/ as-is (no build step).
-// web/_redirects sends challenge links to the landing page; web/_headers fixes the AASA content type.
+// Cloudflare Workers static site for playtiaro.com (see scripts/build-site.mjs).
+// `wrangler deploy` runs the build first; unknown paths (/c/<code>, /stats, …) get the web game's index.html.
 {
   "name": "crowns-app",
   "compatibility_date": "2025-09-01",
-  "assets": { "directory": "./web" }
+  "build": { "command": "node scripts/build-site.mjs" },
+  "assets": { "directory": "./dist-site", "not_found_handling": "single-page-application" }
 }

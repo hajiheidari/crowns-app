@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.2 — 2026-10-04
+- Play Tiaro in your browser at playtiaro.com, ad-free. Challenge links open the puzzle there too.
+
 ## 0.9.1 — 2026-10-04
 - Persian uses the Persian (solar) calendar, with weeks starting on Saturday.
 - Cafe Bazaar edition: Persian by default, with ads that work in Iran.

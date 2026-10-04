@@ -32,6 +32,7 @@
   .puzzle { font-size:24px; font-weight:700; }
   .time { font-size:48px; font-weight:300; font-variant-numeric:tabular-nums; line-height:1.1; }
   .btn { display:block; width:100%; padding:14px 20px; border-radius:14px; background:var(--btn); color:var(--onBtn); font-weight:700; text-decoration:none; }
+  .btn.alt { margin-top:-10px; background:transparent; color:var(--text); border:1.5px solid var(--border); }
   .stores { width:100%; display:flex; gap:10px; }
   .store { flex:1; padding:12px; border-radius:14px; background:var(--muted); color:var(--text); text-decoration:none; font-weight:600; font-size:15px; }
   .store small { display:block; color:var(--text2); font-weight:500; font-size:12px; }
@@ -56,6 +57,7 @@
   </section>
 
   <a class="btn" id="open" href="tiaro://">Open in the app</a>
+  <a class="btn alt" href="/">Play in your browser</a>
   <div class="stores">
     <!-- Replace with the real store links after the first release (see web/README.md). -->
     <a class="store" id="ios" href="#">App Store<small>Coming soon</small></a>

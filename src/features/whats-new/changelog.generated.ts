@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.9.2",
+    "date": "2026-10-04",
+    "items": [
+      "Play Tiaro in your browser at playtiaro.com, ad-free. Challenge links open the puzzle there too."
+    ]
+  },
+  {
     "version": "0.9.1",
     "date": "2026-10-04",
     "items": [

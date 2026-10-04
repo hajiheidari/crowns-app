@@ -1,7 +1,9 @@
 /**
  * Web preview stand-in for AdMob (ads.native.ts): no real ads, but a short fake ad shows where
  * a rewarded or interstitial ad would appear, so the flow can be tried in a browser.
+ * The public site (playtiaro.com) shows no ads at all and gives rewards for free.
  */
+import { PUBLIC_SITE } from '@/constants/store';
 import { showMockAd } from '@/features/monetization/ad-ui';
 
 export const adsSupported = false;
@@ -19,10 +21,12 @@ export async function privacyOptionsRequired(): Promise<boolean> {
 export async function showPrivacyOptions(): Promise<void> {}
 
 export async function showInterstitial(): Promise<boolean> {
+  if (PUBLIC_SITE) return false;
   await showMockAd('interstitial');
   return true;
 }
 
 export function showRewarded(): Promise<boolean> {
+  if (PUBLIC_SITE) return Promise.resolve(true);
   return showMockAd('rewarded');
 }
