@@ -203,7 +203,9 @@ import {
   Site (v0.9.2): Cloudflare Workers Builds, Worker `crowns-app`, deploy command `npx wrangler deploy` (no build command); production
   branch = `claude/android-app-execution-uzwdw8`. `wrangler.jsonc` runs `scripts/build-site.mjs`: web game at `/` (`PUBLIC_SITE`: no ads,
   no purchases), `web/` pages beside it, landing page at `/app`, SPA fallback for `/c/<code>`. `_redirects` must not point at
-  `/index.html` (Cloudflare rejects it as a loop). Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
+  `/index.html` (Cloudflare rejects it as a loop). v0.9.4: the same Worker also serves **tiaro.espadna.com** (custom domain added via
+  the API); `?lang=fa|en` on the web game sets the language. Landing page **espadna.com/tiaro-app/** (en; `/fa/`, `/ar/`) lives in the
+  `hajiheidari/pantomime` repo (`site/tiaro-app/`, product entry in `site/products.json`), deployed with that repo's `site_deploy/`. Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).
   Waiting for the Poolakey RSA key from the Bazaar panel.

@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.4 — 2026-10-04
+- Tiaro's web game is also at tiaro.espadna.com, with a page about the game in English, Persian and Arabic.
+
 ## 0.9.3 — 2026-10-04
 - A bigger, easier-to-see back button, next to the content on wide screens.
 - New support email: tiaro.support@gmail.com.

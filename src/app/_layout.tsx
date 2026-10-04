@@ -16,11 +16,18 @@ import { initPurchases } from '@/services/iap';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
 import { useGameStore, useHydrated } from '@/store/game-store';
-import { setLanguage } from '@/i18n';
+import { LANGUAGES, setLanguage, type Language } from '@/i18n';
 import { dirStyle, S } from '@/strings';
 import { Text } from '@/components/text';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/** Web: the landing pages link to the game with ?lang=fa or ?lang=en to open it in that language. */
+function languageFromUrl(): Language | null {
+  const search = typeof location === 'undefined' ? '' : location.search;
+  const lang = new URLSearchParams(search).get('lang');
+  return LANGUAGES.includes(lang as Language) ? (lang as Language) : null;
+}
 
 const VAZIRMATN = {
   'Vazirmatn-Regular': require('../../assets/fonts/Vazirmatn-Regular.ttf'),
@@ -44,6 +51,8 @@ export default function RootLayout() {
     // updated from 0.3.1 and see "What's new".
     const s = useGameStore.getState();
     s.updateMeta({ sessions: s.meta.sessions + 1 });
+    const asked = languageFromUrl();
+    if (asked) s.updateSettings({ language: asked });
     initPurchases();
     initAds();
     if (s.meta.installedKey) return;
