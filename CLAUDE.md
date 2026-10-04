@@ -96,7 +96,7 @@ Read these before writing code:
   `count()` there handles Arabic number agreement). Engine hints: `explainStep(step, { lang: 'ar' })`, `REGION_COLOR_NAMES_AR`
   (feminine adjectives, "المنطقة البنفسجية"). Global builds now start in the phone's language (ar/fa/en via Intl), Bazaar in Persian.
   iOS: `locales` in app.json (ATT text in ar/fa) + `CFBundleAllowMixedLocalizations`. Store: `store/listing-ar.md`,
-  `store/screenshots-ar/` (`store/tools/compose-ar.mjs`). Landing page Arabic button opens `?lang=ar`.
+  `store/screenshots-ar/` (`store/tools/compose-ar.mjs`). Landing page Arabic button opens `?lang=ar`. The Bazaar build offers only fa/en (Amir: no Arabic there).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

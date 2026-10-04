@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.10.1 — 2026-10-05
+- The Cafe Bazaar edition offers Persian and English only.
+
 ## 0.10.0 — 2026-10-05
 - Tiaro now speaks Arabic (العربية), with hints in Arabic too. On a phone set to Arabic or Persian, Tiaro starts in that language.
 

@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.10.1",
+    "date": "2026-10-05",
+    "items": [
+      "The Cafe Bazaar edition offers Persian and English only."
+    ]
+  },
+  {
     "version": "0.10.0",
     "date": "2026-10-05",
     "items": [
