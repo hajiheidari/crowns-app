@@ -70,9 +70,12 @@ test('hints alone can solve every puzzle, and every hint has an explanation', ()
       assert.notEqual(h.kind, 'mistake');
       assert.notEqual(h.kind, 'reveal', 'hint had to reveal (logic gap)');
       if (h.kind === 'step') {
-        const e = explainStep(h.step);
-        assert.ok(e.title.length > 0 && e.body.length > 20);
-        assert.ok(!/undefined|NaN/.test(e.body), e.body);
+        for (const lang of ['en', 'fa', 'ar'] as const) {
+          const e = explainStep(h.step, { lang });
+          assert.ok(e.title.length > 0 && e.body.length > 20);
+          assert.ok(!/undefined|NaN|#\d/.test(e.body), e.body);
+          if (lang !== 'en') assert.ok(!/[a-z]{3}/.test(e.body), `${lang} hint has English: ${e.body}`);
+        }
         assert.ok(h.step.focus.length > 0);
       }
       board = applyHint(p, board, h);

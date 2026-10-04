@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.10.0 — 2026-10-05
+- Tiaro now speaks Arabic (العربية), with hints in Arabic too. On a phone set to Arabic or Persian, Tiaro starts in that language.
+
 ## 0.9.6 — 2026-10-04
 - Tiaro's website is espadna.com/tiaro-app; the web game is tiaro.espadna.com.
 

@@ -1,6 +1,6 @@
 /**
- * App-wide Text. In Persian it uses Vazirmatn (picked by weight; Android would fake-bold a single file)
- * and shows digits as Persian digits. In English it is exactly React Native's Text.
+ * App-wide Text. In Persian and Arabic it uses Vazirmatn (it covers both scripts; picked by weight, since Android
+ * would fake-bold a single file); Persian also shows Persian digits. In English it is exactly React Native's Text.
  */
 import { Children, isValidElement, type ReactNode } from 'react';
 import { Text as RNText, StyleSheet, type TextProps } from 'react-native';
@@ -30,7 +30,7 @@ function persianDigits(children: ReactNode): ReactNode {
 }
 
 export function Text({ style, children, ...rest }: TextProps) {
-  if (getLanguage() !== 'fa') {
+  if (getLanguage() === 'en') {
     return (
       <RNText style={style} {...rest}>
         {children}

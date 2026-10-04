@@ -1,5 +1,5 @@
 /**
- * English text. Every user-facing string lives here or in fa.ts (same shape); `S` in src/strings.ts
+ * English text. Every user-facing string lives here and in fa.ts / ar.ts (same shape); `S` in src/strings.ts
  * returns the one for the current language.
  */
 import type { Difficulty } from '@/engine';
@@ -31,7 +31,7 @@ export const en = {
     return `${MONTHS[m - 1].slice(0, 3)} ${d}`;
   },
   language: 'Language',
-  languageNames: { en: 'English', fa: 'فارسی' },
+  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
   notifTitle: 'Your daily Tiaro puzzle is ready 👑',
   notifBody: 'A fresh puzzle is waiting. Keep your streak going!',
   crashTitle: 'Tiaro hit an error',

@@ -58,6 +58,7 @@ MADE FOR YOU
 • Dark mode and color-blind patterns
 • Screen reader support
 • Works offline
+• In English, Arabic and Persian
 
 CHALLENGE YOUR FRIENDS
 Share your result without spoilers, or send a challenge link so a friend can race you on the same puzzle.

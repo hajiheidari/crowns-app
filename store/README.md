@@ -2,6 +2,8 @@
 
 Ready to upload:
 
+- `screenshots-ar/` — the same set in Arabic (`ios-6.9/`, `android/` + feature graphic); texts in `listing-ar.md`.
+
 - `screenshots/ios-6.9/` — App Store, 1290×2796 (6.9" iPhone; Apple scales these down for smaller iPhones).
 - `screenshots/android/` — Google Play phone screenshots, 1080×1920, plus `feature-graphic-1024x500.png`.
 
@@ -22,3 +24,9 @@ node <repo>/store/tools/compose.mjs $W                             # captions + 
 # Feature graphic: crop the board from raw/2-game.png to $W/board-crop.png, then
 node <repo>/store/tools/feature.mjs $W
 ```
+
+### Arabic set
+
+Same steps with the app in Arabic: give every seeded save `settings.language = 'ar'`, run a copy of `raw.mjs` whose cell selector is
+`[aria-label^="الصف ${r + 1}، العمود ${c + 1}،"]` and hint button `تلميح`, writing to `$W/raw-ar`; then
+`node <repo>/store/tools/compose-ar.mjs $W <repo>` (writes `$W/final-ar`). Persian (Cafe Bazaar) works the same way with `compose-fa.mjs`.

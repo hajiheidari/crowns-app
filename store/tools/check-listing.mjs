@@ -1,6 +1,6 @@
-// Checks store/listing.md fields against store limits: node store/tools/check-listing.mjs
+// Checks a store listing's fields against store limits: node store/tools/check-listing.mjs [store/listing-ar.md]
 import fs from 'fs';
-const md = fs.readFileSync(new URL('../listing.md', import.meta.url), 'utf8');
+const md = fs.readFileSync(process.argv[2] ?? new URL('../listing.md', import.meta.url), 'utf8');
 const line = (label) => (md.match(new RegExp(`\\*\\*${label}\\*\\*[^\\n]*\\n([^\\n]+)`)) || [])[1]?.trim();
 const inline = (label) => (md.match(new RegExp(`\\*\\*${label}\\*\\* \\[\\d+\\]: ([^\\n]+)`)) || [])[1]?.trim();
 const full = md.split('**Full description** [4000]')[1].split('**Content rating:**')[0].trim();

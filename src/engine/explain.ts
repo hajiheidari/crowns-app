@@ -1,5 +1,5 @@
 /**
- * Plain-language explanations for solver steps (used by hints), in English or Persian.
+ * Plain-language explanations for solver steps (used by hints), in English, Persian or Arabic.
  * Keep sentences short: they are shown in a small card above the board.
  */
 import type { Step } from './logic';
@@ -18,7 +18,12 @@ export const REGION_COLOR_NAMES_FA = [
   'بنفش', 'نارنجی', 'آبی', 'سبز', 'خاکستری', 'قرمز', 'زرد', 'فیروزه‌ای', 'صورتی', 'قهوه‌ای', 'لیمویی',
 ];
 
-export type ExplainLanguage = 'en' | 'fa';
+/** Arabic region names, same order as REGION_COLOR_NAMES. */
+export const REGION_COLOR_NAMES_AR = [
+  'البنفسجية', 'البرتقالية', 'الزرقاء', 'الخضراء', 'الرمادية', 'الحمراء', 'الصفراء', 'الفيروزية', 'الوردية', 'البنية', 'الليمونية',
+];
+
+export type ExplainLanguage = 'en' | 'fa' | 'ar';
 
 export interface ExplainOptions {
   regionName?: (index: number) => string;
@@ -26,7 +31,8 @@ export interface ExplainOptions {
 }
 
 export function regionColorName(index: number, lang: ExplainLanguage = 'en'): string {
-  return (lang === 'fa' ? REGION_COLOR_NAMES_FA : REGION_COLOR_NAMES)[index] ?? `#${index + 1}`;
+  const names = lang === 'fa' ? REGION_COLOR_NAMES_FA : lang === 'ar' ? REGION_COLOR_NAMES_AR : REGION_COLOR_NAMES;
+  return names[index] ?? `#${index + 1}`;
 }
 
 export function unitName(u: UnitRef, opts: ExplainOptions = {}): string {
@@ -34,6 +40,11 @@ export function unitName(u: UnitRef, opts: ExplainOptions = {}): string {
     if (u.kind === 'row') return `ردیف ${u.index + 1}`;
     if (u.kind === 'column') return `ستون ${u.index + 1}`;
     return `ناحیه‌ی ${opts.regionName?.(u.index) ?? regionColorName(u.index, 'fa')}`;
+  }
+  if (opts.lang === 'ar') {
+    if (u.kind === 'row') return `الصف ${u.index + 1}`;
+    if (u.kind === 'column') return `العمود ${u.index + 1}`;
+    return `المنطقة ${opts.regionName?.(u.index) ?? regionColorName(u.index, 'ar')}`;
   }
   if (u.kind === 'row') return `row ${u.index + 1}`;
   if (u.kind === 'column') return `column ${u.index + 1}`;
@@ -45,7 +56,7 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function list(items: string[], lang: ExplainLanguage = 'en'): string {
   if (items.length <= 1) return items.join('');
-  const [sep, and] = lang === 'fa' ? ['، ', ' و '] : [', ', ' and '];
+  const [sep, and] = lang === 'fa' ? ['، ', ' و '] : lang === 'ar' ? ['، ', ' و'] : [', ', ' and '];
   return `${items.slice(0, -1).join(sep)}${and}${items[items.length - 1]}`;
 }
 
@@ -56,6 +67,7 @@ export interface Explanation {
 
 export function explainStep(step: Step, opts: ExplainOptions = {}): Explanation {
   if (opts.lang === 'fa') return explainStepFa(step, opts);
+  if (opts.lang === 'ar') return explainStepAr(step, opts);
   const name = (u: UnitRef) => unitName(u, opts);
   switch (step.rule) {
     case 'lastCell': {
@@ -137,6 +149,52 @@ function explainStepFa(step: Step, opts: ExplainOptions): Explanation {
       return {
         title: 'اگر اینجا تاج بود…؟',
         body: `فرض کن در خانه‌ی مشخص‌شده تاج بگذاری. با قانون‌های ساده، ${name(step.units[0])} دیگر جایی برای تاج ندارد. پس این خانه باید خالی بماند.`,
+      };
+  }
+}
+
+function explainStepAr(step: Step, opts: ExplainOptions): Explanation {
+  const name = (u: UnitRef) => unitName(u, opts);
+  switch (step.rule) {
+    case 'lastCell': {
+      // "Region" is feminine in Arabic, rows and columns are masculine.
+      const fem = step.units[0].kind === 'region';
+      return {
+        title: 'بقي مكان واحد',
+        body: `${name(step.units[0])} ${fem ? 'فيها' : 'فيه'} خانة مفتوحة واحدة فقط، ${fem ? 'فتاجها' : 'فتاجه'} هناك.`,
+      };
+    }
+    case 'confinement': {
+      const [a, b] = step.units;
+      if (a.kind === 'region') {
+        return {
+          title: 'منطقة محصورة في خط واحد',
+          body: `كل الخانات المفتوحة في ${name(a)} تقع في ${name(b)}. تاجها يجب أن يكون هناك، لذا تُستبعد بقية خانات ${name(b)}.`,
+        };
+      }
+      return {
+        title: 'خط تملكه منطقة واحدة',
+        body: `كل الخانات المفتوحة في ${name(a)} تنتمي إلى ${name(b)}. تاج هذا الخط يأتي من ${name(b)}، لذا تُستبعد بقية ${name(b)}.`,
+      };
+    }
+    case 'blocksUnit':
+      return {
+        title: 'هذه الخانة تُغلق الكثير',
+        body: `تاج في الخانة المميزة سيغطي كل الخانات المفتوحة في ${name(step.units[0])}، فلا يبقى هناك مكان لتاج. لذا لا يمكن أن يكون هنا تاج.`,
+      };
+    case 'group': {
+      const k = step.units.length / 2;
+      const first = list(step.units.slice(0, k).map(name), 'ar');
+      const second = list(step.units.slice(k).map(name), 'ar');
+      return {
+        title: `${k} في ${k}`,
+        body: `${first}: خاناتها المفتوحة كلها في ${second}. هذه الـ${k} تتقاسم تلك التيجان الـ${k}، لذا تُستبعد كل خانة مفتوحة أخرى في ${second}.`,
+      };
+    }
+    case 'contradiction':
+      return {
+        title: 'ماذا لو…؟',
+        body: `تخيّل تاجًا في الخانة المميزة. باتباع القواعد البسيطة، لن يبقى مكان لتاج في ${name(step.units[0])}. لذا يجب أن تبقى هذه الخانة فارغة.`,
       };
   }
 }

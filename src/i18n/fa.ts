@@ -35,7 +35,7 @@ export const fa: Dict = {
     return `${jd} ${MONTHS[jm - 1]}`;
   },
   language: 'زبان',
-  languageNames: { en: 'English', fa: 'فارسی' },
+  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
   notifTitle: 'پازل امروز تیارو آماده است 👑',
   notifBody: 'یک پازل تازه منتظرت است. زنجیره‌ی روزهایت را نگه دار!',
   crashTitle: 'تیارو به خطا خورد',

@@ -22,7 +22,7 @@ import { Text } from '@/components/text';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-/** Web: the landing pages link to the game with ?lang=fa or ?lang=en to open it in that language. */
+/** Web: the landing pages link to the game with ?lang=en|fa|ar to open it in that language. */
 function languageFromUrl(): Language | null {
   const search = typeof location === 'undefined' ? '' : location.search;
   const lang = new URLSearchParams(search).get('lang');
