@@ -1,3 +1,3 @@
 # Cloudflare (Workers assets or Pages) / Netlify: every challenge link is served by the landing page.
 # /privacy and /terms need no rule: the host serves privacy.html and terms.html at those paths.
-/c/*  /index.html  200
+/c/*  /  200
