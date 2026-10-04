@@ -85,6 +85,13 @@ Read these before writing code:
   `direction: 'rtl'` via `dirStyle()` on the root, every Stack screen (contentStyle) and inside each Modal; the board pins 'ltr'.
   `src/components/text.tsx` replaces RN Text everywhere: Vazirmatn by weight (assets/fonts, loaded with useFonts) + Persian digits.
   Engine `explainStep(step, { lang: 'fa' })` and `regionColorName(i, 'fa')` give Persian hints. "What's new" stays English.
+- v0.9.1: Persian shows the Jalali calendar (`src/utils/jalali.ts`, tested; `src/features/stats/calendar.ts` builds the month,
+  Saturday-first). **Cafe Bazaar build** = eas.json profile `bazaar` (EXPO_PUBLIC_STORE=bazaar, APK): app.config.ts gives the Persian
+  name, drops the AdMob plugin/Firebase and blocks BILLING + AD_ID; react-native.config.js drops google-mobile-ads, purchases and
+  Firebase (and drops `adivery` from every other build). `src/services/ads.native.ts` / `iap.native.ts` / `ad-banner.native.tsx`
+  pick `ad-networks/admob*` or `ad-networks/adivery*`, `purchases/revenuecat` or `purchases/bazaar` with lazy require.
+  Adivery ids in `ADIVERY` (constants/monetization.ts). Bazaar billing (Poolakey) waits for the RSA key; until then the
+  Purchases section is hidden in that build and the review prompt is off (Play-only).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the
@@ -195,8 +202,8 @@ import {
 - Domain **playtiaro.com** (bought 2026-10-04, on Cloudflare). v0.8.10 added `associatedDomains` + Android `intentFilters`.
   Still open: host `web/` on Cloudflare Pages (Amir), Apple Team ID in AASA, Play/Bazaar signing SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
-- Cafe Bazaar (Iran) account is active (2026-10-04). Needs a separate Android build: AdMob, Google Play billing/RevenueCat and
-  probably Firebase don't work in Iran. Scope (free-only build vs Bazaar billing + local ad network) is Amir's call.
+- Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).
+  Waiting for the Poolakey RSA key from the Bazaar panel.
 - ~~Remove-Ads price~~ decided 2026-09-29: $3.99 one-time (Amir confirmed).
 
 @AGENTS.md

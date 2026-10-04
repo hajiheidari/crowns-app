@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { dateKey } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
+import { monthView } from '@/features/stats/calendar';
 import { ARROW_BACK, ARROW_FORWARD, arrowStyle, S } from '@/strings';
 import { Text } from '@/components/text';
 
@@ -22,14 +23,10 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
   const today = new Date();
   const todayKey = dateKey(today);
   const [offset, setOffset] = useState(0);
-  const first = new Date(today.getFullYear(), today.getMonth() + offset, 1);
-  const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-  const cells: (number | null)[] = [
-    ...Array.from({ length: first.getDay() }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
+  const month = monthView(offset, today);
+  const cells: ({ day: number; key: string } | null)[] = [...Array.from({ length: month.lead }, () => null), ...month.days];
   while (cells.length % 7) cells.push(null);
-  const solvedThisMonth = cells.filter((d) => d && solved[dateKey(new Date(first.getFullYear(), first.getMonth(), d))] !== undefined).length;
+  const solvedThisMonth = month.days.filter((d) => solved[d.key] !== undefined).length;
 
   return (
     <View style={styles.root}>
@@ -38,10 +35,10 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
           label={ARROW_BACK}
           a11y={S.prevMonth}
           onPress={() => setOffset(offset - 1)}
-          disabled={!!minKey && dateKey(new Date(first.getFullYear(), first.getMonth(), 0)) < minKey}
+          disabled={!!minKey && month.prevEndKey < minKey}
         />
         <Text style={[styles.month, { color: c.text }]}>
-          {S.monthTitle(first.getMonth(), first.getFullYear(), solvedThisMonth)}
+          {S.monthTitle(month.name, month.year, solvedThisMonth)}
         </Text>
         <NavButton label={ARROW_FORWARD} a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
       </View>
@@ -51,13 +48,13 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
             {d}
           </Text>
         ))}
-        {cells.map((d, i) => {
-          if (!d) return <View key={i} style={styles.cell} />;
-          const key = dateKey(new Date(first.getFullYear(), first.getMonth(), d));
+        {cells.map((cell, i) => {
+          if (!cell) return <View key={i} style={styles.cell} />;
+          const { day: d, key } = cell;
           const done = solved[key] !== undefined;
           const inRange = key <= todayKey && (!minKey || key >= minKey);
           const m = inRange && !done ? mark?.(key) : null;
-          const label = S.dayLabel(first.getMonth(), d, done ? 'solved' : m === 'locked' ? 'locked' : m === 'started' ? 'started' : '');
+          const label = S.dayLabel(month.name, d, done ? 'solved' : m === 'locked' ? 'locked' : m === 'started' ? 'started' : '');
           const day = (
             <View
               style={[

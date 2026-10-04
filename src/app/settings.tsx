@@ -12,6 +12,7 @@ import { ARROW_FORWARD, arrowStyle, formatClock, S } from '@/strings';
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
+import { STORE } from '@/constants/store';
 import { LANGUAGES } from '@/i18n';
 import { privacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { track } from '@/services/analytics';
@@ -190,6 +191,8 @@ function PurchasesSection() {
       return r === 'restored' ? S.restoreDone : r === 'none' ? S.restoreNone : r === 'failed' ? S.purchaseFailed : S.purchaseUnavailable;
     });
 
+  // Cafe Bazaar build without Bazaar billing yet: nothing to buy, so no section.
+  if (STORE === 'bazaar' && iapMode === 'unavailable') return null;
   return (
     <Section title={S.purchases}>
       {removeAds ? (

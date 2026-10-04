@@ -16,6 +16,16 @@ export const AD_UNITS = {
   android: { banner: '', interstitial: '', rewarded: '' },
 };
 
+/**
+ * Adivery (Cafe Bazaar build only; AdMob does not serve ads in Iran). Ids from Amir's Adivery panel, 2026-10-04.
+ */
+export const ADIVERY = {
+  appId: 'eb0611ca-efe8-463b-9353-7682f5af4c76',
+  banner: '486c4704-1c19-4e93-9748-b50dfb3686da',
+  interstitial: 'a18bb148-7401-45ec-9d90-307a03f62d23',
+  rewarded: 'cf7d0f94-8597-4a07-b97e-2fb2fd358cf8',
+};
+
 export const AD_RULES = {
   /** Interstitial: at most one per this many completed puzzles… */
   interstitialEvery: 3,

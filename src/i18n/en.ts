@@ -15,10 +15,12 @@ export const en = {
     const h = hour % 12 === 0 ? 12 : hour % 12;
     return `${h}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
   },
+  /** Calendar shown in Stats / Past puzzles (`months` and `weekdays` follow it). */
+  calendar: 'gregorian' as 'gregorian' | 'jalali',
   months: MONTHS,
-  monthTitle: (month: number, year: number, solved: number) => `${MONTHS[month]} ${year} · ${solved} ✓`,
-  dayLabel: (month: number, day: number, state: '' | 'solved' | 'locked' | 'started') =>
-    `${MONTHS[month]} ${day}${state ? `, ${state}` : ''}`,
+  monthTitle: (month: string, year: number, solved: number) => `${month} ${year} · ${solved} ✓`,
+  dayLabel: (month: string, day: number, state: '' | 'solved' | 'locked' | 'started') =>
+    `${month} ${day}${state ? `, ${state}` : ''}`,
   vs: 'vs',
   sparkBest: (t: string) => `best ${t}`,
   hideTimer: 'Hide timer',

@@ -4,10 +4,13 @@
  */
 import type { Difficulty } from '@/engine';
 
+import { jalaliFromKey } from '@/utils/jalali';
+
 import type { Dict } from './en';
 
 const DIFFICULTY: Record<Difficulty, string> = { easy: 'آسان', medium: 'متوسط', hard: 'سخت', expert: 'حرفه‌ای' };
-const MONTHS = ['ژانویه', 'فوریه', 'مارس', 'آوریل', 'مه', 'ژوئن', 'ژوئیه', 'اوت', 'سپتامبر', 'اکتبر', 'نوامبر', 'دسامبر'];
+/** Jalali (solar hijri) months: the Persian UI shows the Persian calendar. */
+const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 const DAY_STATE = { '': '', solved: 'حل‌شده', locked: 'قفل', started: 'نیمه‌کاره' } as const;
 
 export const fa: Dict = {
@@ -17,18 +20,19 @@ export const fa: Dict = {
     const h = hour % 12 === 0 ? 12 : hour % 12;
     return `${h}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'صبح' : 'بعدازظهر'}`;
   },
+  calendar: 'jalali',
   months: MONTHS,
-  monthTitle: (month: number, year: number, solved: number) => `${MONTHS[month]} ${year}، ${solved} حل‌شده`,
-  dayLabel: (month: number, day: number, state: '' | 'solved' | 'locked' | 'started') =>
-    `${day} ${MONTHS[month]}${state ? `، ${DAY_STATE[state]}` : ''}`,
+  monthTitle: (month: string, year: number, solved: number) => `${month} ${year}، ${solved} حل‌شده`,
+  dayLabel: (month: string, day: number, state: '' | 'solved' | 'locked' | 'started') =>
+    `${day} ${month}${state ? `، ${DAY_STATE[state]}` : ''}`,
   vs: 'در برابر',
   sparkBest: (t: string) => `بهترین ${t}`,
   hideTimer: 'پنهان کردن زمان',
   prevMonth: 'ماه قبل',
   nextMonth: 'ماه بعد',
   dateLabel: (key: string) => {
-    const [, m, d] = key.split('-').map(Number);
-    return `${d} ${MONTHS[m - 1]}`;
+    const { jm, jd } = jalaliFromKey(key);
+    return `${jd} ${MONTHS[jm - 1]}`;
   },
   language: 'زبان',
   languageNames: { en: 'English', fa: 'فارسی' },
@@ -120,7 +124,8 @@ export const fa: Dict = {
   hintFree: 'بی‌راهنما',
   lastTen: '10 بار آخر',
   noSolvesYet: 'هنوز حل نکرده‌ای',
-  weekdays: ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'],
+  // Persian weeks start on Saturday.
+  weekdays: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'],
   gameplay: 'بازی',
   autoCross: '✕ خودکار',
   autoCrossHelp: 'خانه‌هایی که یک تاج آن‌ها را می‌بندد ✕ کم‌رنگ می‌گیرند',

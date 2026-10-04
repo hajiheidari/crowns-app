@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.9.1",
+    "date": "2026-10-04",
+    "items": [
+      "Persian uses the Persian (solar) calendar, with weeks starting on Saturday.",
+      "Cafe Bazaar edition: Persian by default, with ads that work in Iran."
+    ]
+  },
+  {
     "version": "0.9.0",
     "date": "2026-10-04",
     "items": [

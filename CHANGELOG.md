@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.9.1 — 2026-10-04
+- Persian uses the Persian (solar) calendar, with weeks starting on Saturday.
+- Cafe Bazaar edition: Persian by default, with ads that work in Iran.
+
 ## 0.9.0 — 2026-10-04
 - Tiaro now speaks Persian (فارسی): change the language in Settings → Appearance. The board, hints and tutorial are all translated.
 

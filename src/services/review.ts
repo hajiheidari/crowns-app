@@ -6,11 +6,14 @@
 import * as StoreReview from 'expo-store-review';
 import { Platform } from 'react-native';
 
+import { STORE } from '@/constants/store';
 import { addDays, dateKey } from '@/engine';
 import { useGameStore } from '@/store/game-store';
 
 export async function maybeAskForReview(): Promise<void> {
   if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
+  // The Android prompt is Google Play's; Cafe Bazaar users don't have it (a Bazaar rating intent can come later).
+  if (STORE === 'bazaar') return;
   const { meta, updateMeta } = useGameStore.getState();
   const today = dateKey();
   if (meta.wins < 3 || !meta.installedKey || today <= meta.installedKey) return;
