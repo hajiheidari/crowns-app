@@ -35,7 +35,7 @@ function bazaarConfig(config: ExpoConfig): ExpoConfig {
     ...config,
     name: 'تیارو',
     extra: { ...config.extra, firebaseEnabled: false },
-    plugins: (config.plugins ?? []).filter((p) => !isGoogleAds(p)),
+    plugins: (config.plugins ?? []).filter((p) => !isGoogleAds(p)).map(withAdiveryProguard),
     android: {
       ...config.android,
       blockedPermissions: [
@@ -45,6 +45,19 @@ function bazaarConfig(config: ExpoConfig): ExpoConfig {
       ],
     },
   };
+}
+
+/**
+ * Adivery's SDK refers to optional mediation networks (e.g. Mintegral) that are not bundled; R8 must not fail on them,
+ * and Adivery's own classes are kept as its docs ask.
+ */
+const ADIVERY_PROGUARD = ['-keep class com.adivery.** { *; }', '-dontwarn com.adivery.**', '-dontwarn com.mbridge.**'].join('\n');
+
+function withAdiveryProguard(plugin: Plugin): Plugin {
+  if (!Array.isArray(plugin) || plugin[0] !== 'expo-build-properties') return plugin;
+  const props = (plugin[1] ?? {}) as { android?: { extraProguardRules?: string } };
+  const extra = [props.android?.extraProguardRules, ADIVERY_PROGUARD].filter(Boolean).join('\n');
+  return ['expo-build-properties', { ...props, android: { ...props.android, extraProguardRules: extra } }];
 }
 
 /** Firebase needs static iOS frameworks: merged into the expo-build-properties entry from app.json. */
