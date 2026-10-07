@@ -155,7 +155,7 @@ def page(k):
   <h2>{e(c['faq_title'])}</h2>
   <div class="card">{faq}</div>
   <footer>
-    <a href="{home}">{e(c['home'])}</a> · <a href="{c['privacy_url']}">{e(c['privacy'])}</a> · <a href="{GAME}/terms">{e(c['terms'])}</a> · <a href="mailto:tiaro.support@gmail.com">{e(c['support'])}</a>
+    <a href="{home}">{e(c['home'])}</a> · <a href="{c['privacy_url']}">{e(c['privacy'])}</a> · <a href="{GAME}/terms">{e(c['terms'])}</a> · <a href="mailto:espadna.support@gmail.com">{e(c['support'])}</a>
   </footer>
 </main>
 </body>

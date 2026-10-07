@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.10.3 — 2026-10-07
+- New support email: espadna.support@gmail.com.
+
 ## 0.10.2 — 2026-10-07
 - The web game and its page are also available inside Iran at tiaro.espadna.ir and espadna.ir/tiaro-app.
 
@@ -22,7 +25,7 @@ Each entry is also shown in the in-app "What's new" sheet.
 
 ## 0.9.3 — 2026-10-04
 - A bigger, easier-to-see back button, next to the content on wide screens.
-- New support email: tiaro.support@gmail.com.
+- New support email: espadna.support@gmail.com.
 
 ## 0.9.2 — 2026-10-04
 - Play Tiaro in your browser, ad-free. Challenge links open the puzzle there too.

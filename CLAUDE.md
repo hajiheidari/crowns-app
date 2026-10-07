@@ -101,7 +101,7 @@ Read these before writing code:
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the
   App Store privacy label and Play Data safety. `web/privacy.html` + `web/terms.html` (served at /privacy, /terms). Settings → Help:
-  Contact support (`SUPPORT_EMAIL` = tiaro.support@gmail.com, Amir's choice 2026-10-04), Privacy policy, Terms, and "Ad privacy choices"
+  Contact support (`SUPPORT_EMAIL` = espadna.support@gmail.com: one address for all Espadna apps, Amir 2026-10-07), Privacy policy, Terms, and "Ad privacy choices"
   (UMP `showPrivacyOptionsForm`, shown only when `privacyOptionsRequirementStatus` is REQUIRED).
 
 ## Tech stack (decided)
