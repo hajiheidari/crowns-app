@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.10.2",
+    "date": "2026-10-07",
+    "items": [
+      "The web game and its page are also available inside Iran at tiaro.espadna.ir and espadna.ir/tiaro-app."
+    ]
+  },
+  {
     "version": "0.10.1",
     "date": "2026-10-05",
     "items": [

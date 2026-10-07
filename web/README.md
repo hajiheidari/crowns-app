@@ -19,6 +19,10 @@ How the addresses reach the Worker (set once in Cloudflare, not in `wrangler.jso
 
 `_redirects` must not point at `/index.html` (Cloudflare rejects it as a loop).
 
+Iran mirror: `espadna.ir` (Amir's Iranian host) keeps copies at **tiaro.espadna.ir** (game) and **espadna.ir/tiaro-app** (landing
+page), made by `mirror-ir/sync.php` in the `espadna-site` repo. It reads the `files.json` that `scripts/build-site.mjs` writes at the
+root and in `tiaro-app/` (every file with size + sha256, plus the `_redirects` text) and rewrites espadna.com → espadna.ir in text files.
+
 Still to do before release (needs Amir):
 1. `APPLE_TEAM_ID` in `.well-known/apple-app-site-association` (Apple Developer account → Membership).
 2. Signing SHA-256 in `.well-known/assetlinks.json` (Play Console → App integrity; Bazaar build keystore).
