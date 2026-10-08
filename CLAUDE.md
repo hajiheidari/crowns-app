@@ -212,7 +212,7 @@ import {
   Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).
-  Waiting for the Poolakey RSA key from the Bazaar panel.
+  RSA key received 2026-10-08 (`BAZAAR_RSA_KEY` in constants/monetization.ts); Poolakey billing not built yet (Amir sent the key "for info").
 - ~~Remove-Ads price~~ decided 2026-09-29: $3.99 one-time (Amir confirmed).
 
 @AGENTS.md
