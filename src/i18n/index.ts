@@ -13,8 +13,12 @@ export type Language = 'en' | 'fa' | 'ar';
 /** Languages offered in Settings. The Cafe Bazaar build is for Iran: Persian and English only (Amir, 2026-10-05). */
 export const LANGUAGES: Language[] = STORE === 'bazaar' ? ['en', 'fa'] : ['en', 'fa', 'ar'];
 
-/** The phone's (or browser's) language, if we have it. Intl works on Hermes and on the web. */
+/**
+ * The phone's (or browser's) language, if we have it. Intl works on Hermes and on the web.
+ * The Iranian copy of the web game (tiaro.espadna.ir) starts in Persian (Amir, 2026-10-08).
+ */
 function deviceLanguage(): Language {
+  if (typeof location !== 'undefined' && /\.ir$/i.test(location.hostname ?? '')) return 'fa';
   try {
     const tag = Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase();
     if (tag.startsWith('ar')) return 'ar';

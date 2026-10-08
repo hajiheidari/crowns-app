@@ -208,6 +208,7 @@ import {
   landing **espadna.com/tiaro-app/** (en, `fa/`, `ar/`). Amir dropped playtiaro.com (2026-10-04, detached from the Worker): never use it.
   Iran mirror (Amir, 2026-10-07): tiaro.espadna.ir + espadna.ir/tiaro-app, copied by espadna-site's `mirror-ir/sync.php` from the
   `files.json` manifests `scripts/build-site.mjs` writes (see `web/README.md`).
+  v0.10.4: on a `.ir` host the web game starts in Persian (`deviceLanguage()` in `src/i18n/index.ts`; `?lang=` and a saved choice still win).
   Still open: Apple Team ID in AASA, Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).

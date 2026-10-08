@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.10.4 — 2026-10-08
+- The Iranian copy of the web game (tiaro.espadna.ir) opens in Persian.
+
 ## 0.10.3 — 2026-10-07
 - New support email: espadna.support@gmail.com.
 

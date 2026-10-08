@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "0.10.4",
+    "date": "2026-10-08",
+    "items": [
+      "The Iranian copy of the web game (tiaro.espadna.ir) opens in Persian."
+    ]
+  },
+  {
     "version": "0.10.3",
     "date": "2026-10-07",
     "items": [
