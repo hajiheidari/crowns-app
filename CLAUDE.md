@@ -72,7 +72,7 @@ Read these before writing code:
   EAS project `@hajiheidaris-team/crowns` is linked in app.json; APKs come from `eas build -p android --profile preview`.
 - v0.8.3: fatal JS errors show in a native alert (`src/services/crash-alert.ts`, imported first in `_layout.tsx`) and render errors in
   the root `ErrorBoundary`, so testers can screenshot them. Amir's S23 Ultra (Android 14, Persian locale, Iran) still did not open 0.8.2;
-  waiting for his 0.8.3 test. The emulator here has no KVM: boots take 15+ min and sometimes hang.
+  2026-10-08: Amir installed the latest builds on his phone and they open fine. The emulator here has no KVM: boots take 15+ min and sometimes hang.
 - v0.8.4 (M7): large-font pass. Tight texts cap `maxFontSizeMultiplier` (wordmark, tile titles, game top bar, toolbar, segmented
   controls); Settings rows wrap so controls drop below the label. Dark mode and 320-px-wide layouts checked on web, all screens.
 - v0.8.5: web share/copy reports the truth (`copyOnWeb` in `src/services/share.ts`; expo-clipboard's web fallback claims success
