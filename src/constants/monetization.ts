@@ -38,3 +38,10 @@ export const AD_RULES = {
   /** A broken streak can be repaired once per this many days. */
   streakRepairCooldownDays: 7,
 };
+
+/**
+ * Cafe Bazaar in-app billing (Poolakey): the app's public RSA key from the Bazaar panel (Amir, 2026-10-08).
+ * A public key, safe to ship. Used by `src/services/purchases/bazaar.ts` once Poolakey is added.
+ */
+export const BAZAAR_RSA_KEY =
+  'MIHNMA0GCSqGSIb3DQEBAQUAA4G7ADCBtwKBrwCmzC9TlV8GlLjmERBp/F3/hO6Q5AjFK+A6pmYWQucPCCd8NIRxjGEL8JoCJ4kgPotk9ETpEzeVlJNbbnum137+Qff1gDLs+yvfJYm6RtnKXBwcwocrXJyrDBhyadYxvDL9dYAggf8aoIuXepZcM22fQgmcJ2N54DJqryO1fsqqLEoWJckVx5tM1REa3gzs7nxFr2knMVLjqsc66m+S5m/a6w1qxiRhmsRiIYyUsu0CAwEAAQ==';
