@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 0.10.5 — 2026-10-08
+- Shared results got a fun line to brag with, and only hard and expert puzzles show their level.
+
 ## 0.10.4 — 2026-10-08
 - The Iranian copy of the web game (tiaro.espadna.ir) opens in Persian.
 

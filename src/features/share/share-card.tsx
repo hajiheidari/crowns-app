@@ -1,5 +1,6 @@
 /**
- * The picture people post: title, time, badges and the puzzle's color map (no crowns, so no spoilers).
+ * The picture people post: title (hard/expert only), a fun brag line, time, badges and the puzzle's color map
+ * (no crowns, so no spoilers).
  * Always drawn in the light brand colors so shared images look the same everywhere.
  */
 import { forwardRef } from 'react';
@@ -16,7 +17,9 @@ export type CardFormat = 'square' | 'story';
 
 interface Props {
   puzzle: Puzzle;
-  title: string;
+  /** Null for easy/medium puzzles: the card then shows no title. */
+  title: string | null;
+  brag: string;
   seconds: number;
   hints: number;
   streak?: number;
@@ -42,7 +45,7 @@ export const ShareCard = forwardRef<View, Props>(function ShareCard(p, ref) {
         <CrownIcon size={8 * u} color={c.gold} />
         <Text style={[styles.brandText, { fontSize: 7 * u }]}>{S.appName}</Text>
       </View>
-      <Text style={[styles.title, { fontSize: 5.5 * u }]}>{p.title}</Text>
+      {p.title ? <Text style={[styles.title, { fontSize: 5.5 * u }]}>{p.title}</Text> : null}
       <View style={[styles.board, { width: boardSize, height: boardSize, borderRadius: 2 * u }]}>
         {p.puzzle.regions.map((r, i) => (
           <View
@@ -60,6 +63,9 @@ export const ShareCard = forwardRef<View, Props>(function ShareCard(p, ref) {
           />
         ))}
       </View>
+      <Text style={[styles.brag, { fontSize: 5 * u }]} numberOfLines={2}>
+        {p.brag}
+      </Text>
       <Text style={[styles.time, { fontSize: 11 * u }]}>{formatTime(p.seconds)}</Text>
       <View style={[styles.badges, { gap: 2 * u }]}>
         {badges.map((b) => (
@@ -79,6 +85,7 @@ const styles = StyleSheet.create({
   brandText: { color: c.text, fontFamily: serif, fontWeight: '600' },
   title: { color: c.textSecondary, fontWeight: '700' },
   board: { overflow: 'hidden', backgroundColor: c.background },
+  brag: { color: c.text, fontWeight: '800', textAlign: 'center' },
   time: { color: c.text, fontWeight: '300', fontVariant: ['tabular-nums'] },
   badges: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   badge: { color: c.goldText, backgroundColor: c.surfaceMuted, fontWeight: '700', overflow: 'hidden' },

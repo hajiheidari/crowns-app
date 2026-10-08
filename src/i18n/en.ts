@@ -44,6 +44,17 @@ export const en = {
   shareHints: (k: number) => (k === 0 ? 'no hints ✨' : `${k} hint${k > 1 ? 's' : ''}`),
   shareStreak: (k: number) => `🔥 ${k}-day streak`,
   shareBeatMe: (link: string) => `Can you beat me? ${link}`,
+  /** Shared results leave out easy/medium; challenge texts then say "a puzzle". */
+  sharePuzzle: 'a puzzle',
+  /** Fun first-person line on shared results (aimed at teens and young adults), picked per result. */
+  shareBrag: [
+    "Today's smartest player? Me, obviously 😎",
+    'Big brain energy 🧠',
+    'Royal brain unlocked 👑',
+    'Solved it before my coffee got cold ☕',
+    'Logic level: legendary 🔥',
+  ],
+  shareBragNoHints: ['Zero hints. Pure genius ✨', 'Hints? Never needed them 😏'],
   tutorial: {
     rows: { title: 'One crown in every row', body: 'Each row gets exactly one crown.' },
     columns: { title: 'One in every column', body: 'Each column gets exactly one crown too.' },

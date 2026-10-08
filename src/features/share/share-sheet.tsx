@@ -16,7 +16,7 @@ import { getRefCode } from '@/store/game-store';
 import { dirStyle, S } from '@/strings';
 
 import { shareNote } from './actions';
-import { puzzleTitle, resultText, type ShareResult } from './messages';
+import { bragLine, resultText, shareTitle, type ShareResult } from './messages';
 import { ShareCard, type CardFormat } from './share-card';
 import { Text } from '@/components/text';
 
@@ -76,7 +76,8 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
           <ShareCard
             ref={cardRef}
             puzzle={puzzle}
-            title={puzzleTitle(result.puzzleId)}
+            title={shareTitle(result.puzzleId)}
+            brag={bragLine(result)}
             seconds={result.seconds}
             hints={result.hints}
             streak={result.streak}
