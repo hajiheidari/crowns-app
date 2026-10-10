@@ -102,6 +102,12 @@ Read these before writing code:
   (via `|| ADS_OFF`, never by saving meta.removeAds), Purchases section hidden; app.config.ts drops the AdMob plugin and
   react-native.config.js drops AdMob + RevenueCat. iPhone and iPad (Amir asked for iPad: `supportsTablet` + `requireFullScreen`, the app is portrait-only; iPad screenshots
   in `store/screenshots*/ipad-13`). Privacy label: Data Not Collected.
+  **iOS build + submit from this container** (first done 2026-10-10, build 9 → TestFlight): App Store Connect API key in env
+  `EXPO_ASC_API_KEY` (bare base64 body; wrap it in PEM BEGIN/END lines into a scratch .p8), `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`.
+  Build: `EXPO_ASC_API_KEY_PATH=<p8> EXPO_APPLE_TEAM_ID=RGR5G6VN69 EXPO_APPLE_TEAM_TYPE=INDIVIDUAL EXPO_NO_CAPABILITY_SYNC=1
+  eas build -p ios --profile production` (credentials now exist on Expo; capability sync hits an Apple API bug, so capabilities
+  were set via the API: IAP, Associated Domains, Push). Submit needs `ascApiKeyPath/IssuerId/Id` in eas.json submit.ios: add them
+  only for the run, never commit the path. `plugins/with-no-push-entitlement.js` drops `aps-environment` (reminders are local).
   When AdMob is approved: remove `EXPO_PUBLIC_ADS` from the profile, fill ids, set "Contains ads" + privacy answers in listing.md.
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
