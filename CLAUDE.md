@@ -101,7 +101,7 @@ Read these before writing code:
   `ADS_OFF` (`src/constants/store.ts`): `ad-networks/none.ts` + `purchases/none.ts`, no banner, free hints/archive/streak repair
   (via `|| ADS_OFF`, never by saving meta.removeAds), Purchases section hidden; app.config.ts drops the AdMob plugin and
   react-native.config.js drops AdMob + RevenueCat. iPhone and iPad (Amir asked for iPad: `supportsTablet` + `requireFullScreen`, the app is portrait-only; iPad screenshots
-  in `store/screenshots*/ipad-13`). Privacy label: Data Not Collected (until 1.0.4: see store/listing.md).
+  in `store/screenshots*/ipad-13`). Privacy label: since 1.0.4 "Identifiers → User ID, App Functionality, not linked, no tracking" (Amir set it 2026-10-11).
   **iOS build + submit from this container** (first done 2026-10-10, build 9 → TestFlight): App Store Connect API key in env
   `EXPO_ASC_API_KEY` (bare base64 body; wrap it in PEM BEGIN/END lines into a scratch .p8), `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`.
   Build: `EXPO_ASC_API_KEY_PATH=<p8> EXPO_APPLE_TEAM_ID=RGR5G6VN69 EXPO_APPLE_TEAM_TYPE=INDIVIDUAL EXPO_NO_CAPABILITY_SYNC=1
