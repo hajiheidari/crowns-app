@@ -13,7 +13,8 @@
         "applinks:tiaro.espadna.com"
       ],
       "infoPlist": {
-        "CFBundleAllowMixedLocalizations": true
+        "CFBundleAllowMixedLocalizations": true,
+        "ITSAppUsesNonExemptEncryption": false
       },
       "supportsTablet": true,
       "requireFullScreen": true
