@@ -109,6 +109,10 @@ Read these before writing code:
   were set via the API: IAP, Associated Domains, Push). Submit needs `ascApiKeyPath/IssuerId/Id` in eas.json submit.ios: add them
   only for the run, never commit the path. `plugins/with-no-push-entitlement.js` drops `aps-environment` (reminders are local).
   When AdMob is approved: remove `EXPO_PUBLIC_ADS` from the profile, fill ids, set "Contains ads" + privacy answers in listing.md.
+- v1.0.1: **first-week ramp** (Amir): `dailyIdFor(key, meta.installedKey)` in `catalog.ts` (Home + Archive) caps a new player's
+  daily (install day +0–1 easy, +2–3 medium, +4–6 hard, then the weekly schedule). A capped day uses id `daily-<key>-<easy|medium|hard>`:
+  same number/streak (stats are keyed by date), puzzle borrowed from the daily pack ~730 days later (`starterPuzzle`). Tested in
+  `tests/app/catalog.test.ts`. Arrows (back button, calendar, Settings rows) are the SVG `BackIcon` (text ‹ › sat off-centre).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

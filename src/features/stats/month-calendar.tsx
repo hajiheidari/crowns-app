@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { dateKey } from '@/engine';
 import { usePalette } from '@/hooks/use-palette';
 import { monthView } from '@/features/stats/calendar';
-import { ARROW_BACK, ARROW_FORWARD, arrowStyle, S } from '@/strings';
+import { BackIcon } from '@/components/icons';
+import { isRTL, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export type DayMark = 'locked' | 'started';
@@ -32,7 +33,7 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
     <View style={styles.root}>
       <View style={styles.header}>
         <NavButton
-          label={ARROW_BACK}
+          forward={false}
           a11y={S.prevMonth}
           onPress={() => setOffset(offset - 1)}
           disabled={!!minKey && month.prevEndKey < minKey}
@@ -40,7 +41,7 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
         <Text style={[styles.month, { color: c.text }]}>
           {S.monthTitle(month.name, month.year, solvedThisMonth)}
         </Text>
-        <NavButton label={ARROW_FORWARD} a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
+        <NavButton forward a11y={S.nextMonth} onPress={() => setOffset(offset + 1)} disabled={offset >= 0} />
       </View>
       <View style={styles.grid}>
         {S.weekdays.map((d, i) => (
@@ -93,11 +94,17 @@ export function MonthCalendar({ solved, onPressDay, minKey, mark }: Props) {
   );
 }
 
-function NavButton({ label, a11y, onPress, disabled }: { label: string; a11y: string; onPress: () => void; disabled?: boolean }) {
+function NavButton({ forward, a11y, onPress, disabled }: { forward: boolean; a11y: string; onPress: () => void; disabled?: boolean }) {
   const { c } = usePalette();
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={a11y} onPress={onPress} disabled={disabled} hitSlop={10}>
-      <Text style={[styles.nav, { color: c.text, opacity: disabled ? 0.25 : 1 }, arrowStyle()]}>{label}</Text>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={a11y}
+      onPress={onPress}
+      disabled={disabled}
+      hitSlop={10}
+      style={[styles.nav, { opacity: disabled ? 0.25 : 1 }]}>
+      <BackIcon size={22} color={c.text} flip={forward !== isRTL()} />
     </Pressable>
   );
 }
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
   root: { gap: 8 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   month: { fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  nav: { fontSize: 26, paddingHorizontal: 8 },
+  nav: { paddingHorizontal: 6, paddingVertical: 4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   weekday: { width: `${100 / 7}%`, textAlign: 'center', fontSize: 12, fontWeight: '600', marginBottom: 4 },
   cell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 3 },

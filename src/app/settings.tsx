@@ -3,12 +3,13 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BackIcon } from '@/components/icons';
 import { ScreenHeader } from '@/components/screen-header';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { useGameStore, type Settings } from '@/store/game-store';
-import { ARROW_FORWARD, arrowStyle, formatClock, S } from '@/strings';
+import { formatClock, isRTL, S } from '@/strings';
 import { PRIVACY_URL, PRIVACY_URL_FA, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
@@ -247,7 +248,7 @@ function LinkRow({ label, onPress, last, value }: { label: string; onPress: () =
             {value ? (
               <Text style={[styles.value, { color: c.text }]}>{value}</Text>
             ) : (
-              <Text style={[styles.chevron, { color: c.textSecondary }, arrowStyle()]}>{ARROW_FORWARD}</Text>
+              <BackIcon size={18} color={c.textSecondary} flip={!isRTL()} />
             )}
           </Row>
         </View>
@@ -310,7 +311,6 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 16 },
   rowHelp: { fontSize: 12 },
   value: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  chevron: { fontSize: 22 },
   segmented: { flexDirection: 'row', borderRadius: 10, padding: 3 },
   segment: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
   segmentText: { fontSize: 13, fontWeight: '600' },

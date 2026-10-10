@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.1 — 2026-10-10
+- New players start easy: the daily puzzle grows from easy to hard over your first week, then the weekly rhythm begins.
+- The back button's arrow sits centred in its circle in every language.
+
 ## 1.0.0 — 2026-10-10
 - Tiaro 1.0 for the App Store: every hint and past puzzle is free, with no ads.
 

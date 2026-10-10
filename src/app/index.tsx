@@ -8,7 +8,7 @@ import { Button } from '@/components/button';
 import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
-import { dailyId, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { AdBanner } from '@/features/monetization/ad-banner';
 import { streakRepairOffer } from '@/features/monetization/policy';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
@@ -43,12 +43,13 @@ export default function HomeScreen() {
   const router = useRouter();
   const now = useNow();
   const today = dateKey(now);
-  const todayId = dailyId(today);
 
   const daily = useGameStore((s) => s.daily);
-  const todayGame = useGameStore((s) => s.games[todayId]);
   const unlimitedIndex = useGameStore((s) => s.unlimitedIndex);
   const meta = useGameStore((s) => s.meta);
+  // A new player's first week starts easy (see `dailyIdFor`).
+  const todayId = dailyIdFor(today, meta.installedKey);
+  const todayGame = useGameStore((s) => s.games[todayId]);
   const updateMeta = useGameStore((s) => s.updateMeta);
   const version = APP_VERSION;
   const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();

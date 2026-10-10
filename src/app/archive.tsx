@@ -14,7 +14,7 @@ import { dateKey } from '@/engine';
 import { AdBanner } from '@/features/monetization/ad-banner';
 import { archiveLocked, archiveStart } from '@/features/monetization/policy';
 import { watchRewarded } from '@/features/monetization/rewarded';
-import { dailyId } from '@/features/puzzles/catalog';
+import { dailyIdFor } from '@/features/puzzles/catalog';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { usePalette } from '@/hooks/use-palette';
 import { useGameStore } from '@/store/game-store';
@@ -31,7 +31,7 @@ export default function ArchiveScreen() {
   const [asking, setAsking] = useState<string | null>(null);
 
   const locked = (key: string) => archiveLocked(key, today, meta.removeAds || ADS_OFF, meta.archiveUnlocked);
-  const open = (key: string) => router.push({ pathname: '/play/[id]', params: { id: dailyId(key) } });
+  const open = (key: string) => router.push({ pathname: '/play/[id]', params: { id: dailyIdFor(key, meta.installedKey) } });
   const onPressDay = (key: string) => (locked(key) ? setAsking(key) : open(key));
   const unlock = async (key: string) => {
     setAsking(null);
@@ -50,7 +50,7 @@ export default function ArchiveScreen() {
             solved={daily.solved}
             minKey={archiveStart(today)}
             onPressDay={onPressDay}
-            mark={(key) => (locked(key) ? 'locked' : games[dailyId(key)]?.board.some((m) => m) ? 'started' : null)}
+            mark={(key) => (locked(key) ? 'locked' : games[dailyIdFor(key, meta.installedKey)]?.board.some((m) => m) ? 'started' : null)}
           />
         </View>
         {!meta.removeAds && !ADS_OFF && <Text style={[styles.help, { color: c.textSecondary }]}>{S.archiveHelp}</Text>}

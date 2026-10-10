@@ -20,3 +20,19 @@ export function SettingsIcon({ size, color }: { size: number; color: string }) {
     </Svg>
   );
 }
+
+/** Back chevron, centred in its box (a text "‹" sits off-centre in most fonts). `flip` points it right (RTL). */
+export function BackIcon({ size, color, flip }: { size: number; color: string; flip?: boolean }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d={flip ? 'M8.5 5l7 7-7 7' : 'M15.5 5l-7 7 7 7'}
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </Svg>
+  );
+}

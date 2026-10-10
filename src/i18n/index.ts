@@ -47,17 +47,6 @@ export const isRTL = () => rtl(current);
  */
 export const dirStyle = (lang: Language = current) => ({ direction: rtl(lang) ? ('rtl' as const) : ('ltr' as const) });
 
-/**
- * Back / forward arrows. Always the same glyphs, kept out of bidi (browsers and Android mirror ‹ › inside
- * right-to-left text on their own, inconsistently) and flipped by a transform in right-to-left languages instead.
- */
-export const ARROW_BACK = '‹';
-export const ARROW_FORWARD = '›';
-export const arrowStyle = () => ({
-  writingDirection: 'ltr' as const,
-  transform: [{ scaleX: rtl(current) ? -1 : 1 }],
-});
-
 /** Text for the current language; read it at render time, never store it in module constants. */
 export const S: Dict = new Proxy({} as Dict, {
   get: (_target, key) => dicts[current][key as keyof Dict],

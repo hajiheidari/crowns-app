@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.1",
+    "date": "2026-10-10",
+    "items": [
+      "New players start easy: the daily puzzle grows from easy to hard over your first week, then the weekly rhythm begins.",
+      "The back button's arrow sits centred in its circle in every language."
+    ]
+  },
+  {
     "version": "1.0.0",
     "date": "2026-10-10",
     "items": [
