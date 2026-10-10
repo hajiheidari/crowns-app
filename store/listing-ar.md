@@ -2,7 +2,7 @@
 
 Arabic localization for the App Store and Google Play (add "Arabic" as a language in App Store Connect and in Play Console →
 Store presence → Main store listing → Manage translations). Lengths: `node store/tools/check-listing.mjs store/listing-ar.md`.
-Screenshots: `store/screenshots-ar/ios-6.9` (App Store) and `store/screenshots-ar/android` (Google Play, + feature graphic).
+Screenshots: `store/screenshots-ar/ios-6.9` + `store/screenshots-ar/ipad-13` (App Store) and `store/screenshots-ar/android` (Google Play, + feature graphic).
 Same rules as `listing.md`: no other companies' brand names.
 
 ## Both stores

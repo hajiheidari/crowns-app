@@ -15,7 +15,8 @@
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
       },
-      "supportsTablet": false
+      "supportsTablet": true,
+      "requireFullScreen": true
     },
     "android": {
       "adaptiveIcon": {

@@ -100,7 +100,8 @@ Read these before writing code:
 - v1.0.0 (App Store, Amir 2026-10-10 "plan A"): **ad-free first release**. eas.json `production` sets `EXPO_PUBLIC_ADS=off` →
   `ADS_OFF` (`src/constants/store.ts`): `ad-networks/none.ts` + `purchases/none.ts`, no banner, free hints/archive/streak repair
   (via `|| ADS_OFF`, never by saving meta.removeAds), Purchases section hidden; app.config.ts drops the AdMob plugin and
-  react-native.config.js drops AdMob + RevenueCat. iPhone only (`supportsTablet: false`). Privacy label: Data Not Collected.
+  react-native.config.js drops AdMob + RevenueCat. iPhone and iPad (Amir asked for iPad: `supportsTablet` + `requireFullScreen`, the app is portrait-only; iPad screenshots
+  in `store/screenshots*/ipad-13`). Privacy label: Data Not Collected.
   When AdMob is approved: remove `EXPO_PUBLIC_ADS` from the profile, fill ids, set "Contains ads" + privacy answers in listing.md.
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.

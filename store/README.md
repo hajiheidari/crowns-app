@@ -5,6 +5,8 @@ Ready to upload:
 - `screenshots-ar/` — the same set in Arabic (`ios-6.9/`, `android/` + feature graphic); texts in `listing-ar.md`.
 
 - `screenshots/ios-6.9/` — App Store, 1290×2796 (6.9" iPhone; Apple scales these down for smaller iPhones).
+- `screenshots/ipad-13/` — App Store iPad 13", 2048×2732 (`tools/compose-ipad.mjs <dir> <repo> en|ar`, from raw.mjs run at a
+  1024×1366 @2x viewport).
 - `screenshots/android/` — Google Play phone screenshots, 1080×1920, plus `feature-graphic-1024x500.png`.
 
 Order: 1 daily puzzle, 2 rules, 3 hints, 4 streak/stats, 5 challenge a friend, 6 dark mode.

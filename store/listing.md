@@ -29,7 +29,8 @@ logic,brain,star battle,grid,sudoku,nonogram,teaser,mind,crowns,game,games,iq,ri
 (same text as the Google Play full description below)
 
 **Age rating:** 4+ (no objectionable content; the questionnaire answers are all "None"). Ads are shown.
-**iPhone only** for v1.0 (no iPad screenshots needed).
+**iPhone and iPad** (Amir 2026-10-10). iPad screenshots (13", 2048×2732): `store/screenshots/ipad-13/` (Arabic: `store/screenshots-ar/ipad-13/`).
+The app is portrait-only, so the iPad build runs full screen (`ios.requireFullScreen`, no Split View).
 
 ## Google Play
 
