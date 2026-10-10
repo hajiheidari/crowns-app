@@ -215,7 +215,7 @@ import {
   Iran mirror (Amir, 2026-10-07): tiaro.espadna.ir + espadna.ir/tiaro-app, copied by espadna-site's `mirror-ir/sync.php` from the
   `files.json` manifests `scripts/build-site.mjs` writes (see `web/README.md`).
   v0.10.4: on a `.ir` host the web game starts in Persian (`deviceLanguage()` in `src/i18n/index.ts`; `?lang=` and a saved choice still win).
-  Apple Team ID **RGR5G6VN69** (in AASA since 2026-10-10). Still open: Play/Bazaar SHA-256 in assetlinks.json.
+  App Store Connect app id **6821354196** (eas.json submit). Apple Team ID **RGR5G6VN69** (in AASA since 2026-10-10). Still open: Play/Bazaar SHA-256 in assetlinks.json.
 - "queens" store keyword: Amir left the timing to us. Plan: leave it out of v1.0 (trademark rejections), try it in an update.
 - Cafe Bazaar: Amir wants the full version (Persian default, Adivery ads, Bazaar billing at 99,000 toman for remove_ads).
   RSA key received 2026-10-08 (`BAZAAR_RSA_KEY` in constants/monetization.ts); Poolakey billing not built yet (Amir sent the key "for info").
