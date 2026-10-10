@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.4 — 2026-10-11
+- Free hints now come when a friend really opens your link on their own phone (each friend counts once).
+
 ## 1.0.3 — 2026-10-11
 - Hints are earned now: every friend you invite or result you share gives you a free hint. See your free hints on Home.
 - A shared picture now goes out together with the link to get the app.

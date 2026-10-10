@@ -101,7 +101,7 @@ Read these before writing code:
   `ADS_OFF` (`src/constants/store.ts`): `ad-networks/none.ts` + `purchases/none.ts`, no banner, free hints/archive/streak repair
   (via `|| ADS_OFF`, never by saving meta.removeAds), Purchases section hidden; app.config.ts drops the AdMob plugin and
   react-native.config.js drops AdMob + RevenueCat. iPhone and iPad (Amir asked for iPad: `supportsTablet` + `requireFullScreen`, the app is portrait-only; iPad screenshots
-  in `store/screenshots*/ipad-13`). Privacy label: Data Not Collected.
+  in `store/screenshots*/ipad-13`). Privacy label: Data Not Collected (until 1.0.4: see store/listing.md).
   **iOS build + submit from this container** (first done 2026-10-10, build 9 → TestFlight): App Store Connect API key in env
   `EXPO_ASC_API_KEY` (bare base64 body; wrap it in PEM BEGIN/END lines into a scratch .p8), `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`.
   Build: `EXPO_ASC_API_KEY_PATH=<p8> EXPO_APPLE_TEAM_ID=RGR5G6VN69 EXPO_APPLE_TEAM_TYPE=INDIVIDUAL EXPO_NO_CAPABILITY_SYNC=1
@@ -122,6 +122,12 @@ Read these before writing code:
   No rewarded ads for hints anymore (archive + streak repair still use them). Home has a gold "Free hints" card with the invite button.
   Image share = react-native-share `open({ url, message })` (picture + result text with the install link), expo-sharing fallback.
   "What's new" sheet removed (Home + Settings); the changelog still drives `APP_VERSION`.
+- v1.0.4 (Amir): earned hints are **confirmed by a server**: the Worker now has a script (`worker/index.js`, `main` in wrangler.jsonc,
+  `run_worker_first: ["/api/*"]`, KV `INVITES` = namespace tiaro-invites, secret `IP_SALT` set via API). `POST /api/open {ref, device}`
+  is sent by `noteInvitedBy` (invite `?r=` and challenge links); it counts once per (ref, device) and per (ref, salted /64 network),
+  never from the owner's own networks (recorded by `GET /api/rewards?ref=`), max 5/day. Home calls `syncEarnedHints()` on mount and
+  foreground (`meta.confirmedInvites` = server count already paid). Tests: `tests/app/invites.test.ts` (in-memory KV).
+  KV free tier = 1,000 writes/day (~3 per counted friend): move to Workers Paid ($5/mo, ask Amir) if invites grow.
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

@@ -7,8 +7,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
-import { hintReward } from '@/features/monetization/policy';
-import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
+import { confirmedInvites, reportOpen } from '@/services/invites';
+import { addDays, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
 import { persistStorage } from '@/store/storage';
@@ -83,11 +83,10 @@ export interface Meta {
   archiveUnlocked: string[];
   /** Day the last streak repair was used. */
   lastRepairKey: string | null;
-  /** Free hints left (earned by sharing results and inviting friends). */
+  /** Free hints left (earned when friends open this player's links). */
   hintCredits: number;
-  rewardedShares: string[];
-  inviteRewardKey: string | null;
-  inviteRewardCount: number;
+  /** Friend opens already turned into hints (the server's running count). */
+  confirmedInvites: number;
 }
 
 export interface WinResult {
@@ -162,9 +161,7 @@ const DEFAULT_META: Meta = {
   archiveUnlocked: [],
   lastRepairKey: null,
   hintCredits: HINT_REWARDS.start,
-  rewardedShares: [],
-  inviteRewardKey: null,
-  inviteRewardCount: 0,
+  confirmedInvites: 0,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -338,12 +335,16 @@ export const useGameStore = create<Store>()(
   ),
 );
 
-/** Give the hints a share or invite earned (if any). Returns how many were added. */
-export function earnHints(action: { kind: 'share'; puzzleId: string } | { kind: 'invite' }): number {
+/**
+ * Turn friends' new link opens (counted by the server) into free hints. Returns how many were added.
+ */
+export async function syncEarnedHints(): Promise<number> {
+  const confirmed = await confirmedInvites(getRefCode());
+  if (confirmed === null) return 0;
   const { meta, updateMeta } = useGameStore.getState();
-  const { hints, patch } = hintReward(meta, action, dateKey());
-  if (hints > 0) updateMeta({ ...patch, hintCredits: meta.hintCredits + hints });
-  return hints;
+  const fresh = Math.max(0, confirmed - meta.confirmedInvites) * HINT_REWARDS.perFriend;
+  if (confirmed !== meta.confirmedInvites) updateMeta({ confirmedInvites: confirmed, hintCredits: meta.hintCredits + fresh });
+  return fresh;
 }
 
 /** Use one free hint. False when none are left. */
@@ -368,7 +369,10 @@ export function getRefCode(): string {
 export function noteInvitedBy(ref: string | undefined): void {
   if (!ref || !/^[a-z0-9]{4,12}$/.test(ref)) return;
   const { meta, updateMeta } = useGameStore.getState();
-  if (!meta.invitedBy && meta.ref !== ref) updateMeta({ invitedBy: ref });
+  if (meta.ref === ref) return;
+  if (!meta.invitedBy) updateMeta({ invitedBy: ref });
+  // Tell the server a friend opened this link: that is what earns the sender a hint.
+  void reportOpen(ref, getRefCode());
 }
 
 /** True once saved data has been loaded from disk. */

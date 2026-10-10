@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { AppState, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ADS_OFF } from '@/constants/store';
@@ -14,7 +14,7 @@ import { streakRepairOffer } from '@/features/monetization/policy';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { currentStreak, noteInvitedBy, useGameStore } from '@/store/game-store';
+import { currentStreak, noteInvitedBy, syncEarnedHints, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
@@ -54,6 +54,17 @@ export default function HomeScreen() {
 
   // Opened from an invite link (<LINK_BASE>/?r=<code>).
   useEffect(() => noteInvitedBy(invitedBy), [invitedBy]);
+
+  // Friends who opened this player's links since the last look turn into free hints (checked by the server).
+  useEffect(() => {
+    const check = async () => {
+      const n = await syncEarnedHints();
+      if (n > 0) setInviteNote(S.hintEarned(n));
+    };
+    void check();
+    const sub = AppState.addEventListener('change', (state) => state === 'active' && void check());
+    return () => sub.remove();
+  }, []);
 
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);

@@ -2,7 +2,7 @@
  * The ad rules from spec §5 as plain functions, so they can be tested without a phone.
  * Hard limits: no interstitial in the first session, the first puzzles, on the daily, or mid-puzzle.
  */
-import { AD_RULES, HINT_REWARDS } from '@/constants/monetization';
+import { AD_RULES } from '@/constants/monetization';
 import { addDays, DAILY_EPOCH } from '@/engine';
 
 export interface AdCounters {
@@ -22,29 +22,6 @@ export function interstitialAllowed(c: AdCounters, mode: 'daily' | 'unlimited', 
   if (c.sessions <= 1 || c.wins <= AD_RULES.interstitialAfterWins) return false;
   if (c.winsSinceInterstitial < AD_RULES.interstitialEvery) return false;
   return c.lastInterstitialAt === null || now - c.lastInterstitialAt >= AD_RULES.interstitialMinGapMs;
-}
-
-export interface HintRewardState {
-  /** Puzzle ids whose share already paid a hint. */
-  rewardedShares: string[];
-  /** Day of the last rewarded invite and how many were rewarded that day. */
-  inviteRewardKey: string | null;
-  inviteRewardCount: number;
-}
-
-/** What one share or invite earns: the hints and the bookkeeping to save. Zero hints when the limit is reached. */
-export function hintReward(
-  s: HintRewardState,
-  action: { kind: 'share'; puzzleId: string } | { kind: 'invite' },
-  today: string,
-): { hints: number; patch: Partial<HintRewardState> } {
-  if (action.kind === 'share') {
-    if (s.rewardedShares.includes(action.puzzleId)) return { hints: 0, patch: {} };
-    return { hints: HINT_REWARDS.perShare, patch: { rewardedShares: [...s.rewardedShares, action.puzzleId].slice(-300) } };
-  }
-  const count = s.inviteRewardKey === today ? s.inviteRewardCount : 0;
-  if (count >= HINT_REWARDS.invitesPerDay) return { hints: 0, patch: {} };
-  return { hints: HINT_REWARDS.perInvite, patch: { inviteRewardKey: today, inviteRewardCount: count + 1 } };
 }
 
 /** First day shown in the archive. Before launch the last 30 days are shown as previews. */

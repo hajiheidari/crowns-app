@@ -40,18 +40,15 @@ export const AD_RULES = {
 };
 
 /**
- * Hints are earned, never bought (Amir 2026-10-10): sharing a result or inviting a friend gives free hints.
- * Limits keep it from being farmed by tapping Share over and over.
+ * Hints are earned, never bought (Amir 2026-10-10): a player gets a free hint each time a friend opens one of their
+ * links (invite, challenge, shared result) on another device. The server (worker/index.js) checks that and caps it
+ * at 5 friends a day, so sending links to yourself earns nothing.
  */
 export const HINT_REWARDS = {
   /** Hints a new player starts with. */
   start: 0,
-  /** Sharing a result or challenge: once per puzzle. */
-  perShare: 1,
-  /** Inviting friends… */
-  perInvite: 1,
-  /** …rewarded at most this many times a day. */
-  invitesPerDay: 3,
+  /** Hints per friend who opens a link. */
+  perFriend: 1,
 };
 
 /**

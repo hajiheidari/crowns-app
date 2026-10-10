@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.4",
+    "date": "2026-10-11",
+    "items": [
+      "Free hints now come when a friend really opens your link on their own phone (each friend counts once)."
+    ]
+  },
+  {
     "version": "1.0.3",
     "date": "2026-10-11",
     "items": [

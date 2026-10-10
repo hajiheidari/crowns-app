@@ -33,7 +33,7 @@ ads to stay free.</p>
 
 <h2>What stays on your device</h2>
 <p>Your puzzles, progress, streaks, statistics and settings are saved only on your device. We do not run a server that
-receives them. Your phone's own backup (iCloud or Google backup), if you use it, may include this data. Deleting the app
+receives them (the only exception is the free-hint check below). Your phone's own backup (iCloud or Google backup), if you use it, may include this data. Deleting the app
 deletes the data.</p>
 
 <h2>What is collected, and by whom</h2>
@@ -71,6 +71,14 @@ Google explains how it uses data from apps that use its services
 <p>When you share a result, challenge a friend or invite someone, the app creates a text and link that you send
 yourself. The link contains the puzzle number, your solving time and a random invite code. It does not contain your
 name or any contact details.</p>
+
+<h2>Free hints for friends who open your links</h2>
+<p>Free hints are earned when a friend opens one of your links on their own device. To check that, our server (run on
+Cloudflare) receives two random codes: the code in the link and the random code of the device that opened it. It also
+keeps a one-way, salted fingerprint of the opener's network address (never the address itself), so that opening your own
+link, or the same phone or home network counting twice, earns nothing. When your app checks for new hints, it sends your
+own random code and the same kind of network fingerprint. These codes are not linked to your name, phone number, contacts
+or any account, and are used only to count free hints. Network fingerprints are deleted after about six months.</p>
 
 <h2>Daily reminder</h2>
 <p>If you turn on the daily reminder, the notification is scheduled on your device. No notification server or

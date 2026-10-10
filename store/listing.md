@@ -74,8 +74,12 @@ Tiaro is free to play, with no subscription. Ever.
 ## Privacy forms (what to answer)
 
 ### v1.0 ad-free build (no AdMob, no Firebase, no RevenueCat)
-App Store "App Privacy": **Data Not Collected.** Tracking: **No.** Google Play Data safety: **No data collected or shared.**
-Everything stays on the device. Use the answers below once ads/analytics are added in an update.
+From 1.0.4 (earned hints, Amir 2026-10-11) the app sends random codes to our invite API (worker/index.js), so:
+App Store "App Privacy": Data Collected → **Identifiers → User ID** (the random app code; Apple counts any app-generated
+ID): used for **App Functionality** only, **not linked** to the user's identity, **not used for tracking**. Tracking: **No.**
+Google Play Data safety: Collected → **Device or other IDs** (random app code), purpose **App functionality**, not shared,
+encrypted in transit, processed ephemerally: No; users can't request deletion via account (no account): point to the policy.
+Everything else stays on the device. Use the answers below once ads/analytics are added in an update.
 
 ### App Store "App Privacy" (nutrition label)
 Data used to track you: **Device ID** (advertising ID, only with permission) — Third-party advertising.
