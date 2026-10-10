@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.0",
+    "date": "2026-10-10",
+    "items": [
+      "Tiaro 1.0 for the App Store: every hint and past puzzle is free, with no ads."
+    ]
+  },
+  {
     "version": "0.10.5",
     "date": "2026-10-08",
     "items": [

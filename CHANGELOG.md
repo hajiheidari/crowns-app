@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.0 — 2026-10-10
+- Tiaro 1.0 for the App Store: every hint and past puzzle is free, with no ads.
+
 ## 0.10.5 — 2026-10-08
 - Shared results got a fun line to brag with, and only hard and expert puzzles show their level.
 

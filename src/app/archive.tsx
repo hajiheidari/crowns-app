@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ADS_OFF } from '@/constants/store';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ScreenHeader } from '@/components/screen-header';
 import { dateKey } from '@/engine';
@@ -29,7 +30,7 @@ export default function ArchiveScreen() {
   const meta = useGameStore((s) => s.meta);
   const [asking, setAsking] = useState<string | null>(null);
 
-  const locked = (key: string) => archiveLocked(key, today, meta.removeAds, meta.archiveUnlocked);
+  const locked = (key: string) => archiveLocked(key, today, meta.removeAds || ADS_OFF, meta.archiveUnlocked);
   const open = (key: string) => router.push({ pathname: '/play/[id]', params: { id: dailyId(key) } });
   const onPressDay = (key: string) => (locked(key) ? setAsking(key) : open(key));
   const unlock = async (key: string) => {
@@ -52,7 +53,7 @@ export default function ArchiveScreen() {
             mark={(key) => (locked(key) ? 'locked' : games[dailyId(key)]?.board.some((m) => m) ? 'started' : null)}
           />
         </View>
-        {!meta.removeAds && <Text style={[styles.help, { color: c.textSecondary }]}>{S.archiveHelp}</Text>}
+        {!meta.removeAds && !ADS_OFF && <Text style={[styles.help, { color: c.textSecondary }]}>{S.archiveHelp}</Text>}
       </ScrollView>
       <AdBanner />
       <ConfirmDialog

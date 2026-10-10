@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ADS_OFF } from '@/constants/store';
 import { Button } from '@/components/button';
 import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, StatsIcon } from '@/components/icons';
@@ -121,7 +122,7 @@ export default function HomeScreen() {
           {repairable !== null && (
             <View style={[styles.repair, { backgroundColor: c.surfaceMuted }]}>
               <Text style={[styles.repairText, { color: c.text }]}>🔥 {S.streakBroken(repairable)}</Text>
-              <Button label={S.withAd(S.streakRepair)} variant="ghost" onPress={repair} />
+              <Button label={ADS_OFF ? S.streakRepairFree : S.withAd(S.streakRepair)} variant="ghost" onPress={repair} />
             </View>
           )}
           <Button label={S.archive} variant="ghost" onPress={() => router.push('/archive')} />

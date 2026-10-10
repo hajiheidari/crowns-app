@@ -8,8 +8,9 @@ Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS ke
 
 - **App name** [30]: Tiaro: Daily Logic Puzzle
 - **Category:** Games → Puzzle (App Store secondary: Board). Google Play: Game → Puzzle.
-- **Price:** Free, with one in-app purchase "Remove Ads" $3.99 (non-consumable, id `remove_ads`).
-- **Contains ads:** Yes.
+- **Price:** Free. **v1.0 (App Store) has no ads and no in-app purchase** (Amir 2026-10-10: ship before AdMob is approved).
+  Later update: ads + one in-app purchase "Remove Ads" $3.99 (non-consumable, id `remove_ads`).
+- **Contains ads:** v1.0: No. (Switch to Yes in the update that adds ads.)
 - **Support URL:** https://espadna.com/tiaro-app/ · **Privacy policy:** https://tiaro.espadna.com/privacy
 - **Marketing URL (optional):** https://espadna.com/tiaro-app/
 
@@ -64,12 +65,16 @@ CHALLENGE YOUR FRIENDS
 Share your result without spoilers, or send a challenge link so a friend can race you on the same puzzle.
 
 FREE, NO SUBSCRIPTION
-Tiaro is free with ads. Ads never appear in the middle of a puzzle. Remove them forever with a single one-time purchase.
+Tiaro is free to play, with no subscription. Ever.
 
 **Content rating:** questionnaire → Everyone / PEGI 3 (no violence etc.). **Target audience:** 13+ (not "Designed for Families").
 **Ads declaration:** Yes, contains ads.
 
 ## Privacy forms (what to answer)
+
+### v1.0 ad-free build (no AdMob, no Firebase, no RevenueCat)
+App Store "App Privacy": **Data Not Collected.** Tracking: **No.** Google Play Data safety: **No data collected or shared.**
+Everything stays on the device. Use the answers below once ads/analytics are added in an update.
 
 ### App Store "App Privacy" (nutrition label)
 Data used to track you: **Device ID** (advertising ID, only with permission) — Third-party advertising.

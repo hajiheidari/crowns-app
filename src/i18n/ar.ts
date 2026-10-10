@@ -240,6 +240,7 @@ export const ar: Dict = {
   archiveEmpty: 'ستظهر هنا ألغاز الأيام السابقة.',
   streakBroken: (k: number) => `انقطعت سلسلتك (${days(k)}) أمس.`,
   streakRepair: 'أصلحها بإعلان',
+  streakRepairFree: 'أصلح سلسلتي',
   streakRepaired: 'تم إصلاح السلسلة!',
   purchases: 'المشتريات',
   removeAds: 'إزالة الإعلانات',

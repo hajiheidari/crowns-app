@@ -235,6 +235,7 @@ export const en = {
   archiveEmpty: 'Past daily puzzles will show up here.',
   streakBroken: (k: number) => `Your ${k}-day streak broke yesterday.`,
   streakRepair: 'Repair with an ad',
+  streakRepairFree: 'Repair my streak',
   streakRepaired: 'Streak repaired!',
   purchases: 'Purchases',
   removeAds: 'Remove ads',

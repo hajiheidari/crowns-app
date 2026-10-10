@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tiaro",
     "slug": "crowns",
-    "version": "0.10.5",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tiaro",
@@ -14,7 +14,8 @@
       ],
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "supportsTablet": false
     },
     "android": {
       "adaptiveIcon": {

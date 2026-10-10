@@ -235,6 +235,7 @@ export const fa: Dict = {
   archiveEmpty: 'پازل‌های روزهای قبل اینجا نمایش داده می‌شوند.',
   streakBroken: (k: number) => `زنجیره‌ی ${k} روزه‌ات دیروز قطع شد.`,
   streakRepair: 'تعمیر با دیدن تبلیغ',
+  streakRepairFree: 'زنجیره‌ام را تعمیر کن',
   streakRepaired: 'زنجیره تعمیر شد!',
   purchases: 'خریدها',
   removeAds: 'حذف تبلیغات',

@@ -3,6 +3,7 @@
  * - Firebase only when its files exist (firebase/README.md).
  * - Cafe Bazaar build (EXPO_PUBLIC_STORE=bazaar, eas.json profile "bazaar"): Persian name, no Google ads plugin,
  *   no Firebase, and Google Play billing / ad-id permissions blocked (react-native.config.js drops their modules).
+ * - Ad-free build (EXPO_PUBLIC_ADS=off): no AdMob plugin (react-native.config.js drops AdMob and RevenueCat).
  */
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
@@ -12,9 +13,13 @@ type Plugin = NonNullable<ExpoConfig['plugins']>[number];
 const { firebaseEnabled, IOS_FILE, ANDROID_FILE } = require('./firebase-config');
 
 const bazaar = process.env.EXPO_PUBLIC_STORE === 'bazaar';
+const adsOff = process.env.EXPO_PUBLIC_ADS === 'off';
+
+const isGoogleAds = (p: Plugin) => (Array.isArray(p) ? p[0] : p) === 'react-native-google-mobile-ads';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   if (bazaar) return bazaarConfig(config as ExpoConfig);
+  if (adsOff) config = { ...config, plugins: (config.plugins ?? []).filter((p) => !isGoogleAds(p)) };
   // The app reads extra.firebaseEnabled so it never loads the Firebase JS without its native side.
   const base = { ...(config as ExpoConfig), extra: { ...config.extra, firebaseEnabled } };
   if (!firebaseEnabled) return base;
@@ -30,7 +35,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 };
 
 function bazaarConfig(config: ExpoConfig): ExpoConfig {
-  const isGoogleAds = (p: Plugin) => (Array.isArray(p) ? p[0] : p) === 'react-native-google-mobile-ads';
   return {
     ...config,
     name: 'تیارو',

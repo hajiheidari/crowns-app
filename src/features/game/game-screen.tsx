@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackButton } from '@/components/back-button';
+import { ADS_OFF } from '@/constants/store';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { applyHint, CROWN, dateKey, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
@@ -38,7 +39,8 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const game = useGameStore((s) => s.games[id]);
   const settings = useGameStore((s) => s.settings);
   const reminderAsked = useGameStore((s) => s.meta.reminderAsked);
-  const removeAds = useGameStore((s) => s.meta.removeAds);
+  // ADS_OFF: the ad-free build gives every hint for free.
+  const removeAds = useGameStore((s) => s.meta.removeAds) || ADS_OFF;
   const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);

@@ -10,3 +10,9 @@ export const STORE: StoreTarget = process.env.EXPO_PUBLIC_STORE === 'bazaar' ? '
  * It has no ads and no purchases; the web preview artifact keeps its fake ads to show the flow.
  */
 export const PUBLIC_SITE = process.env.EXPO_PUBLIC_SITE === '1';
+
+/**
+ * Ad-free store build (EXPO_PUBLIC_ADS=off, eas.json profile "production" for now): no ad SDK, no purchase, every
+ * reward free. Amir's choice 2026-10-10: ship v1.0 to the App Store before AdMob is approved; ads come in an update.
+ */
+export const ADS_OFF = process.env.EXPO_PUBLIC_ADS === 'off';
