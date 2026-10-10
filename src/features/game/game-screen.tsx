@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackButton } from '@/components/back-button';
-import { ADS_OFF } from '@/constants/store';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { applyHint, CROWN, dateKey, explainStep, formatTime, getHint, isSolved, type Hint, type Mark } from '@/engine';
@@ -13,10 +12,9 @@ import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
 import { ZOOM_MIN_N } from '@/features/game/zoom';
-import { hintNeedsAd, interstitialAllowed } from '@/features/monetization/policy';
+import { interstitialAllowed } from '@/features/monetization/policy';
 import { streakMilestone } from '@/features/analytics/events';
-import { watchRewarded } from '@/features/monetization/rewarded';
-import { shareChallenge, shareNote } from '@/features/share/actions';
+import { shareChallenge, shareInvite, shareNote } from '@/features/share/actions';
 import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
@@ -25,7 +23,7 @@ import { enableDailyReminder, remindersSupported } from '@/services/notification
 import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
-import { currentStreak, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
+import { currentStreak, spendHint, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
 import { getLanguage, S } from '@/strings';
 import { Text } from '@/components/text';
 
@@ -39,8 +37,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const game = useGameStore((s) => s.games[id]);
   const settings = useGameStore((s) => s.settings);
   const reminderAsked = useGameStore((s) => s.meta.reminderAsked);
-  // ADS_OFF: the ad-free build gives every hint for free.
-  const removeAds = useGameStore((s) => s.meta.removeAds) || ADS_OFF;
+  const hintCredits = useGameStore((s) => s.meta.hintCredits);
   const { startGame, commit, undo, redo, clear, tick, complete, updateSettings, addHint } = useGameStore.getState();
 
   const [paused, setPaused] = useState(false);
@@ -48,7 +45,9 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const [confirmClear, setConfirmClear] = useState(false);
   const [win, setWin] = useState<WinResult | null>(null);
   const [sharing, setSharing] = useState(false);
-  const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[] } | null>(null);
+  const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[]; hidden?: boolean } | null>(null);
+  const [noHints, setNoHints] = useState(false);
+  const [hintNote, setHintNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!puzzle || !info) return;
@@ -123,38 +122,38 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const crowns = board.filter((m) => m === CROWN).length;
 
   // A hint belongs to the board it was asked on; any move makes it stale.
-  const activeHint = hint && !solved && !paused && sameBoard(hint.board, board) ? hint : null;
+  const freshHint = hint && !solved && sameBoard(hint.board, board) ? hint : null;
+  const activeHint = freshHint && !paused && !freshHint.hidden ? freshHint : null;
 
-  // Explaining or applying a hint "uses" it: the first per puzzle is free, later ones cost a rewarded ad.
-  const hintCostsAd = hintNeedsAd(removeAds, game?.hints ?? 0);
-  const payForHint = (then: () => void) => {
-    if (!hintCostsAd) return then();
-    watchRewarded('hint').then((earned) => earned && then());
-  };
-  const paid = (label: string) => (hintCostsAd ? S.withAd(label) : label);
-
+  // Hints are earned by sharing and inviting (no ads): asking for one spends a free hint; its "why" and "apply"
+  // steps are then included.
   const askHint = () => {
+    if (activeHint) return;
+    // Closed it a moment ago on this same board: show it again without spending another.
+    if (freshHint) return setHint({ ...freshHint, hidden: false });
     const h = getHint(puzzle, board);
     if (h.kind === 'solved') return;
+    if (!spendHint()) {
+      setNoHints(true);
+      return;
+    }
+    addHint(id);
     track('hint_used', { stage: 1, level: puzzle.difficulty, via_ad: false });
     setHint({ hint: h, stage: 1, board });
   };
   const applyActiveHint = () => {
     if (!activeHint) return;
-    // Mistake and reveal hints go straight from "look" to "apply"; that apply is the paid step.
-    const paidStep = activeHint.stage === 1;
-    const apply = () => {
-      track('hint_used', { stage: 3, level: puzzle.difficulty, via_ad: paidStep && hintCostsAd });
-      applyHintNow();
-    };
-    if (paidStep) payForHint(apply);
-    else apply();
+    track('hint_used', { stage: 3, level: puzzle.difficulty, via_ad: false });
+    applyHintNow();
+  };
+  const inviteForHint = async () => {
+    setNoHints(false);
+    setHintNote(shareNote(await shareInvite(), S.inviteCopied));
   };
   const applyHintNow = () => {
     if (!activeHint) return;
     const next = applyHint(puzzle, board, activeHint.hint);
     const cells = next.map((_, i) => i).filter((i) => next[i] !== board[i]);
-    if (activeHint.stage === 1) addHint(id);
     setHint(null);
     act(() => commit(id, cells, cells.map((i) => next[i])));
   };
@@ -166,10 +165,10 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
     const h = activeHint.hint;
     if (h.kind === 'mistake') {
       danger = new Set(h.cells);
-      card = { title: S.hintMistakeTitle, body: S.hintMistakeBody(h.cells.length), primary: { label: paid(S.hintRemove), onPress: applyActiveHint } };
+      card = { title: S.hintMistakeTitle, body: S.hintMistakeBody(h.cells.length), primary: { label: S.hintRemove, onPress: applyActiveHint } };
     } else if (h.kind === 'reveal') {
       highlight = new Set([h.cell]);
-      card = { title: S.hintRevealTitle, body: S.hintRevealBody, primary: { label: paid(S.hintApply), onPress: applyActiveHint } };
+      card = { title: S.hintRevealTitle, body: S.hintRevealBody, primary: { label: S.hintApply, onPress: applyActiveHint } };
     } else if (h.kind === 'step') {
       highlight = new Set(h.step.focus);
       if (activeHint.stage === 1) {
@@ -177,13 +176,11 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           title: S.hintLookTitle,
           body: S.hintLookBody,
           primary: {
-            label: paid(S.hintWhy),
-            onPress: () =>
-              payForHint(() => {
-                track('hint_used', { stage: 2, level: puzzle.difficulty, via_ad: hintCostsAd });
-                addHint(id);
-                setHint({ ...activeHint, stage: 2 });
-              }),
+            label: S.hintWhy,
+            onPress: () => {
+              track('hint_used', { stage: 2, level: puzzle.difficulty, via_ad: false });
+              setHint({ ...activeHint, stage: 2 });
+            },
           },
         };
       } else {
@@ -293,9 +290,13 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
           )}
         </View>
         {card ? (
-          <HintCard title={card.title} body={card.body} primary={card.primary} closeLabel={S.hintClose} onClose={() => setHint(null)} />
+          <HintCard title={card.title} body={card.body} primary={card.primary} closeLabel={S.hintClose} onClose={() => setHint(hint && { ...hint, hidden: true })} />
         ) : (
-          !solved && <Text style={[styles.help, { color: c.textSecondary }]}>{puzzle.n >= ZOOM_MIN_N ? S.controlsZoom : S.controls}</Text>
+          !solved && (
+            <Text style={[styles.help, { color: c.textSecondary }]}>
+              {hintNote ?? (puzzle.n >= ZOOM_MIN_N ? S.controlsZoom : S.controls)}
+            </Text>
+          )
         )}
         {solved && !win && (
           <View style={styles.solvedActions}>
@@ -313,10 +314,18 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       <View style={styles.toolbar}>
         <ToolButton label={S.undo} glyph="↶" onPress={() => act(() => undo(id))} disabled={locked || !game?.undo.length} />
         <ToolButton label={S.redo} glyph="↷" onPress={() => act(() => redo(id))} disabled={locked || !game?.redo.length} />
-        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} badge={hintCostsAd ? '▶' : S.freeBadge} />
+        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} badge={String(hintCredits)} />
         <ToolButton label={S.clear} glyph="⌫" onPress={() => setConfirmClear(true)} disabled={locked || !board.some((m) => m)} />
       </View>
 
+      <ConfirmDialog
+        visible={noHints}
+        title={S.noHintsTitle}
+        body={S.noHintsBody}
+        confirmLabel={S.inviteFriends}
+        onCancel={() => setNoHints(false)}
+        onConfirm={inviteForHint}
+      />
       <ConfirmDialog
         visible={confirmClear}
         title={S.clearTitle}

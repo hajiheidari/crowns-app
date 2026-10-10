@@ -70,8 +70,9 @@ Three stages per hint:
 2. **Why?** — show the explanation card (title + body text).
 3. **Apply** — perform `place` / `eliminate` on the board (animated).
 If the board contains mistakes, the hint says "Something's off" and highlights the wrong marks first (option to remove them).
-Pricing: stages 2–3 are free for the **first hint of each puzzle**; further hints cost one rewarded ad
-(free and unlimited for Remove-Ads owners). If a rewarded ad fails to load, give the hint anyway.
+Pricing (changed by Amir 2026-10-10): hints are **earned, never bought or watched for**. Each hint (all three stages) spends
+one free hint; free hints come from sharing a result or challenge (1 per puzzle, once) and inviting friends (1 each, up to
+3 a day), see `HINT_REWARDS`. A Home card shows the balance and an invite button.
 Hints used are counted and shown on the win screen and share text (honest "no hints ✨" badge).
 
 ### 3.5 Win screen

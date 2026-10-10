@@ -6,7 +6,7 @@ import { addDays, DAILY_EPOCH } from '../../src/engine';
 import {
   archiveLocked,
   archiveStart,
-  hintNeedsAd,
+  hintReward,
   interstitialAllowed,
   streakRepairOffer,
   type AdCounters,
@@ -29,10 +29,23 @@ test('interstitial: at most 1 per 3 puzzles and 3 minutes apart', () => {
   assert.equal(interstitialAllowed({ ...base, lastInterstitialAt: now - 180_000 }, 'unlimited', now), true);
 });
 
-test('hints: first per puzzle free, later ones cost an ad unless ads are removed', () => {
-  assert.equal(hintNeedsAd(false, 0), false);
-  assert.equal(hintNeedsAd(false, 1), true);
-  assert.equal(hintNeedsAd(true, 5), false);
+test('hints are earned: 1 per shared puzzle (once each), 1 per invite up to 3 a day', () => {
+  const s0 = { rewardedShares: [] as string[], inviteRewardKey: null as string | null, inviteRewardCount: 0 };
+  const share = hintReward(s0, { kind: 'share', puzzleId: 'daily-2026-10-10' }, '2026-10-10');
+  assert.equal(share.hints, 1);
+  const s1 = { ...s0, ...share.patch };
+  assert.equal(hintReward(s1, { kind: 'share', puzzleId: 'daily-2026-10-10' }, '2026-10-10').hints, 0);
+  assert.equal(hintReward(s1, { kind: 'share', puzzleId: 'hard-0001' }, '2026-10-10').hints, 1);
+
+  let s = s0;
+  const got = [];
+  for (let i = 0; i < 4; i++) {
+    const r = hintReward(s, { kind: 'invite' }, '2026-10-10');
+    got.push(r.hints);
+    s = { ...s, ...r.patch };
+  }
+  assert.deepEqual(got, [1, 1, 1, 0]);
+  assert.equal(hintReward(s, { kind: 'invite' }, '2026-10-11').hints, 1); // a new day
 });
 
 test('archive: last 7 days free, older days locked until unlocked', () => {

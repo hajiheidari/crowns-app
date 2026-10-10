@@ -60,7 +60,19 @@ async function copyOnWeb(text: string): Promise<boolean> {
   }
 }
 
-export async function shareImage(uri: string, dialogTitle: string): Promise<void> {
-  if (!(await Sharing.isAvailableAsync())) return;
-  await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png', dialogTitle });
+/**
+ * Shares the picture together with a text (the install link goes with it, Amir 2026-10-10), via react-native-share.
+ * If that module is missing (an old build), the picture alone goes out through expo-sharing.
+ */
+export async function shareImage(uri: string, dialogTitle: string, message: string): Promise<ShareStatus> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const RNShare = require('react-native-share').default as typeof import('react-native-share').default;
+    const res = await RNShare.open({ url: uri, type: 'image/png', message, title: dialogTitle, failOnCancel: false });
+    return res.dismissedAction ? 'cancelled' : 'shared';
+  } catch {
+    if (!(await Sharing.isAvailableAsync())) return 'failed';
+    await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png', dialogTitle });
+    return 'shared';
+  }
 }

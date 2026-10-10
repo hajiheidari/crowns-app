@@ -11,12 +11,11 @@ import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { AdBanner } from '@/features/monetization/ad-banner';
 import { streakRepairOffer } from '@/features/monetization/policy';
-import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { currentStreak, noteInvitedBy, useGameStore } from '@/store/game-store';
-import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
+import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
 import { Text } from '@/components/text';
@@ -50,15 +49,11 @@ export default function HomeScreen() {
   // A new player's first week starts easy (see `dailyIdFor`).
   const todayId = dailyIdFor(today, meta.installedKey);
   const todayGame = useGameStore((s) => s.games[todayId]);
-  const updateMeta = useGameStore((s) => s.updateMeta);
-  const version = APP_VERSION;
   const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();
   const [inviteNote, setInviteNote] = useState<string | null>(null);
 
   // Opened from an invite link (<LINK_BASE>/?r=<code>).
   useEffect(() => noteInvitedBy(invitedBy), [invitedBy]);
-
-  const showWhatsNew = !!meta.installedKey && meta.lastSeenVersion !== version;
 
   const info = puzzleInfo(todayId);
   const puzzle = getPuzzle(todayId);
@@ -129,6 +124,16 @@ export default function HomeScreen() {
           <Button label={S.archive} variant="ghost" onPress={() => router.push('/archive')} />
         </View>
 
+        <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
+          <Text style={[styles.hintsTitle, { color: c.text }]}>💡 {S.freeHintsTitle(meta.hintCredits)}</Text>
+          <Text style={[styles.hintsBody, { color: c.textSecondary }]}>{S.freeHintsBody}</Text>
+          <Button
+            label={`🎁 ${S.inviteFriends}`}
+            onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
+          />
+          {inviteNote && <Text selectable style={[styles.hintsNote, { color: c.text }]}>{inviteNote}</Text>}
+        </View>
+
         <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
         <View style={styles.grid}>
           {DIFFICULTIES.map((d) => (
@@ -142,31 +147,10 @@ export default function HomeScreen() {
         </View>
 
         <Text style={[styles.rules, { color: c.textSecondary }]}>{S.rules}</Text>
-        <View style={styles.row}>
-          <Button
-            label={S.howToPlay}
-            variant="secondary"
-            icon={<Text style={[styles.howIcon, { color: c.text }]}>{isRTL() ? '؟' : '?'}</Text>}
-            iconAfter
-            onPress={() => router.push('/tutorial')}
-            style={styles.flex}
-          />
-          <Button
-            label={S.inviteFriends}
-            variant="secondary"
-            onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
-            style={styles.flex}
-          />
-        </View>
-        {inviteNote && <Text selectable style={[styles.footer, { color: c.textSecondary }]}>{inviteNote}</Text>}
+        <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
       <AdBanner />
-      <WhatsNewSheet
-        visible={showWhatsNew}
-        since={meta.lastSeenVersion}
-        onClose={() => updateMeta({ lastSeenVersion: version })}
-      />
     </SafeAreaView>
   );
 }
@@ -241,6 +225,9 @@ const styles = StyleSheet.create({
   tileTitle: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
   tileSub: { fontSize: 13 },
   rules: { fontSize: 14, lineHeight: 20, textAlign: 'center', marginTop: 8 },
-  howIcon: { fontSize: 17, fontWeight: '800' },
   footer: { textAlign: 'center', fontSize: 12 },
+  hints: { borderRadius: 20, borderWidth: 1.5, padding: 18, gap: 8 },
+  hintsTitle: { fontSize: 19, fontWeight: '800' },
+  hintsBody: { fontSize: 14, lineHeight: 21 },
+  hintsNote: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
 });

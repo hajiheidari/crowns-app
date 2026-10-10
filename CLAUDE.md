@@ -116,6 +116,12 @@ Read these before writing code:
 - v1.0.2: share card follows the theme (`dark` prop) and the square card puts the board beside the text (Vazirmatn's tall lines
   overflowed and clipped the top); its footer and every share text end with the install page `APP_PAGE` (`appPageUrl(lang)`:
   espadna.com/tiaro-app/ + fa/ or ar/). Tap order segments show `CrossIcon`/`CrownIcon` + `S.tapFirst` (`S.tapIconFirst` sets the order).
+- v1.0.3 (Amir): **hints are earned** — `meta.hintCredits` (start `HINT_REWARDS.start` = 0); tapping 💡 spends one (`spendHint`,
+  a closed hint on the same board reopens free); `earnHints` via `hintReward()` in policy.ts: +1 per shared puzzle (once each,
+  `rewardedShares`), +1 per invite up to 3/day. Share actions (`features/share/actions.ts`, share sheet) pay it when the share went out.
+  No rewarded ads for hints anymore (archive + streak repair still use them). Home has a gold "Free hints" card with the invite button.
+  Image share = react-native-share `open({ url, message })` (picture + result text with the install link), expo-sharing fallback.
+  "What's new" sheet removed (Home + Settings); the changelog still drives `APP_VERSION`.
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

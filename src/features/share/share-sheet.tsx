@@ -15,7 +15,7 @@ import { canShareImages, shareImage, shareText } from '@/services/share';
 import { getRefCode } from '@/store/game-store';
 import { dirStyle, S } from '@/strings';
 
-import { shareNote } from './actions';
+import { rewardShare, shareNote } from './actions';
 import { bragLine, resultText, shareTitle, type ShareResult } from './messages';
 import { ShareCard, type CardFormat } from './share-card';
 import { Text } from '@/components/text';
@@ -44,12 +44,15 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
     const uri = await captureView(cardRef, PIXELS[format]);
     if (!uri) return;
     track('share_result', { type: 'image' });
-    await shareImage(uri, S.shareResult);
+    const text = resultText(result, getRefCode());
+    const status = await shareImage(uri, S.shareResult, text);
+    setNote(shareNote({ status, text, earned: rewardShare(status, { kind: 'share', puzzleId: result.puzzleId }) }, S.copied));
   };
   const onShareText = async () => {
     track('share_result', { type: 'text' });
     const text = resultText(result, getRefCode());
-    setNote(shareNote({ status: await shareText(text), text }, S.copied));
+    const status = await shareText(text);
+    setNote(shareNote({ status, text, earned: rewardShare(status, { kind: 'share', puzzleId: result.puzzleId }) }, S.copied));
   };
 
   return (

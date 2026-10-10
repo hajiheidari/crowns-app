@@ -40,6 +40,21 @@ export const AD_RULES = {
 };
 
 /**
+ * Hints are earned, never bought (Amir 2026-10-10): sharing a result or inviting a friend gives free hints.
+ * Limits keep it from being farmed by tapping Share over and over.
+ */
+export const HINT_REWARDS = {
+  /** Hints a new player starts with. */
+  start: 0,
+  /** Sharing a result or challenge: once per puzzle. */
+  perShare: 1,
+  /** Inviting friends… */
+  perInvite: 1,
+  /** …rewarded at most this many times a day. */
+  invitesPerDay: 3,
+};
+
+/**
  * Cafe Bazaar in-app billing (Poolakey): the app's public RSA key from the Bazaar panel (Amir, 2026-10-08).
  * A public key, safe to ship. Used by `src/services/purchases/bazaar.ts` once Poolakey is added.
  */

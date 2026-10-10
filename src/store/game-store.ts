@@ -6,7 +6,9 @@ import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { addDays, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
+import { HINT_REWARDS } from '@/constants/monetization';
+import { hintReward } from '@/features/monetization/policy';
+import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
 import { persistStorage } from '@/store/storage';
@@ -81,6 +83,11 @@ export interface Meta {
   archiveUnlocked: string[];
   /** Day the last streak repair was used. */
   lastRepairKey: string | null;
+  /** Free hints left (earned by sharing results and inviting friends). */
+  hintCredits: number;
+  rewardedShares: string[];
+  inviteRewardKey: string | null;
+  inviteRewardCount: number;
 }
 
 export interface WinResult {
@@ -154,6 +161,10 @@ const DEFAULT_META: Meta = {
   removeAds: false,
   archiveUnlocked: [],
   lastRepairKey: null,
+  hintCredits: HINT_REWARDS.start,
+  rewardedShares: [],
+  inviteRewardKey: null,
+  inviteRewardCount: 0,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -326,6 +337,22 @@ export const useGameStore = create<Store>()(
     },
   ),
 );
+
+/** Give the hints a share or invite earned (if any). Returns how many were added. */
+export function earnHints(action: { kind: 'share'; puzzleId: string } | { kind: 'invite' }): number {
+  const { meta, updateMeta } = useGameStore.getState();
+  const { hints, patch } = hintReward(meta, action, dateKey());
+  if (hints > 0) updateMeta({ ...patch, hintCredits: meta.hintCredits + hints });
+  return hints;
+}
+
+/** Use one free hint. False when none are left. */
+export function spendHint(): boolean {
+  const { meta, updateMeta } = useGameStore.getState();
+  if (meta.hintCredits <= 0) return false;
+  updateMeta({ hintCredits: meta.hintCredits - 1 });
+  return true;
+}
 
 /** This install's invite code, created on first use. */
 export function getRefCode(): string {

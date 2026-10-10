@@ -2,6 +2,11 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.3 — 2026-10-11
+- Hints are earned now: every friend you invite or result you share gives you a free hint. See your free hints on Home.
+- A shared picture now goes out together with the link to get the app.
+- No more "What's new" pop-up.
+
 ## 1.0.2 — 2026-10-10
 - Shared pictures fit completely and follow your theme (dark players share a dark card).
 - Every shared result, challenge and invite ends with a link to get the app.

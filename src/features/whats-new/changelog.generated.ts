@@ -3,6 +3,15 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.3",
+    "date": "2026-10-11",
+    "items": [
+      "Hints are earned now: every friend you invite or result you share gives you a free hint. See your free hints on Home.",
+      "A shared picture now goes out together with the link to get the app.",
+      "No more \"What's new\" pop-up."
+    ]
+  },
+  {
     "version": "1.0.2",
     "date": "2026-10-10",
     "items": [

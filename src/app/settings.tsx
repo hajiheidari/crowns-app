@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CrownIcon } from '@/components/crown-icon';
 import { BackIcon, CrossIcon } from '@/components/icons';
 import { ScreenHeader } from '@/components/screen-header';
-import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { useGameStore, type Settings } from '@/store/game-store';
@@ -30,7 +29,6 @@ export default function SettingsScreen() {
   const settings = useGameStore((s) => s.settings);
   const updateSettings = useGameStore((s) => s.updateSettings);
   const updateMeta = useGameStore((s) => s.updateMeta);
-  const [whatsNew, setWhatsNew] = useState(false);
   const [adChoices, setAdChoices] = useState(false);
   useEffect(() => {
     privacyOptionsRequired().then(setAdChoices);
@@ -140,7 +138,6 @@ export default function SettingsScreen() {
 
         <Section title={S.help}>
           <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
-          <LinkRow label={S.whatsNew} onPress={() => setWhatsNew(true)} />
           <LinkRow
             label={S.contactSupport}
             onPress={() => openLink(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(S.supportSubject(APP_VERSION))}`)}
@@ -161,7 +158,6 @@ export default function SettingsScreen() {
 
         <Text style={[styles.footer, { color: c.textSecondary }]}>{S.version(APP_VERSION)}</Text>
       </ScrollView>
-      <WhatsNewSheet visible={whatsNew} since={null} onClose={() => setWhatsNew(false)} />
     </SafeAreaView>
   );
 }
