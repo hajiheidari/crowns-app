@@ -74,6 +74,7 @@
           }
         }
       ],
+      "./plugins/with-no-push-entitlement",
       "expo-notifications",
       [
         "react-native-google-mobile-ads",
