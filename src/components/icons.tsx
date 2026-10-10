@@ -36,3 +36,12 @@ export function BackIcon({ size, color, flip }: { size: number; color: string; f
     </Svg>
   );
 }
+
+/** The ✕ mark as a bold drawn icon (the text ✕ is too thin in most fonts). */
+export function CrossIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M6 6l12 12M18 6L6 18" stroke={color} strokeWidth={3.2} strokeLinecap="round" />
+    </Svg>
+  );
+}

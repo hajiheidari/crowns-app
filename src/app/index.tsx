@@ -16,7 +16,7 @@ import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { currentStreak, noteInvitedBy, useGameStore } from '@/store/game-store';
-import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
+import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
 import { Text } from '@/components/text';
@@ -146,7 +146,8 @@ export default function HomeScreen() {
           <Button
             label={S.howToPlay}
             variant="secondary"
-            icon={<Text style={[styles.howIcon, { color: c.text }]}>?</Text>}
+            icon={<Text style={[styles.howIcon, { color: c.text }]}>{isRTL() ? '؟' : '?'}</Text>}
+            iconAfter
             onPress={() => router.push('/tutorial')}
             style={styles.flex}
           />

@@ -2,6 +2,11 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.2 — 2026-10-10
+- Shared pictures fit completely and follow your theme (dark players share a dark card).
+- Every shared result, challenge and invite ends with a link to get the app.
+- Tap order shows a bold ✕ and a crown icon; the "?" on How to play sits after the words.
+
 ## 1.0.1 — 2026-10-10
 - New players start easy: the daily puzzle grows from easy to hard over your first week, then the weekly rhythm begins.
 - The back button's arrow sits centred in its circle in every language.

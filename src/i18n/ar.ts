@@ -145,6 +145,8 @@ export const ar: Dict = {
   tapOrder: 'ترتيب الضغط',
   tapCrossFirst: '✕ أولًا',
   tapCrownFirst: 'التاج أولًا',
+  tapFirst: 'أولًا',
+  tapIconFirst: true,
   dragToMark: 'السحب لوضع علامات',
   highlightConflicts: 'تمييز الأخطاء',
   showTimer: 'إظهار المؤقت',
@@ -204,6 +206,7 @@ export const ar: Dict = {
   inviteCopied: 'تم نسخ رابط الدعوة. أرسله لصديق!',
   challengeCopied: 'تم نسخ رابط التحدي. أرسله لصديق!',
   copyFailed: 'تعذر النسخ هنا. حدد هذا النص وانسخه:',
+  getTheApp: (link: string) => `حمّل التطبيق: ${link}`,
   inviteMessage: (link: string) =>
     `ألعب تيارو، لغز منطقي يومي مجاني 👑 تاج واحد في كل صف وعمود ولون. جرّبه:\n${link}`,
   challengeTitle: 'وصلك تحدٍّ!',

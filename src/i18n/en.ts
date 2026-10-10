@@ -139,6 +139,9 @@ export const en = {
   tapOrder: 'Tap order',
   tapCrossFirst: '✕ first',
   tapCrownFirst: 'Crown first',
+  tapFirst: 'first',
+  /** Icon before the word ("✕ first") or after it (Persian "اول ✕"). */
+  tapIconFirst: true as boolean,
   dragToMark: 'Drag to mark',
   highlightConflicts: 'Highlight conflicts',
   showTimer: 'Show timer',
@@ -199,6 +202,7 @@ export const en = {
   inviteCopied: 'Invite link copied. Paste it to a friend!',
   challengeCopied: 'Challenge link copied. Paste it to a friend!',
   copyFailed: "Couldn't copy here. Select this text and copy it:",
+  getTheApp: (link: string) => `Get the app: ${link}`,
   inviteMessage: (link: string) =>
     `I'm playing Tiaro, a free daily logic puzzle 👑 One crown per row, column and color. Try it:\n${link}`,
   challengeTitle: 'You got a challenge!',

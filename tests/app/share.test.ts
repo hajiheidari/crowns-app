@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { LINK_BASE } from '../../src/constants/links';
+import { APP_PAGE, LINK_BASE } from '../../src/constants/links';
 import { decodeChallenge } from '../../src/engine';
 import { unlimitedId } from '../../src/features/puzzles/catalog';
 import { en } from '../../src/i18n/en';
@@ -37,7 +37,11 @@ test('unlimited titles and messages: easy and medium are left out of shared resu
   assert.equal(shareTitle(hard), 'Hard #42');
   assert.match(resultText({ puzzleId: hard, seconds: 99, hints: 0 }, 'abc234'), /^Tiaro · Hard #42 👑/);
   assert.match(challengeText({ puzzleId: hard, seconds: 99 }, 'abc234'), /Hard #42 in Tiaro/);
-  assert.ok(inviteText('abc234').endsWith(`${LINK_BASE}/?r=abc234`));
+  assert.ok(inviteText('abc234').includes(`${LINK_BASE}/?r=abc234`));
+  // Every message ends with the install page, for friends who don't have the app yet.
+  for (const t of [inviteText('abc234'), challengeText({ puzzleId: 'daily-2026-10-05', seconds: 61 }, 'abc234'), resultText({ puzzleId: 'daily-2026-10-05', seconds: 61, hints: 0 }, 'abc234')]) {
+    assert.ok(t.endsWith(`Get the app: ${APP_PAGE}`), t);
+  }
 });
 
 test('brag line: same result gives the same line, and "no hints" lines only when no hints were used', () => {

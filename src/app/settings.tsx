@@ -3,7 +3,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BackIcon } from '@/components/icons';
+import { CrownIcon } from '@/components/crown-icon';
+import { BackIcon, CrossIcon } from '@/components/icons';
 import { ScreenHeader } from '@/components/screen-header';
 import { WhatsNewSheet } from '@/features/whats-new/whats-new-sheet';
 import { usePalette } from '@/hooks/use-palette';
@@ -72,8 +73,8 @@ export default function SettingsScreen() {
             <Segmented
               value={settings.tapOrder}
               options={[
-                { value: 'cross-first', label: S.tapCrossFirst },
-                { value: 'crown-first', label: S.tapCrownFirst },
+                { value: 'cross-first', label: S.tapFirst, a11y: S.tapCrossFirst, icon: 'cross' },
+                { value: 'crown-first', label: S.tapFirst, a11y: S.tapCrownFirst, icon: 'crown' },
               ]}
               onChange={(tapOrder) => change('tapOrder', tapOrder)}
             />
@@ -263,7 +264,7 @@ function Segmented<T extends string>({
   onChange,
 }: {
   value: T;
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; a11y?: string; icon?: 'cross' | 'crown' }[];
   onChange: (v: T) => void;
 }) {
   const { c } = usePalette();
@@ -271,14 +272,19 @@ function Segmented<T extends string>({
     <View style={[styles.segmented, { backgroundColor: c.surfaceMuted }]}>
       {options.map((o) => {
         const on = o.value === value;
+        const color = on ? c.text : c.textSecondary;
+        const icon = o.icon === 'cross' ? <CrossIcon size={14} color={color} /> : o.icon === 'crown' ? <CrownIcon size={17} color={on ? c.gold : color} /> : null;
         return (
           <Pressable
             key={o.value}
             accessibilityRole="button"
+            accessibilityLabel={o.a11y ?? o.label}
             accessibilityState={{ selected: on }}
             onPress={() => onChange(o.value)}
-            style={[styles.segment, on && { backgroundColor: c.surface }]}>
-            <Text style={[styles.segmentText, { color: on ? c.text : c.textSecondary }]} maxFontSizeMultiplier={1.4}>{o.label}</Text>
+            style={[styles.segment, icon && styles.segmentWithIcon, on && { backgroundColor: c.surface }]}>
+            {icon && S.tapIconFirst && icon}
+            <Text style={[styles.segmentText, { color }]} maxFontSizeMultiplier={1.4}>{o.label}</Text>
+            {icon && !S.tapIconFirst && icon}
           </Pressable>
         );
       })}
@@ -313,6 +319,7 @@ const styles = StyleSheet.create({
   value: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
   segmented: { flexDirection: 'row', borderRadius: 10, padding: 3 },
   segment: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  segmentWithIcon: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   segmentText: { fontSize: 13, fontWeight: '600' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 12 },
   chip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },

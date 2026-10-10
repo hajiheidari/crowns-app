@@ -30,7 +30,7 @@ interface Props {
 const PIXELS = { square: { width: 1080, height: 1080 }, story: { width: 1080, height: 1920 } };
 
 export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
-  const { c } = usePalette();
+  const { c, dark } = usePalette();
   const { width: screenW, height: screenH } = useWindowDimensions();
   const cardRef = useRef<View>(null);
   const [format, setFormat] = useState<CardFormat>('square');
@@ -83,6 +83,7 @@ export function ShareSheet({ visible, puzzle, result, onClose }: Props) {
             streak={result.streak}
             format={format}
             width={cardW}
+            dark={dark}
           />
         </View>
         {canShareImages && <Button label={S.shareImage} onPress={onShareImage} />}

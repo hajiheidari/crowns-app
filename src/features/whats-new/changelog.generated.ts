@@ -3,6 +3,15 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.2",
+    "date": "2026-10-10",
+    "items": [
+      "Shared pictures fit completely and follow your theme (dark players share a dark card).",
+      "Every shared result, challenge and invite ends with a link to get the app.",
+      "Tap order shows a bold ✕ and a crown icon; the \"?\" on How to play sits after the words."
+    ]
+  },
+  {
     "version": "1.0.1",
     "date": "2026-10-10",
     "items": [

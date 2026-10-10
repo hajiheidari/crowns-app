@@ -10,10 +10,12 @@ interface Props {
   variant?: 'primary' | 'secondary' | 'ghost';
   disabled?: boolean;
   icon?: ReactNode;
+  /** Put the icon after the label (in reading order) instead of before it. */
+  iconAfter?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled, icon, style }: Props) {
+export function Button({ label, onPress, variant = 'primary', disabled, icon, iconAfter, style }: Props) {
   const { c } = usePalette();
   const bg = variant === 'primary' ? c.primary : variant === 'secondary' ? c.surfaceMuted : 'transparent';
   const fg = variant === 'primary' ? c.onPrimary : c.text;
@@ -24,8 +26,9 @@ export function Button({ label, onPress, variant = 'primary', disabled, icon, st
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.base, { backgroundColor: bg, opacity: disabled ? 0.35 : pressed ? 0.75 : 1 }, style]}>
-      {icon}
+      {!iconAfter && icon}
       <Text style={[styles.label, { color: fg }]}>{label}</Text>
+      {iconAfter && icon}
     </Pressable>
   );
 }

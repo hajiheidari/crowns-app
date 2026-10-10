@@ -17,3 +17,10 @@ export const SUPPORT_EMAIL = 'espadna.support@gmail.com';
 
 export const challengeUrl = (code: string) => `${LINK_BASE}/c/${code}`;
 export const inviteUrl = (ref: string) => `${LINK_BASE}/?r=${ref}`;
+
+/**
+ * The app's page (what it is + where to install it), for friends who don't have Tiaro yet. Every shared
+ * result, challenge and invite ends with it (Amir 2026-10-10).
+ */
+export const APP_PAGE = 'https://espadna.com/tiaro-app/';
+export const appPageUrl = (lang: string) => (lang === 'fa' || lang === 'ar' ? `${APP_PAGE}${lang}/` : APP_PAGE);

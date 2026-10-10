@@ -113,6 +113,9 @@ Read these before writing code:
   daily (install day +0–1 easy, +2–3 medium, +4–6 hard, then the weekly schedule). A capped day uses id `daily-<key>-<easy|medium|hard>`:
   same number/streak (stats are keyed by date), puzzle borrowed from the daily pack ~730 days later (`starterPuzzle`). Tested in
   `tests/app/catalog.test.ts`. Arrows (back button, calendar, Settings rows) are the SVG `BackIcon` (text ‹ › sat off-centre).
+- v1.0.2: share card follows the theme (`dark` prop) and the square card puts the board beside the text (Vazirmatn's tall lines
+  overflowed and clipped the top); its footer and every share text end with the install page `APP_PAGE` (`appPageUrl(lang)`:
+  espadna.com/tiaro-app/ + fa/ or ar/). Tap order segments show `CrossIcon`/`CrownIcon` + `S.tapFirst` (`S.tapIconFirst` sets the order).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

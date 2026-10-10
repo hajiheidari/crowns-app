@@ -141,6 +141,8 @@ export const fa: Dict = {
   tapOrder: 'ترتیب ضربه',
   tapCrossFirst: 'اول ✕',
   tapCrownFirst: 'اول تاج',
+  tapFirst: 'اول',
+  tapIconFirst: false,
   dragToMark: 'کشیدن برای علامت‌زدن',
   highlightConflicts: 'نشان دادن اشتباه‌ها',
   showTimer: 'نمایش زمان',
@@ -199,6 +201,7 @@ export const fa: Dict = {
   inviteCopied: 'لینک دعوت کپی شد. برای دوستت بفرست!',
   challengeCopied: 'لینک چالش کپی شد. برای دوستت بفرست!',
   copyFailed: 'اینجا کپی نشد. این متن را انتخاب و کپی کن:',
+  getTheApp: (link: string) => `دانلود اپ تیارو: ${link}`,
   inviteMessage: (link: string) =>
     `من تیارو بازی می‌کنم، یک پازل منطقی روزانه‌ی رایگان 👑 در هر ردیف، ستون و رنگ یک تاج. تو هم امتحانش کن:\n${link}`,
   challengeTitle: 'یک چالش داری!',
