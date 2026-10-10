@@ -24,6 +24,6 @@ page), made by `mirror-ir/sync.php` in the `espadna-site` repo. It reads the `fi
 root and in `tiaro-app/` (every file with size + sha256, plus the `_redirects` text) and rewrites espadna.com → espadna.ir in text files.
 
 Still to do before release (needs Amir):
-1. `APPLE_TEAM_ID` in `.well-known/apple-app-site-association` (Apple Developer account → Membership).
+1. ~~Apple Team ID in the AASA~~ done: RGR5G6VN69.
 2. Signing SHA-256 in `.well-known/assetlinks.json` (Play Console → App integrity; Bazaar build keystore).
 3. Real store links on the landing page (`scripts/landing-pages.py`) after the first release.
