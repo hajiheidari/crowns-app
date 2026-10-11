@@ -5,7 +5,7 @@
 import { Children, isValidElement, type ReactNode } from 'react';
 import { Text as RNText, StyleSheet, type TextProps } from 'react-native';
 
-import { getLanguage, localDigits } from '@/i18n';
+import { getLanguage, isRTL, localDigits } from '@/i18n';
 
 const FA_FONT: Record<string, string> = {
   '100': 'Vazirmatn-Regular',
@@ -47,8 +47,13 @@ export function Text({ style, children, ...rest }: TextProps) {
     );
   }
   const fontFamily = FA_FONT[String(flat.fontWeight ?? '400')] ?? FA_FONT['400'];
+  // The app flips layout with Yoga `direction: 'rtl'` (not I18nManager), and native text still aligns to the left by
+  // default. Right-to-left languages start every unaligned text on the right, like the rest of the layout.
+  const rtlText = isRTL() && (!flat.textAlign || flat.textAlign === 'auto' || flat.textAlign === 'left');
   return (
-    <RNText style={[style, { fontFamily, fontWeight: 'normal' }]} {...rest}>
+    <RNText
+      style={[style, { fontFamily, fontWeight: 'normal' }, rtlText && { textAlign: 'right', writingDirection: 'rtl' }]}
+      {...rest}>
       {persianDigits(children)}
     </RNText>
   );

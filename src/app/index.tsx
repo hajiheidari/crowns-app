@@ -15,7 +15,7 @@ import { streakRepairOffer } from '@/features/monetization/policy';
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { currentStreak, noteInvitedBy, syncEarnedHints, useGameStore } from '@/store/game-store';
-import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, S } from '@/strings';
+import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
 import { Text } from '@/components/text';
@@ -114,25 +114,37 @@ export default function HomeScreen() {
         </View>
 
         <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-          <Text style={[styles.cardEyebrow, { color: c.textSecondary }]}>{S.today.toUpperCase()}</Text>
-          <Text style={[styles.cardTitle, { color: c.text }]}>{S.daily(info?.number ?? 0)}</Text>
-          {puzzle && (
-            <View style={styles.chips}>
-              <Chip text={DIFFICULTY_LABEL[puzzle.difficulty]} />
-              <Chip text={`${puzzle.n}×${puzzle.n}`} />
+          <View style={styles.cardHead}>
+            <View style={styles.flexShrink}>
+              <Text style={[styles.cardEyebrow, { color: c.textSecondary }]}>{S.today.toUpperCase()}</Text>
+              <Text style={[styles.cardTitle, { color: c.text }]} numberOfLines={1}>
+                {S.daily(info?.number ?? 0)}
+              </Text>
             </View>
-          )}
+            {puzzle && (
+              <View style={styles.chips}>
+                <Chip text={DIFFICULTY_LABEL[puzzle.difficulty]} />
+                <Chip text={`${puzzle.n}×${puzzle.n}`} />
+              </View>
+            )}
+          </View>
           <Button label={cta} variant={state === 'solved' ? 'secondary' : 'primary'} onPress={() => open(todayId)} />
-          <Text style={[styles.countdown, { color: c.textSecondary }]}>
-            {S.nextDailyIn} {formatTime(untilMidnight(now))}
-          </Text>
+          <View style={styles.cardFoot}>
+            <Text style={[styles.countdown, { color: c.textSecondary }]}>
+              {S.nextDailyIn} {formatTime(untilMidnight(now))}
+            </Text>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/archive')} hitSlop={10}>
+              {({ pressed }) => (
+                <Text style={[styles.archiveLink, { color: c.text, opacity: pressed ? 0.6 : 1 }]}>{S.archive}</Text>
+              )}
+            </Pressable>
+          </View>
           {repairable !== null && (
             <View style={[styles.repair, { backgroundColor: c.surfaceMuted }]}>
               <Text style={[styles.repairText, { color: c.text }]}>🔥 {S.streakBroken(repairable)}</Text>
               <Button label={ADS_OFF ? S.streakRepairFree : S.withAd(S.streakRepair)} variant="ghost" onPress={repair} />
             </View>
           )}
-          <Button label={S.archive} variant="ghost" onPress={() => router.push('/archive')} />
         </View>
 
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
@@ -157,7 +169,6 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <Text style={[styles.rules, { color: c.textSecondary }]}>{S.rules}</Text>
         <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
         <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
       </ScrollView>
@@ -197,48 +208,52 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
       accessibilityLabel={`${DIFFICULTY_LABEL[difficulty]}, ${S.solvedCount(solved)}`}
       onPress={onPress}
       style={({ pressed }) => [styles.tile, { backgroundColor: c.surface, borderColor: c.border, opacity: pressed ? 0.75 : 1 }]}>
-      <View style={[styles.tileAccent, { backgroundColor: accent }]} />
+      {/* On the reading side (right in Persian and Arabic); `start` is not flipped by react-native-web. */}
+      <View style={[styles.tileAccent, isRTL() ? { right: 0 } : { left: 0 }, { backgroundColor: accent }]} />
       <Text style={[styles.tileTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.5}>{DIFFICULTY_LABEL[difficulty]}</Text>
-      <Text style={[styles.tileSub, { color: c.textSecondary }]}>{DIFFICULTY_SIZES[difficulty]}</Text>
-      <Text style={[styles.tileSub, { color: c.textSecondary }]}>{S.solvedCount(solved)}</Text>
+      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit>
+        {DIFFICULTY_SIZES[difficulty]} · {S.solvedCount(solved)}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  scroll: { padding: 20, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  // Sized so the whole Home fits one phone screen without scrolling (still scrolls on tiny phones / big fonts).
+  scroll: { paddingHorizontal: 18, paddingVertical: 10, gap: 10, maxWidth: 560, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  scrollNarrow: { padding: 14, gap: 12 },
+  scrollNarrow: { paddingHorizontal: 12, gap: 10 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
-  row: { flexDirection: 'row', gap: 10 },
-  repair: { borderRadius: 14, padding: 12, gap: 4, alignItems: 'center' },
+  repair: { borderRadius: 14, padding: 10, gap: 4, alignItems: 'center' },
   repairText: { fontSize: 15, fontWeight: '600', textAlign: 'center' },
-  flex: { flex: 1 },
-  wordmark: { fontFamily: serif, fontSize: 30, fontWeight: '600', flexShrink: 1 },
+  flexShrink: { flexShrink: 1 },
+  wordmark: { fontFamily: serif, fontSize: 28, fontWeight: '600', flexShrink: 1 },
   wordmarkSmall: { fontSize: 24 },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  card: { borderRadius: 20, borderWidth: 1, padding: 20, gap: 10 },
+  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14, gap: 10 },
+  cardHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },
   cardEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
-  cardTitle: { fontFamily: serif, fontSize: 30, fontWeight: '600' },
-  chips: { flexDirection: 'row', gap: 8, marginBottom: 6 },
+  cardTitle: { fontFamily: serif, fontSize: 26, fontWeight: '600' },
+  chips: { flexDirection: 'row', gap: 6, paddingBottom: 4 },
   chip: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   chipText: { fontSize: 13, fontWeight: '600' },
-  countdown: { fontSize: 13, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  section: { fontSize: 20, fontWeight: '700', marginTop: 8 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  tile: { flexBasis: '47%', flexGrow: 1, borderRadius: 16, borderWidth: 1, padding: 16, gap: 2, overflow: 'hidden' },
-  tileAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 6 },
-  tileTitle: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
+  cardFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  countdown: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
+  archiveLink: { fontSize: 15, fontWeight: '700' },
+  section: { fontSize: 19, fontWeight: '700', marginTop: 2 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  tile: { flexBasis: '47%', flexGrow: 1, borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, gap: 2, overflow: 'hidden' },
+  tileAccent: { position: 'absolute', top: 0, bottom: 0, width: 6 },
+  tileTitle: { fontSize: 17, fontWeight: '700' },
   tileSub: { fontSize: 13 },
-  rules: { fontSize: 14, lineHeight: 20, textAlign: 'center', marginTop: 8 },
   footer: { textAlign: 'center', fontSize: 12 },
-  hints: { borderRadius: 20, borderWidth: 1.5, padding: 18, gap: 8 },
-  hintsTitle: { fontSize: 19, fontWeight: '800' },
-  hintsBody: { fontSize: 14, lineHeight: 21 },
+  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 14, gap: 8 },
+  hintsTitle: { fontSize: 18, fontWeight: '800' },
+  hintsBody: { fontSize: 14, lineHeight: 20 },
   hintsNote: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
 });

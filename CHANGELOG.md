@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.6 — 2026-10-11
+- Persian and Arabic texts now start on the right everywhere.
+- Home fits on one screen, with a clearer free-hints card.
+
 ## 1.0.5 — 2026-10-11
 - Fixed the iPhone build so the new picture sharing can be installed.
 

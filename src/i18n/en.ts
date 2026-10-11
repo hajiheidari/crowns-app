@@ -198,7 +198,7 @@ export const en = {
   challengeMessage: (title: string, time: string, link: string) =>
     `I solved ${title} in Tiaro in ${time} 👑 Can you beat me?\n${link}`,
   freeHintsTitle: (n: number) => `Free hints: ${n}`,
-  freeHintsBody: 'Hints are earned, not bought: send a friend your invite or a result. Each friend who opens your link gives you a free hint.',
+  freeHintsBody: "In this game, hints aren't bought, they're earned!\nSend your invite link or a result to your friends and get free hints.",
   noHintsTitle: 'No free hints left',
   noHintsBody: 'Send a friend your invite or a solved puzzle: when they open your link on their phone, you get a free hint.',
   hintPending: 'When a friend opens your link, you get a free hint 💡',

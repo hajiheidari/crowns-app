@@ -131,6 +131,10 @@ Read these before writing code:
 - v1.0.5: Apple silently dropped builds 12–13 (1.0.3/1.0.4: upload OK, never in ASC) — react-native-share links Photos code, so
   `NSPhotoLibraryUsageDescription` + `NSPhotoLibraryAddUsageDescription` are now in app.json (+ locales fa/ar). After every submit, check
   the build shows up in ASC (`/v1/builds?filter[app]=6821354196`); a missing build = processing rejection (Apple emails Amir).
+- v1.0.6: RTL text alignment — `components/text.tsx` gives fa/ar texts without an explicit alignment `textAlign: 'right'` +
+  `writingDirection: 'rtl'` (Yoga `direction: 'rtl'` flips rows but native text still aligned left). Note: react-native-web does not
+  flip `start`/`end`/`marginStart` with Yoga direction, so absolute positions use `isRTL() ? { right } : { left }`. Home is compacted to
+  fit one phone screen (~735 px tall: title + chips in one row, countdown + "Past puzzles" link in one row, one-line tiles, no rules line).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

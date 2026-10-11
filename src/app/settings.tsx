@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { padding: 16, gap: 20, maxWidth: 560, width: '100%', alignSelf: 'center' },
   section: { gap: 8 },
-  sectionTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 1, marginLeft: 4 },
+  sectionTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 1, marginStart: 4 },
   card: { borderRadius: 16, borderWidth: 1, paddingHorizontal: 14 },
   // Wraps so a control drops below its label at large font sizes instead of squeezing the label.
   row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', minHeight: 52, columnGap: 12, rowGap: 8, paddingVertical: 8 },
