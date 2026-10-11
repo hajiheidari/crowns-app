@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.5",
+    "date": "2026-10-11",
+    "items": [
+      "Fixed the iPhone build so the new picture sharing can be installed."
+    ]
+  },
+  {
     "version": "1.0.4",
     "date": "2026-10-11",
     "items": [

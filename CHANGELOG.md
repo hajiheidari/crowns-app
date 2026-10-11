@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.5 — 2026-10-11
+- Fixed the iPhone build so the new picture sharing can be installed.
+
 ## 1.0.4 — 2026-10-11
 - Free hints now come when a friend really opens your link on their own phone (each friend counts once).
 

@@ -128,6 +128,9 @@ Read these before writing code:
   never from the owner's own networks (recorded by `GET /api/rewards?ref=`), max 5/day. Home calls `syncEarnedHints()` on mount and
   foreground (`meta.confirmedInvites` = server count already paid). Tests: `tests/app/invites.test.ts` (in-memory KV).
   KV free tier = 1,000 writes/day (~3 per counted friend): move to Workers Paid ($5/mo, ask Amir) if invites grow.
+- v1.0.5: Apple silently dropped builds 12–13 (1.0.3/1.0.4: upload OK, never in ASC) — react-native-share links Photos code, so
+  `NSPhotoLibraryUsageDescription` + `NSPhotoLibraryAddUsageDescription` are now in app.json (+ locales fa/ar). After every submit, check
+  the build shows up in ASC (`/v1/builds?filter[app]=6821354196`); a missing build = processing rejection (Apple emails Amir).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the
