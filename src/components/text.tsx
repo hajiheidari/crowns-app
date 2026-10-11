@@ -21,6 +21,9 @@ const FA_FONT: Record<string, string> = {
   '900': 'Vazirmatn-Bold',
 };
 
+/** Fixed-width font for codes; texts in it keep Latin digits in every language. */
+export const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
+
 export const RTL_TEXT = { textAlign: Platform.OS === 'web' ? 'right' : 'left', writingDirection: 'rtl' } as const;
 
 function persianDigits(children: ReactNode): ReactNode {
@@ -41,7 +44,7 @@ export function Text({ style, children, ...rest }: TextProps) {
   }
   const flat = StyleSheet.flatten(style) ?? {};
   // Code-like text (error details) keeps its monospace font and Latin digits.
-  if (flat.fontFamily === 'monospace') {
+  if (flat.fontFamily === 'monospace' || flat.fontFamily === MONO) {
     return (
       <RNText style={style} {...rest}>
         {children}

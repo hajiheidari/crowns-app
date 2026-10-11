@@ -7,11 +7,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
-import { confirmedInvites, fetchLeague, postMe, reportOpen, type LeaguePlayer } from '@/services/invites';
-import { leaguePoints, weekStart, type SolveLog } from '@/features/brain/score';
+import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, type LeaguePlayer } from '@/services/invites';
+import { getKeychainKey, saveKeychainKey } from '@/services/keychain';
+import { leaguePoints, weekFirstFor, weekStart, type SolveLog } from '@/features/brain/score';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
-import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
+import { DEFAULT_LANGUAGE, getLanguage, type Language } from '@/i18n';
 import { persistStorage } from '@/store/storage';
 
 /** One undo step: the cells it touched, with their marks before and after. */
@@ -95,6 +96,14 @@ export interface Meta {
   leagueSent: string;
   /** Rank among friends from the last league fetch (for the Home card). */
   leagueRank: { week: string; rank: number; total: number } | null;
+  /** Secret recovery key for the server backup (shown as XXXX-XXXX-XXXX in Settings). */
+  backupKey: string | null;
+  /** Fingerprint of the last snapshot sent, to skip identical uploads. */
+  backupSent: string;
+  /** When the last backup upload went out (ms), to space uploads out. */
+  backupAt: number;
+  /** Set when a reinstall restored progress from the keychain key; Home says "welcome back" once and clears it. */
+  restoredAuto: boolean;
 }
 
 export interface WinResult {
@@ -190,6 +199,10 @@ const DEFAULT_META: Meta = {
   avatar: '',
   leagueSent: '',
   leagueRank: null,
+  backupKey: null,
+  backupSent: '',
+  backupAt: 0,
+  restoredAuto: false,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -384,7 +397,9 @@ export async function syncEarnedHints(): Promise<number> {
 export async function syncLeague(): Promise<void> {
   const today = dateKey();
   const { meta, log, updateMeta } = useGameStore.getState();
-  const me = { code: getRefCode(), name: meta.nickname, emoji: meta.avatar, week: weekStart(today), score: leaguePoints(log, today) };
+  // Both week kinds go up, so friends who play in another language still see this player's score for their own week.
+  const weeks = (['sat', 'mon'] as const).map((f) => ({ week: weekStart(today, f), score: leaguePoints(log, today, f) }));
+  const me = { code: getRefCode(), name: meta.nickname, emoji: meta.avatar, weeks };
   const key = JSON.stringify(me);
   if (key === meta.leagueSent) return;
   if (await postMe(me)) updateMeta({ leagueSent: key });
@@ -393,13 +408,129 @@ export async function syncLeague(): Promise<void> {
 /** Fetch the league for this week and remember this player's rank for the Home card. */
 export async function loadLeague(): Promise<LeaguePlayer[] | null> {
   await syncLeague();
-  const week = weekStart(dateKey());
+  const week = weekStart(dateKey(), weekFirstFor(getLanguage()));
   const players = await fetchLeague(getRefCode(), week);
   if (players) {
     const rank = players.findIndex((p) => p.me) + 1;
     useGameStore.getState().updateMeta({ leagueRank: rank > 0 ? { week, rank, total: players.length } : null });
   }
   return players;
+}
+
+const KEY_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
+const BACKUP_EVERY_MS = 3 * 60 * 60 * 1000;
+
+/** True while this install has no progress at all (a fresh install, before the first move). */
+function isFresh(): boolean {
+  const { games, log, meta } = useGameStore.getState();
+  return Object.keys(games).length === 0 && log.length === 0 && meta.wins === 0;
+}
+
+function newBackupKey(): string {
+  let key = '';
+  while (key.length < 12) key += KEY_ALPHABET[Math.floor(Math.random() * KEY_ALPHABET.length)];
+  return key;
+}
+
+let keyTask: Promise<string | null> | null = null;
+
+/**
+ * This player's secret recovery key. A fresh install first looks in the keychain: on iPhone the key survives deleting
+ * the app, so a reinstall brings the old progress back by itself (`meta.restoredAuto` tells Home to say so).
+ * Null while that restore could not run (offline): nothing is uploaded then, so the old backup is never overwritten.
+ */
+export function getBackupKey(): Promise<string | null> {
+  keyTask ??= resolveBackupKey().then((key) => {
+    if (!key) keyTask = null; // try again next time
+    return key;
+  });
+  return keyTask;
+}
+
+async function resolveBackupKey(): Promise<string | null> {
+  const known = useGameStore.getState().meta.backupKey;
+  if (known) return known;
+  const saved = await getKeychainKey();
+  if (saved && isFresh()) {
+    const result = await restoreBackup(saved);
+    if (result === 'offline') return null;
+    if (result === 'ok') {
+      useGameStore.getState().updateMeta({ restoredAuto: true });
+      return saved;
+    }
+  }
+  const key = saved ?? newBackupKey();
+  useGameStore.getState().updateMeta({ backupKey: key });
+  if (!saved) await saveKeychainKey(key);
+  return key;
+}
+
+/** XXXX-XXXX-XXXX, as shown and typed. */
+export const formatBackupKey = (key: string) => key.toUpperCase().replace(/(.{4})(?=.)/g, '$1-');
+/** Whatever the player typed → a key, or null when it can't be one. */
+export function parseBackupKey(text: string): string | null {
+  // Persian/Arabic digits typed on a local keyboard count as Latin ones.
+  const latin = text.replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660));
+  const key = latin.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return key.length === 12 && [...key].every((ch) => KEY_ALPHABET.includes(ch)) ? key : null;
+}
+
+/** What a backup holds: everything except bookkeeping about the backup/league uploads themselves. */
+function snapshot(): object {
+  const { games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log } = useGameStore.getState();
+  // Unfinished games and solved dailies (Home/Archive show them); undo history is left out to keep it small.
+  const kept = Object.fromEntries(
+    Object.entries(games)
+      .filter(([id, g]) => !g.solved || id.startsWith('daily-'))
+      .slice(-150)
+      .map(([id, g]) => [id, { ...g, undo: [], redo: [] }]),
+  );
+  const { backupSent: _sent, backupAt: _at, restoredAuto: _auto, leagueSent: _league, leagueRank: _rank, ...rest } = meta;
+  return { v: 1, games: kept, unlimitedIndex, stats, daily, settings, tutorialSeen, meta: rest, log };
+}
+
+function fingerprint(text: string): string {
+  let h = 5381;
+  for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+  return `${text.length}:${h}`;
+}
+
+/** Upload the progress snapshot when it changed since the last upload. */
+/** Upload the progress snapshot when it changed, at most every few hours unless `force` (KV writes are limited). */
+export async function syncBackup(force = false): Promise<void> {
+  const key = await getBackupKey();
+  if (!key || isFresh()) return;
+  const { backupSent, backupAt } = useGameStore.getState().meta;
+  if (!force && Date.now() - backupAt < BACKUP_EVERY_MS) return;
+  const data = snapshot();
+  const print = fingerprint(JSON.stringify(data));
+  if (print === backupSent) return;
+  if (await postBackup({ key, code: getRefCode(), data })) useGameStore.getState().updateMeta({ backupSent: print, backupAt: Date.now() });
+}
+
+/**
+ * Replace this device's progress with the backup saved under `key`. The player keeps their old invite code, so
+ * friends, league and earned hints come along. Returns 'ok', 'missing' (no backup for that key) or 'offline'.
+ */
+export async function restoreBackup(key: string): Promise<'ok' | 'missing' | 'offline'> {
+  const backup = await fetchBackup(key);
+  if (backup === null) return 'offline';
+  if (backup === 'missing') return 'missing';
+  const d = backup.data as Partial<Store>;
+  const s = useGameStore.getState();
+  useGameStore.setState({
+    games: d.games ?? {},
+    unlimitedIndex: { ...s.unlimitedIndex, ...d.unlimitedIndex },
+    stats: { ...s.stats, ...d.stats },
+    daily: d.daily ?? s.daily,
+    settings: { ...DEFAULT_SETTINGS, ...d.settings },
+    tutorialSeen: d.tutorialSeen ?? s.tutorialSeen,
+    log: d.log ?? [],
+    meta: { ...DEFAULT_META, ...d.meta, ref: backup.code, backupKey: key, backupSent: '', backupAt: 0, leagueSent: '', leagueRank: null },
+  });
+  keyTask = Promise.resolve(key);
+  void saveKeychainKey(key);
+  return 'ok';
 }
 
 /** Use one free hint. False when none are left. */

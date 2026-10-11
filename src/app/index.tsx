@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AppState, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, AppState, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ADS_OFF } from '@/constants/store';
@@ -15,7 +15,7 @@ import { streakRepairOffer } from '@/features/monetization/policy';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { currentStreak, loadLeague, noteInvitedBy, syncEarnedHints, useGameStore } from '@/store/game-store';
+import { currentStreak, loadLeague, noteInvitedBy, syncBackup, syncEarnedHints, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
@@ -59,6 +59,12 @@ export default function HomeScreen() {
   // Friends who opened this player's links since the last look turn into free hints (checked by the server).
   useEffect(() => {
     const check = async () => {
+      // First: on a reinstalled iPhone this brings the old progress back (keychain key) before anything else runs.
+      await syncBackup();
+      if (useGameStore.getState().meta.restoredAuto) {
+        useGameStore.getState().updateMeta({ restoredAuto: false });
+        Alert.alert(S.backupWelcomeTitle, S.backupWelcomeBody);
+      }
       void loadLeague(); // keeps the league rank on the brain card fresh
       const n = await syncEarnedHints();
       if (n > 0) setInviteNote(S.hintEarned(n));
@@ -90,7 +96,17 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
-      <ScrollView contentContainerStyle={[styles.scroll, narrow && styles.scrollNarrow]}>
+      {/*
+        Home layout (Amir asked for this many times, keep it): one screen, no scrolling, no gaps. Everything has its natural
+        height except the brain card, which takes all the free height (flexGrow) and scales up on tall phones. The page
+        only scrolls when the content really can't fit (tiny phones, huge fonts), and never bounces when it fits.
+      */}
+      <ScrollView
+        contentContainerStyle={[styles.scroll, narrow && styles.scrollNarrow]}
+        alwaysBounceVertical={false}
+        bounces={false}
+        overScrollMode="never"
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <CrownIcon size={narrow ? 24 : 30} color={c.gold} />
@@ -130,7 +146,7 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-          <Button label={cta} variant={state === 'solved' ? 'secondary' : 'primary'} onPress={() => open(todayId)} />
+          <Button label={cta} variant={state === 'solved' ? 'secondary' : 'primary'} onPress={() => open(todayId)} style={styles.compactButton} />
           <View style={styles.cardFoot}>
             <Text style={[styles.countdown, { color: c.textSecondary }]}>
               {S.nextDailyIn} {formatTime(untilMidnight(now))}
@@ -157,6 +173,7 @@ export default function HomeScreen() {
           <Button
             label={`🎁 ${S.inviteFriends}`}
             onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
+            style={styles.compactButton}
           />
           {/* How a hint is earned, always under the button; replaced by the result once something was sent. */}
           <Text selectable style={[styles.hintsNote, { color: inviteNote ? c.text : c.textSecondary }]}>
@@ -166,7 +183,6 @@ export default function HomeScreen() {
 
         <View style={styles.unlimited}>
           <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
-          {/* One row of four that takes the free height, so Home fills taller screens instead of leaving a gap below. */}
           <View style={styles.gridRow}>
             {DIFFICULTIES.map((d) => (
               <DifficultyTile key={d} difficulty={d} solved={unlimitedIndex[d]} onPress={() => open(unlimitedId(d, unlimitedIndex[d]))} />
@@ -175,7 +191,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.bottom}>
-          <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
+          <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} style={styles.howTo} />
           <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
         </View>
       </ScrollView>
@@ -235,7 +251,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  scrollNarrow: { paddingHorizontal: 12, gap: 10 },
+  scrollNarrow: { paddingHorizontal: 12 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
   repair: { borderRadius: 14, padding: 10, gap: 4, alignItems: 'center' },
   repairText: { fontSize: 15, fontWeight: '600', textAlign: 'center' },
@@ -245,7 +261,7 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
+  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 9, gap: 7 },
   cardHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },
   cardEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
   cardTitle: { fontFamily: serif, fontSize: 26, fontWeight: '600' },
@@ -256,16 +272,18 @@ const styles = StyleSheet.create({
   countdown: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   archiveLink: { fontSize: 15, fontWeight: '700' },
   section: { fontSize: 19, fontWeight: '700', marginTop: 2 },
-  unlimited: { flexGrow: 1, gap: 6 },
-  gridRow: { flexDirection: 'row', gap: 8, flexGrow: 1, maxHeight: 170 },
-  bottom: { gap: 4 },
-  tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 11, gap: 2, overflow: 'hidden' },
+  unlimited: { gap: 6 },
+  gridRow: { flexDirection: 'row', gap: 8, height: 76 },
+  bottom: { gap: 2 },
+  howTo: { minHeight: 42 },
+  compactButton: { minHeight: 44 },
+  tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 6, paddingHorizontal: 11, gap: 1, overflow: 'hidden' },
   tileAccent: { position: 'absolute', top: 0, bottom: 0, width: 6 },
   tileTitle: { fontSize: 15, fontWeight: '700' },
   tileSub: { fontSize: 11 },
   footer: { textAlign: 'center', fontSize: 12 },
-  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 10, gap: 6 },
+  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 8, gap: 5 },
   hintsTitle: { fontSize: 17, fontWeight: '800' },
-  hintsBody: { fontSize: 13.5, lineHeight: 19 },
+  hintsBody: { fontSize: 13, lineHeight: 18 },
   hintsNote: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
 });

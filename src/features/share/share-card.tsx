@@ -1,5 +1,5 @@
 /**
- * The picture people post: title (hard/expert only), a fun brag line, time, badges and the puzzle's color map
+ * The picture people post: a fun brag line, time, badges and the puzzle's color map
  * (no crowns, so no spoilers).
  * Drawn in the player's theme (dark players share a dark card). The square card puts the board beside the text so
  * everything fits, also with Vazirmatn's taller lines.
@@ -18,8 +18,6 @@ export type CardFormat = 'square' | 'story';
 
 interface Props {
   puzzle: Puzzle;
-  /** Null for easy/medium puzzles: the card then shows no title. */
-  title: string | null;
   brag: string;
   seconds: number;
   hints: number;
@@ -98,9 +96,6 @@ export const ShareCard = forwardRef<View, Props>(function ShareCard(p, ref) {
           <CrownIcon size={7 * u} color={c.gold} />
           <Text style={[styles.brandText, { color: c.text, fontSize: 6.5 * u, lineHeight: 8.5 * u }]}>{S.appName}</Text>
         </View>
-        {p.title ? (
-          <Text style={[styles.title, { color: c.textSecondary, fontSize: 4.6 * u, lineHeight: 6.4 * u }]}>{p.title}</Text>
-        ) : null}
       </View>
       {story ? (
         <>
@@ -125,7 +120,6 @@ const styles = StyleSheet.create({
   head: { alignItems: 'center' },
   brand: { flexDirection: 'row', alignItems: 'center' },
   brandText: { fontFamily: serif, fontWeight: '600' },
-  title: { fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center' },
   board: { overflow: 'hidden' },
   result: { alignItems: 'center' },

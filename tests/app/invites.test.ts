@@ -103,3 +103,27 @@ test('league: opening a link makes friends both ways; weekly scores, nicknames a
   const d = await league(env, 'dddddd', '2026-10-10');
   assert.equal(d.players.find((p: { me: boolean }) => p.me).name, 'iRez/i');
 });
+
+test('league: Saturday and Monday weeks side by side (friends in different languages)', async () => {
+  const env = makeEnv();
+  await open(env, 'aaaaaa', 'bbbbbb', '2.2.2.2');
+  // A Persian player (week from Saturday 10-10) and an English one (week from Monday 10-12), both sending both kinds.
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', weeks: [{ week: '2026-10-10', score: 80 }, { week: '2026-10-12', score: 50 }] });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sam', emoji: '🐯', weeks: [{ week: '2026-10-10', score: 40 }, { week: '2026-10-12', score: 40 }] });
+  const fa = await league(env, 'aaaaaa', '2026-10-10');
+  assert.deepEqual(fa.players.map((p: { name: string; score: number }) => [p.name, p.score]), [['Amir', 80], ['Sam', 40]]);
+  const en = await league(env, 'bbbbbb', '2026-10-12');
+  assert.deepEqual(en.players.map((p: { name: string; score: number }) => [p.name, p.score]), [['Amir', 50], ['Sam', 40]]);
+});
+
+test('backup: save under the secret key, load it back (any case), refuse bad keys', async () => {
+  const env = makeEnv();
+  const data = { daily: { streak: 9 }, meta: { hintCredits: 3 } };
+  assert.equal((await post(env, '/api/backup', { key: 'abcdefghjkmn', code: 'aaaaaa', data })).ok, true);
+  const res = await worker.fetch(new Request('https://tiaro.espadna.com/api/backup?key=ABCDEFGHJKMN'), env);
+  const back = await res.json();
+  assert.equal(back.code, 'aaaaaa');
+  assert.deepEqual(back.data, data);
+  assert.equal((await worker.fetch(new Request('https://tiaro.espadna.com/api/backup?key=zzzzzzzzzzzz'), env)).status, 404);
+  assert.equal((await post(env, '/api/backup', { key: 'short', code: 'aaaaaa', data })).ok, false);
+});

@@ -22,11 +22,16 @@ export interface BrainWidgetProps {
 
 const BrainWidget = (props: BrainWidgetProps, environment: WidgetEnvironment) => {
   'widget';
-  const dark = environment.colorScheme === 'dark';
-  const ink = dark ? '#F3EEE6' : '#1F1B16';
-  const soft = dark ? '#A69E92' : '#6B6358';
-  const gold = dark ? '#E0BD4A' : '#C9A227';
-  const bg = dark ? '#1C1A17' : '#FAF7F0';
+  // Always gold, like the brain card on Home (both themes). Colors are inline: widget code can't import.
+  const ink = '#1F1B16';
+  const soft = '#5C4A12';
+  const gold = '#FFFFFF';
+  const bg = {
+    type: 'linearGradient' as const,
+    colors: ['#F8DE7E', '#E9BC36', '#C9971F'],
+    startPoint: { x: 0, y: 0 },
+    endPoint: { x: 1, y: 1 },
+  };
   const align = props.rtl ? 'trailing' : 'leading';
   const max = Math.max(1, ...props.days);
 
@@ -35,7 +40,7 @@ const BrainWidget = (props: BrainWidgetProps, environment: WidgetEnvironment) =>
       <Text modifiers={[font({ size: 12, weight: 'semibold' }), foregroundStyle(soft)]}>{props.title}</Text>
       <HStack spacing={6}>
         <Text modifiers={[font({ size: 34, weight: 'heavy' }), foregroundStyle(ink)]}>{props.score}</Text>
-        <Text modifiers={[font({ size: 13, weight: 'bold' }), foregroundStyle(gold)]}>{props.level}</Text>
+        <Text modifiers={[font({ size: 13, weight: 'heavy' }), foregroundStyle(soft)]}>{props.level}</Text>
       </HStack>
       <Text modifiers={[font({ size: 11, weight: 'medium' }), foregroundStyle(soft)]}>{props.change}</Text>
     </VStack>
@@ -61,7 +66,7 @@ const BrainWidget = (props: BrainWidgetProps, environment: WidgetEnvironment) =>
             <RoundedRectangle
               key={i}
               cornerRadius={3}
-              modifiers={[frame({ width: 9, height: 6 + (v / max) * 60 }), foregroundStyle(i === 6 ? gold : v > 0 ? ink : soft)]}
+              modifiers={[frame({ width: 9, height: 6 + (v / max) * 60 }), foregroundStyle(i === 6 ? gold : v > 0 ? ink : '#B8891A')]}
             />
           ))}
         </HStack>

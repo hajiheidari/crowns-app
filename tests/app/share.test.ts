@@ -6,7 +6,7 @@ import { LINK_BASE } from '../../src/constants/links';
 import { decodeChallenge } from '../../src/engine';
 import { unlimitedId } from '../../src/features/puzzles/catalog';
 import { en } from '../../src/i18n/en';
-import { bragLine, challengeLink, challengeText, inviteText, puzzleTitle, resultText, shareTitle } from '../../src/features/share/messages';
+import { bragLine, challengeLink, challengeText, inviteText, puzzleTitle, resultText } from '../../src/features/share/messages';
 
 test('challenge link round-trips puzzle id, time and invite code', () => {
   const id = unlimitedId('hard', 41);
@@ -18,25 +18,23 @@ test('challenge link round-trips puzzle id, time and invite code', () => {
 
 test('daily result text is spoiler-free and carries the link', () => {
   const text = resultText({ puzzleId: 'daily-2026-10-05', seconds: 95, hints: 0, streak: 4 }, 'abc234');
-  assert.match(text, /^Tiaro #5 👑/);
+  assert.match(text, /^Tiaro 👑\n/); // no puzzle number in shared texts
   assert.match(text, /1:35 · no hints ✨/);
   assert.match(text, /4-day streak/);
   assert.ok(text.includes(`${LINK_BASE}/c/daily-2026-10-05.`));
 });
 
-test('unlimited titles and messages: easy and medium are left out of shared results', () => {
+test('shared texts never name the level or number (Amir 2026-10-11)', () => {
   const id = unlimitedId('easy', 0);
-  assert.equal(puzzleTitle(id), 'Easy #1');
-  assert.equal(shareTitle(id), null);
-  assert.equal(shareTitle(unlimitedId('medium', 3)), null);
-  const text = resultText({ puzzleId: id, seconds: 30, hints: 2 }, 'abc234');
-  assert.match(text, /^Tiaro 👑\n.+\n⏱ 0:30 · 2 hints/);
-  assert.ok(!/easy|medium/i.test(text.split('http')[0]), text); // the link itself keeps the puzzle id
-  assert.match(challengeText({ puzzleId: id, seconds: 30 }, 'abc234'), /solved a puzzle in Tiaro in 0:30/);
-  const hard = unlimitedId('hard', 41);
-  assert.equal(shareTitle(hard), 'Hard #42');
-  assert.match(resultText({ puzzleId: hard, seconds: 99, hints: 0 }, 'abc234'), /^Tiaro · Hard #42 👑/);
-  assert.match(challengeText({ puzzleId: hard, seconds: 99 }, 'abc234'), /Hard #42 in Tiaro/);
+  assert.equal(puzzleTitle(id), 'Easy #1'); // in-app title only
+  for (const pid of [id, unlimitedId('hard', 41), unlimitedId('expert', 3), 'daily-2026-10-05']) {
+    const text = resultText({ puzzleId: pid, seconds: 99, hints: 2 }, 'abc234');
+    assert.match(text, /^Tiaro 👑\n/);
+    const before = (t: string) => t.split('http')[0];
+    assert.ok(!/easy|medium|hard|expert|#\d|daily/i.test(before(text)), text);
+    const ch = challengeText({ puzzleId: pid, seconds: 101 }, 'abc234');
+    assert.match(ch, /^I solved a Tiaro puzzle in 1:41 👑 Can you beat my time\?\n/);
+  }
   assert.ok(inviteText('abc234').includes(`${LINK_BASE}/?r=abc234`));
   // One link per message: the coded one (no second "get the app" link, Amir 2026-10-11).
   for (const t of [inviteText('abc234'), challengeText({ puzzleId: 'daily-2026-10-05', seconds: 61 }, 'abc234'), resultText({ puzzleId: 'daily-2026-10-05', seconds: 61, hints: 0 }, 'abc234')]) {

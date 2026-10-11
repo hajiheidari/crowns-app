@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CrownIcon } from '@/components/crown-icon';
@@ -8,7 +8,7 @@ import { BackIcon, CrossIcon } from '@/components/icons';
 import { ScreenHeader } from '@/components/screen-header';
 import { usePalette } from '@/hooks/use-palette';
 import { disableDailyReminder, enableDailyReminder, remindersSupported } from '@/services/notifications';
-import { useGameStore, type Settings } from '@/store/game-store';
+import { formatBackupKey, getBackupKey, parseBackupKey, restoreBackup, syncBackup, useGameStore, type Settings } from '@/store/game-store';
 import { formatClock, isRTL, S } from '@/strings';
 import { PRIVACY_URL, PRIVACY_URL_FA, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
@@ -19,7 +19,9 @@ import { privacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
 import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
-import { Text } from '@/components/text';
+import { MONO, Text } from '@/components/text';
+import { Button } from '@/components/button';
+import { copyText } from '@/services/share';
 
 const REMINDER_HOURS = [7, 9, 12, 18, 20];
 
@@ -134,6 +136,8 @@ export default function SettingsScreen() {
           {denied && <Text style={[styles.note, { color: c.danger }]}>{S.reminderDenied}</Text>}
         </Section>
 
+        <BackupSection />
+
         <PurchasesSection />
 
         <Section title={S.help}>
@@ -159,6 +163,100 @@ export default function SettingsScreen() {
         <Text style={[styles.footer, { color: c.textSecondary }]}>{S.version(APP_VERSION)}</Text>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+/**
+ * Recovery code + restore (Amir 2026-10-11). The code unlocks the online backup on any device (web too); on iPhone the
+ * keychain keeps it through a reinstall, so Home restores by itself there.
+ */
+function BackupSection() {
+  const { c } = usePalette();
+  const [key, setKey] = useState<string | null>(useGameStore.getState().meta.backupKey);
+  const [loading, setLoading] = useState(!key);
+  const [typed, setTyped] = useState('');
+  const [confirm, setConfirm] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    // Opening this section uploads the latest progress, so the code always unlocks what the player sees now.
+    getBackupKey().then((k) => {
+      setKey(k);
+      setLoading(false);
+      if (k) void syncBackup(true);
+    });
+  }, []);
+
+  const ask = () => {
+    const parsed = parseBackupKey(typed);
+    setNote(parsed ? null : S.backupBadCode);
+    setConfirm(parsed);
+  };
+  const restore = async () => {
+    if (!confirm) return;
+    setBusy(true);
+    const result = await restoreBackup(confirm);
+    setBusy(false);
+    setConfirm(null);
+    if (result === 'ok') {
+      setKey(confirm);
+      setTyped('');
+    }
+    setNote(result === 'ok' ? S.backupDone : result === 'missing' ? S.backupMissing : S.backupOffline);
+  };
+
+  return (
+    <Section title={S.backupSection}>
+      <View style={styles.backupBox}>
+        <Text style={[styles.rowLabel, { color: c.text }]}>{S.backupCodeLabel}</Text>
+        {key ? (
+          <Text selectable style={[styles.code, { color: c.text }]}>{formatBackupKey(key)}</Text>
+        ) : (
+          <Text style={[styles.rowHelp, { color: c.textSecondary }]}>{loading ? S.backupLoading : S.backupOffline}</Text>
+        )}
+        {key && (
+          <Button
+            label={S.backupCopy}
+            variant="secondary"
+            onPress={async () => {
+              await copyText(formatBackupKey(key));
+              setNote(S.backupCopied);
+            }}
+          />
+        )}
+        <Text style={[styles.rowHelp, { color: c.textSecondary }]}>{S.backupHelp}</Text>
+      </View>
+      <View style={[styles.backupBox, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.border }]}>
+        <Text style={[styles.rowLabel, { color: c.text }]}>{S.backupRestore}</Text>
+        <TextInput
+          value={typed}
+          onChangeText={(t) => {
+            setTyped(t);
+            setConfirm(null);
+          }}
+          placeholder={S.backupPlaceholder}
+          placeholderTextColor={c.textSecondary}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={20}
+          returnKeyType="done"
+          onSubmitEditing={ask}
+          style={[styles.input, { color: c.text, borderColor: c.border, backgroundColor: c.background, fontFamily: MONO }]}
+        />
+        {confirm ? (
+          <>
+            <Text style={[styles.rowHelp, { color: c.text }]}>{S.backupConfirm}</Text>
+            <View style={styles.backupButtons}>
+              <Button label={S.backupCancel} variant="secondary" onPress={() => setConfirm(null)} style={styles.flex} />
+              <Button label={S.backupConfirmYes} onPress={restore} disabled={busy} style={styles.flex} />
+            </View>
+          </>
+        ) : (
+          <Button label={S.backupRestoreGo} variant="secondary" onPress={ask} disabled={!typed.trim()} />
+        )}
+      </View>
+      {note && <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text>}
+    </Section>
   );
 }
 
@@ -322,4 +420,10 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 13, fontWeight: '600' },
   note: { fontSize: 13, paddingBottom: 12 },
   footer: { textAlign: 'center', fontSize: 12 },
+  backupBox: { gap: 10, paddingVertical: 12 },
+  // Latin letters and digits in every language (the monospace font skips Persian digits), read left to right.
+  code: { fontFamily: MONO, fontSize: 22, fontWeight: '700', letterSpacing: 2, textAlign: 'center', writingDirection: 'ltr' },
+  input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 18, textAlign: 'center', letterSpacing: 1 },
+  backupButtons: { flexDirection: 'row', gap: 10 },
+  flex: { flex: 1 },
 });

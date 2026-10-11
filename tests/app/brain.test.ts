@@ -38,6 +38,10 @@ test('league week: starts on Saturday and counts only this week', async () => {
   assert.equal(weekStart('2026-10-11'), '2026-10-10'); // Sunday
   assert.equal(weekStart('2026-10-16'), '2026-10-10'); // Friday
   assert.equal(weekStart('2026-10-17'), '2026-10-17'); // next Saturday
+  // English and Arabic weeks start on Monday.
+  assert.equal(weekStart('2026-10-11', 'mon'), '2026-10-05'); // Sunday → the Monday before
+  assert.equal(weekStart('2026-10-12', 'mon'), '2026-10-12'); // Monday
+  assert.equal(weekStart('2026-10-17', 'mon'), '2026-10-12'); // Saturday
   const log = [solve('2026-10-09', 'easy', 120), solve('2026-10-10', 'easy', 120), solve('2026-10-12', 'hard', 600)];
   assert.equal(leaguePoints(log, '2026-10-12'), solvePoints(log[1]) + solvePoints(log[2]));
 });

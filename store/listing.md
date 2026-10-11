@@ -82,6 +82,9 @@ encrypted in transit, processed ephemerally: No; users can't request deletion vi
 From 1.0.11 (friends league) also tick: **User Content → Other User Content** (the chosen nickname and the weekly
 score shown to friends): purpose **App Functionality**, **not linked**, **no tracking**. Google Play Data safety: add
 **App activity → Other user-generated content** (same purpose, not shared).
+From 1.0.13 (backup) also tick: **User Content → Gameplay Content** (the progress backup under a random recovery code):
+**App Functionality**, **not linked**, **no tracking**. Google Play Data safety: "App activity → Other user-generated
+content" already covers it; deletion = email the recovery code (backups expire after 400 days unused).
 Everything else stays on the device. Use the answers below once ads/analytics are added in an update.
 
 ### App Store "App Privacy" (nutrition label)

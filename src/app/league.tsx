@@ -1,5 +1,5 @@
 /**
- * Friends league: this week's brain points (since Saturday) for the player and everyone connected by a shared link,
+ * Friends league: this week's brain points (since Saturday in Persian, Monday in English and Arabic) for the player and everyone connected by a shared link,
  * with last week's winner crowned. Players pick a nickname and an animal avatar; nothing else about them is shown.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -29,8 +29,8 @@ export default function LeagueScreen() {
 
   const refresh = useCallback(async () => setPlayers((await loadLeague()) ?? 'error'), []);
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void loadLeague().then((p) => setPlayers(p ?? 'error'));
+  }, []);
 
   const save = async () => {
     const nickname = name.trim().slice(0, 16);

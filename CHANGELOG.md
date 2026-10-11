@@ -2,6 +2,12 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.13 — 2026-10-11
+- Backup: your progress is saved online under a recovery code (Settings → Backup). Enter it on a new phone or the web to get everything back; on iPhone a reinstall restores it by itself.
+- The brain score card is gold in every theme (also the iPhone widget) and grows to fill big screens; Home never scrolls on a normal phone.
+- "Unlimited" is now "Unlimited Puzzles". The league week starts on Saturday in Persian, Monday in English and Arabic.
+- Shared results and challenges no longer show the level or puzzle number.
+
 ## 1.0.12 — 2026-10-11
 - The App Store version no longer includes the ad-tracking permission text (it shows no ads).
 
