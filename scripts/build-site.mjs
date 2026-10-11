@@ -6,6 +6,14 @@ import { createHash } from 'node:crypto';
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
+// Release hold (web-release.json): while on, the Cloudflare build stops here, so the live site keeps its last version.
+// SITE_RELEASE=1 builds anyway (e.g. to try the site locally).
+const release = JSON.parse(readFileSync('web-release.json', 'utf8'));
+if (release.hold && process.env.SITE_RELEASE !== '1') {
+  console.error(`Web release on hold, nothing deployed: ${release.note}`);
+  process.exit(1);
+}
+
 const OUT = 'dist-site';
 rmSync(OUT, { recursive: true, force: true });
 execSync(`npx expo export --platform web --output-dir ${OUT}`, {

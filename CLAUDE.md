@@ -142,6 +142,9 @@ Read these before writing code:
   cmake 3.22). `eas build --local` fails resolving Gradle plugins (its Gradle daemon misses the proxy), so after it has prepared
   /home/user/localbuild/work/build, run `./gradlew :app:assembleRelease` there yourself with EAS_BUILD_WORKINGDIR set
   (/home/user/localbuild/run.sh retries Maven Central 429s).
+- **Release hold (Amir 2026-10-11):** test on iPhone (TestFlight) first; web + Android are updated together once final.
+  `web-release.json` `"hold": true` makes `scripts/build-site.mjs` exit 1, so Cloudflare's push build fails on purpose and the live
+  site stays at 1.0.7. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

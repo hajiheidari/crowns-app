@@ -1,0 +1,4 @@
+{
+  "hold": true,
+  "note": "Amir 2026-10-11: test everything on iPhone (TestFlight) first; the web site and Android are updated together once it is final. While hold is true, Cloudflare's build stops on purpose and tiaro.espadna.com keeps the last released version. Set hold to false to release."
+}
