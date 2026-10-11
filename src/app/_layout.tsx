@@ -13,6 +13,7 @@ import { AdHost } from '@/features/monetization/ad-host';
 import { usePalette } from '@/hooks/use-palette';
 import { initAds } from '@/services/ads';
 import { initPurchases } from '@/services/iap';
+import { enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
 import { useGameStore, useHydrated } from '@/store/game-store';
@@ -55,6 +56,16 @@ export default function RootLayout() {
     if (asked) s.updateSettings({ language: asked });
     initPurchases();
     initAds();
+    // The daily reminder is on by default (Amir 2026-10-11): ask for notification permission once, at the first
+    // launch, and keep it on only if the player allows it. Settings can turn it off or change the time.
+    if (remindersSupported && !s.meta.reminderAsked) {
+      s.updateMeta({ reminderAsked: true });
+      const { hour, minute } = s.settings.reminder;
+      void enableDailyReminder(hour, minute).then((on) => {
+        const st = useGameStore.getState();
+        st.updateSettings({ reminder: { ...st.settings.reminder, enabled: on } });
+      });
+    }
     if (s.meta.installedKey) return;
     const hadProgress = Object.keys(s.games).length > 0 || s.meta.wins > 0;
     s.updateMeta({ installedKey: dateKey(), lastSeenVersion: hadProgress ? '0.3.1' : APP_VERSION });

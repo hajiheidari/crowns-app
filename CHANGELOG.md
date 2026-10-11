@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.7 — 2026-10-11
+- The daily reminder is on from the start (you can turn it off or change the time in Settings).
+- Home fills the whole screen, and the free-hints card says how a hint is earned.
+
 ## 1.0.6 — 2026-10-11
 - Persian and Arabic texts now start on the right everywhere.
 - Home fits on one screen, with a clearer free-hints card.

@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.7",
+    "date": "2026-10-11",
+    "items": [
+      "The daily reminder is on from the start (you can turn it off or change the time in Settings).",
+      "Home fills the whole screen, and the free-hints card says how a hint is earned."
+    ]
+  },
+  {
     "version": "1.0.6",
     "date": "2026-10-11",
     "items": [

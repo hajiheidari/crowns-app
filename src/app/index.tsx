@@ -154,23 +154,33 @@ export default function HomeScreen() {
             label={`🎁 ${S.inviteFriends}`}
             onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
           />
-          {inviteNote && <Text selectable style={[styles.hintsNote, { color: c.text }]}>{inviteNote}</Text>}
+          {/* How a hint is earned, always under the button; replaced by the result once something was sent. */}
+          <Text selectable style={[styles.hintsNote, { color: inviteNote ? c.text : c.textSecondary }]}>
+            {inviteNote ?? S.hintPending}
+          </Text>
         </View>
 
-        <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
-        <View style={styles.grid}>
-          {DIFFICULTIES.map((d) => (
-            <DifficultyTile
-              key={d}
-              difficulty={d}
-              solved={unlimitedIndex[d]}
-              onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
-            />
+        <View style={styles.unlimited}>
+          <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
+          {/* Two rows that share the free height, so Home fills taller screens instead of leaving a gap below. */}
+          {[DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)].map((row) => (
+            <View key={row[0]} style={styles.gridRow}>
+              {row.map((d) => (
+                <DifficultyTile
+                  key={d}
+                  difficulty={d}
+                  solved={unlimitedIndex[d]}
+                  onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
+                />
+              ))}
+            </View>
           ))}
         </View>
 
-        <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
-        <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
+        <View style={styles.bottom}>
+          <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} />
+          <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
+        </View>
       </ScrollView>
       <AdBanner />
     </SafeAreaView>
@@ -221,7 +231,7 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
 const styles = StyleSheet.create({
   root: { flex: 1 },
   // Sized so the whole Home fits one phone screen without scrolling (still scrolls on tiny phones / big fonts).
-  scroll: { paddingHorizontal: 18, paddingVertical: 10, gap: 10, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 10, gap: 10, maxWidth: 560, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
@@ -235,7 +245,7 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14, gap: 10 },
+  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
   cardHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },
   cardEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
   cardTitle: { fontFamily: serif, fontSize: 26, fontWeight: '600' },
@@ -246,14 +256,16 @@ const styles = StyleSheet.create({
   countdown: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   archiveLink: { fontSize: 15, fontWeight: '700' },
   section: { fontSize: 19, fontWeight: '700', marginTop: 2 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  tile: { flexBasis: '47%', flexGrow: 1, borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, gap: 2, overflow: 'hidden' },
+  unlimited: { flexGrow: 1, gap: 10 },
+  gridRow: { flexDirection: 'row', gap: 10, flexGrow: 1, maxHeight: 150 },
+  bottom: { gap: 8 },
+  tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, gap: 4, overflow: 'hidden' },
   tileAccent: { position: 'absolute', top: 0, bottom: 0, width: 6 },
   tileTitle: { fontSize: 17, fontWeight: '700' },
   tileSub: { fontSize: 13 },
   footer: { textAlign: 'center', fontSize: 12 },
-  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 14, gap: 8 },
+  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 12, gap: 7 },
   hintsTitle: { fontSize: 18, fontWeight: '800' },
   hintsBody: { fontSize: 14, lineHeight: 20 },
-  hintsNote: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  hintsNote: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
 });

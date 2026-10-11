@@ -135,6 +135,13 @@ Read these before writing code:
   `writingDirection: 'rtl'` (Yoga `direction: 'rtl'` flips rows but native text still aligned left). Note: react-native-web does not
   flip `start`/`end`/`marginStart` with Yoga direction, so absolute positions use `isRTL() ? { right } : { left }`. Home is compacted to
   fit one phone screen (~735 px tall: title + chips in one row, countdown + "Past puzzles" link in one row, one-line tiles, no rules line).
+- v1.0.7 (Amir): daily reminder **on by default** — `_layout.tsx` asks for notification permission once at the first launch
+  (`!meta.reminderAsked`) and sets `settings.reminder.enabled` to the answer. Home fills the screen (`flexGrow` content, Unlimited
+  tiles in two rows sharing the free height, max 150 each); `S.hintPending` always shows under the invite button.
+  Android local builds (EAS free quota is used up until 2026-11-01): SDK in /opt/android-sdk (platform 36, build-tools 36, NDK 27.1,
+  cmake 3.22). `eas build --local` fails resolving Gradle plugins (its Gradle daemon misses the proxy), so after it has prepared
+  /home/user/localbuild/work/build, run `./gradlew :app:assembleRelease` there yourself with EAS_BUILD_WORKINGDIR set
+  (/home/user/localbuild/run.sh retries Maven Central 429s).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

@@ -201,7 +201,7 @@ export const en = {
   freeHintsBody: "In this game, hints aren't bought, they're earned!\nSend your invite link or a result to your friends and get free hints.",
   noHintsTitle: 'No free hints left',
   noHintsBody: 'Send a friend your invite or a solved puzzle: when they open your link on their phone, you get a free hint.',
-  hintPending: 'When a friend opens your link, you get a free hint 💡',
+  hintPending: 'A friend opens your link = a free hint for you 💡',
   hintEarned: (n: number) => `${n === 1 ? 'A friend' : `${n} friends`} opened your link: +${n} free hint${n === 1 ? '' : 's'} 💡`,
   inviteFriends: 'Invite friends',
   shareSection: 'Share',
