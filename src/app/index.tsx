@@ -148,7 +148,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <BrainCard today={today} onPress={() => router.push('/stats')} />
+        <BrainCard today={today} streak={streak} solvedToday={!!todayGame?.solved} onPress={() => router.push('/stats')} />
 
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
           <Text style={[styles.hintsTitle, { color: c.text }]}>💡 {S.freeHintsTitle(meta.hintCredits)}</Text>

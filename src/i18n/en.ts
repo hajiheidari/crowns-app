@@ -197,6 +197,9 @@ export const en = {
   challengeBack: 'Challenge back',
   challengeMessage: (title: string, time: string, link: string) =>
     `I solved ${title} in Tiaro in ${time} 👑 Can you beat me?\n${link}`,
+  brainTitleShort: 'Brain score',
+  widgetTodayDone: 'Today ✓',
+  widgetTodayWaiting: "Today's puzzle is waiting",
   brainTitle: 'Brain score · last 7 days',
   brainChange: (p: number) => (p >= 0 ? `▲ ${p}% vs the week before` : `▼ ${-p}% vs the week before`),
   brainStart: 'Solve puzzles to build your score',

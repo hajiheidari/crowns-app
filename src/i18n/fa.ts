@@ -196,6 +196,9 @@ export const fa: Dict = {
   challengeBack: 'چالش متقابل',
   challengeMessage: (title: string, time: string, link: string) =>
     `${title} تیارو را در ${time} حل کردم 👑 می‌توانی رکوردم را بزنی؟\n${link}`,
+  brainTitleShort: 'امتیاز ذهن',
+  widgetTodayDone: 'پازل امروز ✓',
+  widgetTodayWaiting: 'پازل امروز منتظر توست',
   brainTitle: 'امتیاز ذهن · ۷ روز اخیر',
   brainChange: (p: number) => (p >= 0 ? `▲ ${p}٪ بیشتر از هفته‌ی قبل` : `▼ ${-p}٪ کمتر از هفته‌ی قبل`),
   brainStart: 'پازل حل کن تا امتیازت ساخته شود',

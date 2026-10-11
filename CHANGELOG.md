@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.10 — 2026-10-11
+- iPhone home-screen widget: your weekly brain score, streak and today's puzzle at a glance.
+
 ## 1.0.9 — 2026-10-11
 - New on Home: your weekly brain score, with your level and how it changed since last week.
 - Invites, challenges and shared results now carry a single link.

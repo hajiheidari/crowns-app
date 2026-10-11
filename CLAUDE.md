@@ -149,6 +149,11 @@ Read these before writing code:
   levels resting/warming/sharp/brilliant/genius. Store keeps `log: SolveLog[]` (last 500 solves; old saves seeded from daily.solved).
   `BrainCard` on Home (tap → Stats). Unlimited tiles are one row of four. Share texts carry ONE link again (the coded one; `getTheApp`
   removed). Next (Amir asked): iPhone home-screen widget via `expo-widgets` ~57.0.21 (needs an App Group on the Apple side).
+- v1.0.10: **iPhone widget** (expo-widgets ~57.0.21 + @expo/ui ~57.0.20; both excluded from Android autolinking in package.json).
+  `src/widgets/brain-widget.tsx` ('widget' directive: no imports/outer values inside; small + medium), fed by `syncWidget()`
+  (`src/services/widget.ios.ts`, no-op elsewhere) from `BrainCard`. Extension target `ExpoWidgetsTarget`, bundle id
+  `com.espadna.tiaro.ExpoWidgetsTarget` (ASC bundleId HSSAH38UN5, created via API), app group `group.com.espadna.tiaro`
+  (APP_GROUPS capability enabled via API on both ids; the group itself must be created + assigned in the developer portal: no API).
 - **Release hold (Amir 2026-10-11):** test on iPhone (TestFlight) first; web + Android are updated together once final.
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` exit 1, so Cloudflare's push build fails on purpose and the live
   site stays at 1.0.7. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).

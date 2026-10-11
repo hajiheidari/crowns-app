@@ -1,20 +1,28 @@
 /** Home card: this week's brain score, its level, the change vs the week before and a 7-day bar chart. */
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/text';
 import { usePalette } from '@/hooks/use-palette';
+import { syncWidget } from '@/services/widget';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
 
 import { brainLevel, weekChange, weekScore } from './score';
 
-export function BrainCard({ today, onPress }: { today: string; onPress: () => void }) {
+export function BrainCard({ today, streak, solvedToday, onPress }: { today: string; streak: number; solvedToday: boolean; onPress: () => void }) {
   const { c } = usePalette();
   const log = useGameStore((s) => s.log);
   const { score, previous, days } = weekScore(log, today);
   const change = weekChange(score, previous);
   const max = Math.max(...days, 1);
   const level = S.brainLevels[brainLevel(score)];
+  const changeText = score === 0 && previous === 0 ? S.brainStart : change === null ? '' : S.brainChange(change);
+
+  // Keep the iPhone home-screen widget in step with what Home shows.
+  useEffect(() => {
+    syncWidget({ score, level, change: changeText, streak, solvedToday, days });
+  }, [score, level, changeText, streak, solvedToday, days]);
 
   return (
     <Pressable
@@ -33,7 +41,7 @@ export function BrainCard({ today, onPress }: { today: string; onPress: () => vo
           </View>
         </View>
         <Text style={[styles.change, { color: change === null ? c.textSecondary : change >= 0 ? c.success : c.flame }]} numberOfLines={1}>
-          {score === 0 && previous === 0 ? S.brainStart : change === null ? ' ' : S.brainChange(change)}
+          {changeText || ' '}
         </Text>
       </View>
       {/* Oldest day first, today last; the board-like row stays left-to-right like a timeline. */}

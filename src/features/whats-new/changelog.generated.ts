@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.10",
+    "date": "2026-10-11",
+    "items": [
+      "iPhone home-screen widget: your weekly brain score, streak and today's puzzle at a glance."
+    ]
+  },
+  {
     "version": "1.0.9",
     "date": "2026-10-11",
     "items": [

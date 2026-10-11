@@ -201,6 +201,9 @@ export const ar: Dict = {
   challengeBack: 'رد التحدي',
   challengeMessage: (title: string, time: string, link: string) =>
     `حللت ${title} في تيارو خلال ${time} 👑 هل تستطيع التغلب علي؟\n${link}`,
+  brainTitleShort: 'نقاط الذهن',
+  widgetTodayDone: 'لغز اليوم ✓',
+  widgetTodayWaiting: 'لغز اليوم بانتظارك',
   brainTitle: 'نقاط الذهن · آخر 7 أيام',
   brainChange: (p: number) => (p >= 0 ? `▲ ${p}% عن الأسبوع السابق` : `▼ ${-p}% عن الأسبوع السابق`),
   brainStart: 'حلّ الألغاز لتبني نقاطك',
