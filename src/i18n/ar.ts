@@ -201,6 +201,10 @@ export const ar: Dict = {
   challengeBack: 'رد التحدي',
   challengeMessage: (title: string, time: string, link: string) =>
     `حللت ${title} في تيارو خلال ${time} 👑 هل تستطيع التغلب علي؟\n${link}`,
+  brainTitle: 'نقاط الذهن · آخر 7 أيام',
+  brainChange: (p: number) => (p >= 0 ? `▲ ${p}% عن الأسبوع السابق` : `▼ ${-p}% عن الأسبوع السابق`),
+  brainStart: 'حلّ الألغاز لتبني نقاطك',
+  brainLevels: { resting: 'في راحة', warming: 'يُحمّي', sharp: 'حادّ الذهن', brilliant: 'متألق', genius: 'عبقري' },
   freeHintsTitle: (n: number) => `تلميحات مجانية: ${n}`,
   freeHintsBody: 'في هذه اللعبة لا تُشترى التلميحات، بل تُكسب!\nأرسل رابط الدعوة أو نتيجتك لأصدقائك واحصل على تلميحات مجانية.',
   noHintsTitle: 'نفدت تلميحاتك المجانية',
@@ -212,7 +216,6 @@ export const ar: Dict = {
   inviteCopied: 'تم نسخ رابط الدعوة. أرسله لصديق!',
   challengeCopied: 'تم نسخ رابط التحدي. أرسله لصديق!',
   copyFailed: 'تعذر النسخ هنا. حدد هذا النص وانسخه:',
-  getTheApp: (link: string) => `حمّل التطبيق: ${link}`,
   inviteMessage: (link: string) =>
     `ألعب تيارو، لغز منطقي يومي مجاني 👑 تاج واحد في كل صف وعمود ولون. جرّبه:\n${link}`,
   challengeTitle: 'وصلك تحدٍّ!',

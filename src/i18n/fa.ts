@@ -196,6 +196,10 @@ export const fa: Dict = {
   challengeBack: 'چالش متقابل',
   challengeMessage: (title: string, time: string, link: string) =>
     `${title} تیارو را در ${time} حل کردم 👑 می‌توانی رکوردم را بزنی؟\n${link}`,
+  brainTitle: 'امتیاز ذهن · ۷ روز اخیر',
+  brainChange: (p: number) => (p >= 0 ? `▲ ${p}٪ بیشتر از هفته‌ی قبل` : `▼ ${-p}٪ کمتر از هفته‌ی قبل`),
+  brainStart: 'پازل حل کن تا امتیازت ساخته شود',
+  brainLevels: { resting: 'در استراحت', warming: 'در حال گرم شدن', sharp: 'تیز', brilliant: 'درخشان', genius: 'نابغه' },
   freeHintsTitle: (n: number) => `راهنمای رایگان: ${n}`,
   freeHintsBody: 'در این بازی راهنما خریدنی نیست، گرفتنیست!\nلینک دعوت یا نتیجه‌ی بازیت را برای دوستانت بفرست و راهنمای رایگان بگیر.',
   noHintsTitle: 'راهنمای رایگانت تمام شده',
@@ -207,7 +211,6 @@ export const fa: Dict = {
   inviteCopied: 'لینک دعوت کپی شد. برای دوستت بفرست!',
   challengeCopied: 'لینک چالش کپی شد. برای دوستت بفرست!',
   copyFailed: 'اینجا کپی نشد. این متن را انتخاب و کپی کن:',
-  getTheApp: (link: string) => `دانلود اپ تیارو: ${link}`,
   inviteMessage: (link: string) =>
     `من تیارو بازی می‌کنم، یک پازل منطقی روزانه‌ی رایگان 👑 در هر ردیف، ستون و رنگ یک تاج. تو هم امتحانش کن:\n${link}`,
   challengeTitle: 'یک چالش داری!',

@@ -197,6 +197,10 @@ export const en = {
   challengeBack: 'Challenge back',
   challengeMessage: (title: string, time: string, link: string) =>
     `I solved ${title} in Tiaro in ${time} 👑 Can you beat me?\n${link}`,
+  brainTitle: 'Brain score · last 7 days',
+  brainChange: (p: number) => (p >= 0 ? `▲ ${p}% vs the week before` : `▼ ${-p}% vs the week before`),
+  brainStart: 'Solve puzzles to build your score',
+  brainLevels: { resting: 'Resting', warming: 'Warming up', sharp: 'Sharp', brilliant: 'Brilliant', genius: 'Genius' },
   freeHintsTitle: (n: number) => `Free hints: ${n}`,
   freeHintsBody: "In this game, hints aren't bought, they're earned!\nSend your invite link or a result to your friends and get free hints.",
   noHintsTitle: 'No free hints left',
@@ -208,7 +212,6 @@ export const en = {
   inviteCopied: 'Invite link copied. Paste it to a friend!',
   challengeCopied: 'Challenge link copied. Paste it to a friend!',
   copyFailed: "Couldn't copy here. Select this text and copy it:",
-  getTheApp: (link: string) => `Get the app: ${link}`,
   inviteMessage: (link: string) =>
     `I'm playing Tiaro, a free daily logic puzzle 👑 One crown per row, column and color. Try it:\n${link}`,
   challengeTitle: 'You got a challenge!',

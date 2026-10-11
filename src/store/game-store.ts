@@ -8,7 +8,8 @@ import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
 import { confirmedInvites, reportOpen } from '@/services/invites';
-import { addDays, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
+import type { SolveLog } from '@/features/brain/score';
+import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
 import { persistStorage } from '@/store/storage';
@@ -105,6 +106,8 @@ interface Store {
   settings: Settings;
   tutorialSeen: boolean;
   meta: Meta;
+  /** Finished puzzles with their date (newest last, capped), for the weekly brain score. */
+  log: SolveLog[];
 
   startGame: (id: string, n: number) => void;
   commit: (id: string, cells: number[], to: Mark[]) => void;
@@ -119,6 +122,20 @@ interface Store {
   updateMeta: (patch: Partial<Meta>) => void;
   /** Keep a streak alive over one missed day (rewarded ad, spec §5). */
   repairStreak: (today: string) => void;
+}
+
+const LOG_MAX = 500;
+
+/** Saves from before the brain score had no log: start it from the dated daily solves (hints unknown → 0). */
+function seedLog(daily: DailyRecord | undefined): SolveLog[] {
+  if (!daily) return [];
+  return Object.entries(daily.solved)
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .flatMap(([day, s]) => {
+      const info = puzzleInfo(`daily-${day}`);
+      return info ? [{ day, d: info.difficulty, s, h: 0, daily: true }] : [];
+    })
+    .slice(-LOG_MAX);
 }
 
 const newGame = (n: number): GameState => ({
@@ -200,6 +217,7 @@ export const useGameStore = create<Store>()(
         daily: { streak: 0, bestStreak: 0, lastSolvedKey: null, solved: {} },
         settings: DEFAULT_SETTINGS,
         tutorialSeen: false,
+        log: [],
         meta: DEFAULT_META,
 
         startGame: (id, n) => {
@@ -286,7 +304,9 @@ export const useGameStore = create<Store>()(
             unlimitedIndex = { ...unlimitedIndex, [difficulty]: s.unlimitedIndex[difficulty] + 1 };
           }
 
-          set({ games, stats, daily, unlimitedIndex, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
+          const entry: SolveLog = { day: dateKey(), d: difficulty, s: g.seconds, h: g.hints, daily: info?.mode === 'daily' };
+          const log = [...s.log, entry].slice(-LOG_MAX);
+          set({ games, stats, daily, unlimitedIndex, log, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
           return result;
         },
 
@@ -309,7 +329,8 @@ export const useGameStore = create<Store>()(
       name: 'crowns-store',
       version: 1,
       storage: persistStorage,
-      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta }) => ({
+      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log }) => ({
+        log,
         games,
         unlimitedIndex,
         stats,
@@ -329,6 +350,7 @@ export const useGameStore = create<Store>()(
           stats,
           settings: { ...DEFAULT_SETTINGS, ...p.settings },
           meta: { ...DEFAULT_META, ...p.meta },
+          log: p.log ?? seedLog(p.daily),
         };
       },
     },

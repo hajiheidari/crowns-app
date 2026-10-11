@@ -10,6 +10,7 @@ import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { AdBanner } from '@/features/monetization/ad-banner';
+import { BrainCard } from '@/features/brain/brain-card';
 import { streakRepairOffer } from '@/features/monetization/policy';
 
 import { usePalette } from '@/hooks/use-palette';
@@ -147,6 +148,8 @@ export default function HomeScreen() {
           )}
         </View>
 
+        <BrainCard today={today} onPress={() => router.push('/stats')} />
+
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
           <Text style={[styles.hintsTitle, { color: c.text }]}>💡 {S.freeHintsTitle(meta.hintCredits)}</Text>
           <Text style={[styles.hintsBody, { color: c.textSecondary }]}>{S.freeHintsBody}</Text>
@@ -162,19 +165,12 @@ export default function HomeScreen() {
 
         <View style={styles.unlimited}>
           <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
-          {/* Two rows that share the free height, so Home fills taller screens instead of leaving a gap below. */}
-          {[DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)].map((row) => (
-            <View key={row[0]} style={styles.gridRow}>
-              {row.map((d) => (
-                <DifficultyTile
-                  key={d}
-                  difficulty={d}
-                  solved={unlimitedIndex[d]}
-                  onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
-                />
-              ))}
-            </View>
-          ))}
+          {/* One row of four that takes the free height, so Home fills taller screens instead of leaving a gap below. */}
+          <View style={styles.gridRow}>
+            {DIFFICULTIES.map((d) => (
+              <DifficultyTile key={d} difficulty={d} solved={unlimitedIndex[d]} onPress={() => open(unlimitedId(d, unlimitedIndex[d]))} />
+            ))}
+          </View>
         </View>
 
         <View style={styles.bottom}>
@@ -220,9 +216,12 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
       style={({ pressed }) => [styles.tile, { backgroundColor: c.surface, borderColor: c.border, opacity: pressed ? 0.75 : 1 }]}>
       {/* On the reading side (right in Persian and Arabic); `start` is not flipped by react-native-web. */}
       <View style={[styles.tileAccent, isRTL() ? { right: 0 } : { left: 0 }, { backgroundColor: accent }]} />
-      <Text style={[styles.tileTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.5}>{DIFFICULTY_LABEL[difficulty]}</Text>
-      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit>
-        {DIFFICULTY_SIZES[difficulty]} · {S.solvedCount(solved)}
+      <Text style={[styles.tileTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.3}>{DIFFICULTY_LABEL[difficulty]}</Text>
+      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
+        {DIFFICULTY_SIZES[difficulty]}
+      </Text>
+      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
+        {S.solvedCount(solved)}
       </Text>
     </Pressable>
   );
@@ -231,7 +230,7 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
 const styles = StyleSheet.create({
   root: { flex: 1 },
   // Sized so the whole Home fits one phone screen without scrolling (still scrolls on tiny phones / big fonts).
-  scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 10, gap: 10, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 8, gap: 8, maxWidth: 560, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
@@ -245,7 +244,7 @@ const styles = StyleSheet.create({
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
+  card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
   cardHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },
   cardEyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
   cardTitle: { fontFamily: serif, fontSize: 26, fontWeight: '600' },
@@ -256,16 +255,16 @@ const styles = StyleSheet.create({
   countdown: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   archiveLink: { fontSize: 15, fontWeight: '700' },
   section: { fontSize: 19, fontWeight: '700', marginTop: 2 },
-  unlimited: { flexGrow: 1, gap: 10 },
-  gridRow: { flexDirection: 'row', gap: 10, flexGrow: 1, maxHeight: 150 },
-  bottom: { gap: 8 },
-  tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 14, gap: 4, overflow: 'hidden' },
+  unlimited: { flexGrow: 1, gap: 6 },
+  gridRow: { flexDirection: 'row', gap: 8, flexGrow: 1, maxHeight: 170 },
+  bottom: { gap: 4 },
+  tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 10, paddingHorizontal: 11, gap: 2, overflow: 'hidden' },
   tileAccent: { position: 'absolute', top: 0, bottom: 0, width: 6 },
-  tileTitle: { fontSize: 17, fontWeight: '700' },
-  tileSub: { fontSize: 13 },
+  tileTitle: { fontSize: 15, fontWeight: '700' },
+  tileSub: { fontSize: 11 },
   footer: { textAlign: 'center', fontSize: 12 },
-  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 12, gap: 7 },
-  hintsTitle: { fontSize: 18, fontWeight: '800' },
-  hintsBody: { fontSize: 14, lineHeight: 20 },
+  hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 10, gap: 6 },
+  hintsTitle: { fontSize: 17, fontWeight: '800' },
+  hintsBody: { fontSize: 13.5, lineHeight: 19 },
   hintsNote: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
 });

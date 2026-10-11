@@ -1,0 +1,54 @@
+/**
+ * Weekly "brain score": a light, honest progress number (not an IQ) that rewards playing often, harder puzzles,
+ * speed and solving without hints. Rolling 7 days, compared with the 7 days before.
+ */
+import { addDays, type Difficulty } from '@/engine';
+
+/** One finished puzzle, kept in the store's `log`. */
+export interface SolveLog {
+  /** Local date key of the solve. */
+  day: string;
+  d: Difficulty;
+  /** Seconds taken. */
+  s: number;
+  /** Hints used. */
+  h: number;
+  daily: boolean;
+}
+
+const BASE: Record<Difficulty, number> = { easy: 10, medium: 20, hard: 35, expert: 50 };
+/** A "good" time per difficulty: faster earns up to 1.5×, slower down to 0.6×. */
+const PAR: Record<Difficulty, number> = { easy: 120, medium: 300, hard: 600, expert: 900 };
+
+export function solvePoints(l: SolveLog): number {
+  const speed = Math.min(1.5, Math.max(0.6, PAR[l.d] / Math.max(1, l.s)));
+  const hints = l.h === 0 ? 1.2 : Math.max(0.5, 1 - 0.15 * l.h);
+  return Math.round(BASE[l.d] * speed * hints + (l.daily ? 5 : 0));
+}
+
+/** Points per day for the 7 days ending today (oldest first). */
+export function dayScores(log: SolveLog[], today: string): number[] {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  return days.map((day) => log.filter((l) => l.day === day).reduce((sum, l) => sum + solvePoints(l), 0));
+}
+
+export function weekScore(log: SolveLog[], today: string): { score: number; previous: number; days: number[] } {
+  const days = dayScores(log, today);
+  const previous = dayScores(log, addDays(today, -7)).reduce((a, b) => a + b, 0);
+  return { score: days.reduce((a, b) => a + b, 0), previous, days };
+}
+
+/** Percent change vs the week before; null when there is nothing to compare with. */
+export function weekChange(score: number, previous: number): number | null {
+  return previous > 0 ? Math.round(((score - previous) / previous) * 100) : null;
+}
+
+export type BrainLevel = 'resting' | 'warming' | 'sharp' | 'brilliant' | 'genius';
+
+export function brainLevel(score: number): BrainLevel {
+  if (score === 0) return 'resting';
+  if (score < 40) return 'warming';
+  if (score < 120) return 'sharp';
+  if (score < 250) return 'brilliant';
+  return 'genius';
+}

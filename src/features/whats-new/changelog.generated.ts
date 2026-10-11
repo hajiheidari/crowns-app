@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.9",
+    "date": "2026-10-11",
+    "items": [
+      "New on Home: your weekly brain score, with your level and how it changed since last week.",
+      "Invites, challenges and shared results now carry a single link."
+    ]
+  },
+  {
     "version": "1.0.8",
     "date": "2026-10-11",
     "items": [

@@ -17,6 +17,7 @@ export const Colors = {
     mark: '#2B2620',
     autoMark: 'rgba(43, 38, 32, 0.28)',
     flame: '#E8590C',
+    success: '#2B8A3E',
   },
   dark: {
     background: '#1C1A17',
@@ -35,6 +36,7 @@ export const Colors = {
     mark: '#F3EEE6',
     autoMark: 'rgba(243, 238, 230, 0.35)',
     flame: '#FF8A3D',
+    success: '#69DB7C',
   },
 } as const;
 

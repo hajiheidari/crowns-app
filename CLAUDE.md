@@ -144,6 +144,11 @@ Read these before writing code:
   (/home/user/localbuild/run.sh retries Maven Central 429s).
 - v1.0.8: the 1.0.6 RTL fix used `textAlign: 'right'`, but iOS (RCTAttributedTextUtils) and Android (TextAttributeProps) swap
   left/right inside an RTL Yoga layout, so it rendered left on phones. `RTL_TEXT` in text.tsx: 'left' on native, 'right' on web.
+- v1.0.9 (Amir): **weekly brain score** — `src/features/brain/score.ts` (pure, tested in `tests/app/brain.test.ts`): points per solve
+  = base by difficulty × speed vs par (0.6–1.5×) × hints (1.2× none, −15%/hint) + 5 for a daily; rolling 7 days vs the 7 before;
+  levels resting/warming/sharp/brilliant/genius. Store keeps `log: SolveLog[]` (last 500 solves; old saves seeded from daily.solved).
+  `BrainCard` on Home (tap → Stats). Unlimited tiles are one row of four. Share texts carry ONE link again (the coded one; `getTheApp`
+  removed). Next (Amir asked): iPhone home-screen widget via `expo-widgets` ~57.0.21 (needs an App Group on the Apple side).
 - **Release hold (Amir 2026-10-11):** test on iPhone (TestFlight) first; web + Android are updated together once final.
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` exit 1, so Cloudflare's push build fails on purpose and the live
   site stays at 1.0.7. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).

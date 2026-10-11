@@ -1,11 +1,9 @@
-/** Texts people send to friends, in the current language: spoiler-free, always with a link back to the app and the app's install page. */
+/** Texts people send to friends, in the current language: spoiler-free, always with one link back to the app (it carries the sender's code for earned hints). */
 import { encodeChallenge, formatTime } from '@/engine';
-import { appPageUrl, challengeUrl, inviteUrl } from '@/constants/links';
+import { challengeUrl, inviteUrl } from '@/constants/links';
 import { puzzleInfo, type PuzzleInfo } from '@/features/puzzles/catalog';
-import { getLanguage, S } from '@/strings';
+import { S } from '@/strings';
 
-/** Last line of every message: where a friend without the app can get it. */
-const getApp = () => S.getTheApp(appPageUrl(getLanguage()));
 
 export interface ShareResult {
   puzzleId: string;
@@ -51,16 +49,16 @@ export function resultText(r: ShareResult, ref: string): string {
     `⏱ ${formatTime(r.seconds)} · ${S.shareHints(r.hints)}`,
   ];
   if ((r.streak ?? 0) > 1) lines.push(S.shareStreak(r.streak!));
-  lines.push(S.shareBeatMe(challengeLink(r, ref)), getApp());
+  lines.push(S.shareBeatMe(challengeLink(r, ref)));
   return lines.join('\n');
 }
 
 export function challengeText(r: { puzzleId: string; seconds: number }, ref: string): string {
-  return `${S.challengeMessage(shareTitle(r.puzzleId) ?? S.sharePuzzle, formatTime(r.seconds), challengeLink(r, ref))}\n${getApp()}`;
+  return S.challengeMessage(shareTitle(r.puzzleId) ?? S.sharePuzzle, formatTime(r.seconds), challengeLink(r, ref));
 }
 
 export function inviteText(ref: string): string {
-  return `${S.inviteMessage(inviteUrl(ref))}\n${getApp()}`;
+  return S.inviteMessage(inviteUrl(ref));
 }
 
 /** "Daily #12" / "Hard #42" / "Daily preview" (or the Persian equivalents). */

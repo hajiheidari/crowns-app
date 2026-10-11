@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.9 — 2026-10-11
+- New on Home: your weekly brain score, with your level and how it changed since last week.
+- Invites, challenges and shared results now carry a single link.
+
 ## 1.0.8 — 2026-10-11
 - Persian and Arabic texts really start on the right on phones now (cards, tiles and titles).
 
