@@ -165,7 +165,18 @@ Read these before writing code:
   so Worker/API and static pages still deploy while the web game stays frozen.
 - v1.0.12: the ad-free build (`EXPO_PUBLIC_ADS=off`) drops `expo-tracking-transparency` and the locales' NSUserTrackingUsageDescription
   (`withoutTracking` in app.config.ts): App Store Connect flagged the ATT text though the build shows no ads.
-- **Release hold (Amir 2026-10-11, lifted the same day):** Amir only wanted to save build credits; web (Cloudflare) and the local
+- v1.0.13 (Amir, "phase 1" = App Store ready): **backup** — worker `POST/GET /api/backup` (`b:<key>` in KV, ≤200 KB, 400-day TTL).
+  Key = 12 chars from `KEY_ALPHABET` (no 0/o/1/i/l), shown XXXX-XXXX-XXXX in Settings → Backup (copy + "restore from code",
+  `restoreBackup` keeps the backed-up invite code). iPhone: the key is also in the keychain (`services/keychain.native.ts`,
+  expo-secure-store); `getBackupKey()` on a fresh install finds it and restores by itself (`meta.restoredAuto` → welcome alert on
+  Home). Offline then = no key yet, nothing uploaded (never overwrite a backup with an empty install). `syncBackup()` from Home
+  (mount/foreground, before league/hints) and after wins: at most every 3 h, a daily win at once (KV free tier = 1,000 writes/day).
+  Brain card + widget are always gold (`BRAIN_GOLD`); the card has `flexGrow` and scales its score/bars by its own height.
+  **Home layout rule** (asked ~10×): a non-bouncing ScrollView whose content fits 393×759 and 440×956 without scrolling (check with
+  the scrollHeight script), the brain card takes all free height; only tiny screens (≤375×603) scroll. League week: Saturday in fa,
+  Monday in en/ar (`weekFirstFor`; the client posts both week kinds). Shares never name the level or number (`S.challengeMessage`).
+  Build credits: one iOS build per batch, cancel superseded builds; Android is built locally, web by Cloudflare (both free).
+ Amir only wanted to save build credits; web (Cloudflare) and the local
   Android builds cost none, so web + Android + iPhone are updated together again (`web-release.json` hold = false).
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` reuse the live game files (the web game stays at 1.0.7) while the
   Worker and web/ pages still deploy. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
