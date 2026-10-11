@@ -12,7 +12,7 @@ const fonts = lang === 'ar'
   : face('Head', 700, path.join(dir, 'fonts/font2.ttf')) + face('Body', 500, path.join(dir, 'fonts/font3.ttf'));
 const T = {
   en: [
-    ['A fresh logic puzzle every day', 'Free to play. No subscription.'],
+    ['A fresh logic puzzle every day', 'And a weekly brain score. Free, no ads.'],
     ['One crown per row, column and color', 'Simple rules. Deep, satisfying logic.'],
     ['Stuck? Get hints that teach', 'See why a move works, not just where.'],
     ['Build your daily streak', 'Every solve, best time and streak, tracked.'],

@@ -20,7 +20,7 @@ Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS ke
 One crown. Every row. Daily.
 
 **Promotional text** [170] (can be changed any time without a new build)
-A fresh logic puzzle every day. Place one crown in each row, column and color. No guessing, no timers you can't hide, no subscription.
+A fresh logic puzzle every day. Place one crown in each row, column and color. Track your weekly brain score and beat your friends. Free, no ads.
 
 **Keywords** [100] (comma-separated, no spaces after commas; the name and subtitle words already count, so they are not repeated)
 logic,brain,star battle,grid,sudoku,nonogram,teaser,mind,crowns,game,games,iq,riddle,calm,offline
@@ -28,7 +28,8 @@ logic,brain,star battle,grid,sudoku,nonogram,teaser,mind,crowns,game,games,iq,ri
 **Description** [4000]
 (same text as the Google Play full description below)
 
-**Age rating:** 4+ (no objectionable content; the questionnaire answers are all "None"). Ads are shown.
+**Age rating:** 4+ (no objectionable content; the questionnaire answers are all "None"). v1.0 shows no ads.
+**Copyright:** 2026 Espadna
 **iPhone and iPad** (Amir 2026-10-10). iPad screenshots (13", 2048×2732): `store/screenshots/ipad-13/` (Arabic: `store/screenshots-ar/ipad-13/`).
 The app is portrait-only, so the iPad build runs full screen (`ios.requireFullScreen`, no Split View).
 
@@ -45,13 +46,22 @@ THE RULES FIT IN ONE LINE
 Place one crown in every row, every column and every color region. Crowns never touch, not even diagonally. That's it.
 
 A NEW PUZZLE EVERY DAY
-Everyone gets the same daily puzzle. Keep your streak alive, then compare times with friends.
+Everyone gets the same daily puzzle. Your first week starts gently and grows with you. Keep your streak alive, then compare times with friends.
 
 NEVER GUESS
-Every puzzle has exactly one solution and can be solved by pure logic. If you get stuck, Tiaro's hints teach you the next step: first where to look, then why it works.
+Every puzzle has exactly one solution and can be solved by pure logic. When you get stuck, a hint teaches you the next step: first where to look, then why it works.
+
+YOUR WEEKLY BRAIN SCORE
+Every solve earns points for difficulty, speed and playing without hints. See your score for the last 7 days, your level from Warming up to Genius, and how you did against last week. Add the widget to your iPhone home screen to keep it in sight.
+
+FRIENDS LEAGUE
+Everyone who opens your invite or challenge link joins your weekly league. Pick a nickname and an animal, climb the table, and take the crown for the week.
+
+HINTS YOU EARN, NOT BUY
+There is nothing to buy here. Share a result or invite a friend and get free hints.
 
 PLAY AS MUCH AS YOU LIKE
-Unlimited puzzles in four levels, from relaxing 5×5 boards to tough 11×11 grids.
+Unlimited Puzzles in four levels, from relaxing 5×5 boards to tough 11×11 grids.
 
 MADE FOR YOU
 • Tap to mark, drag to fill, long-press for a crown
@@ -59,14 +69,18 @@ MADE FOR YOU
 • Pinch to zoom on big boards
 • Dark mode and color-blind patterns
 • Screen reader support
-• Works offline
+• Daily reminder at the time you choose
+• Puzzles work offline
+• Your progress is backed up: a recovery code brings it back on a new phone
 • In English, Arabic and Persian
 
 CHALLENGE YOUR FRIENDS
-Share your result without spoilers, or send a challenge link so a friend can race you on the same puzzle.
+Share your result without spoilers, or send a challenge link so a friend can race your time on the same puzzle.
 
-FREE, NO SUBSCRIPTION
-Tiaro is free to play, with no subscription. Ever.
+FREE, NO ADS, NO SUBSCRIPTION
+Tiaro is free to play. No ads, no subscription, no account needed.
+
+(Google Play / any build with ads: the last paragraph becomes "FREE, NO SUBSCRIPTION — Tiaro is free to play, with no subscription. Ever.")
 
 **Content rating:** questionnaire → Everyone / PEGI 3 (no violence etc.). **Target audience:** 13+ (not "Designed for Families").
 **Ads declaration:** Yes, contains ads.

@@ -58,6 +58,7 @@ const base = (over: Record<string, unknown> = {}) => ({
       winsSinceInterstitial: 0,
       lastInterstitialAt: null,
       removeAds: true,
+      hintCredits: 3, // the hint shot shows a hint, not "no free hints left"
       archiveUnlocked: [],
       lastRepairKey: null,
     },

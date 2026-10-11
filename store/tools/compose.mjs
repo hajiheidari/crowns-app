@@ -5,7 +5,7 @@ const fonts = `@font-face{font-family:Fraunces;font-weight:700;src:url(data:font
 @font-face{font-family:Inter;font-weight:500;src:url(data:font/ttf;base64,${b64(F + '/font3.ttf')})}
 @font-face{font-family:Inter;font-weight:600;src:url(data:font/ttf;base64,${b64(F + '/font4.ttf')})}`;
 const slides = [
-  { raw: '1-home', bg: '#FAF7F0', accent: '#C9A227', title: 'A fresh logic puzzle<br>every day', sub: 'Free to play. No subscription.' },
+  { raw: '1-home', bg: '#FAF7F0', accent: '#C9A227', title: 'A fresh logic puzzle<br>every day', sub: 'And a weekly brain score. Free, no ads.' },
   { raw: '2-game', bg: '#E8E1F5', accent: '#7A5BB5', title: 'One crown per row,<br>column and color', sub: 'Simple rules. Deep, satisfying logic.' },
   { raw: '3-hint', bg: '#FCE9D6', accent: '#C2742F', title: 'Stuck? Get hints<br>that teach', sub: 'See why a move works, not just where.' },
   { raw: '4-stats', bg: '#FFF3C8', accent: '#B8891A', title: 'Build your<br>daily streak', sub: 'Every solve, best time and streak, tracked.' },
