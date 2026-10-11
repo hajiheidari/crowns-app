@@ -15,11 +15,16 @@ const { firebaseEnabled, IOS_FILE, ANDROID_FILE } = require('./firebase-config')
 const bazaar = process.env.EXPO_PUBLIC_STORE === 'bazaar';
 const adsOff = process.env.EXPO_PUBLIC_ADS === 'off';
 
-const isGoogleAds = (p: Plugin) => (Array.isArray(p) ? p[0] : p) === 'react-native-google-mobile-ads';
+const pluginName = (p: Plugin) => (Array.isArray(p) ? p[0] : p);
+const isGoogleAds = (p: Plugin) => pluginName(p) === 'react-native-google-mobile-ads';
+/** Ad-only plugins: AdMob and Apple's tracking prompt (ATT). */
+const isAdPlugin = (p: Plugin) => isGoogleAds(p) || pluginName(p) === 'expo-tracking-transparency';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   if (bazaar) return bazaarConfig(config as ExpoConfig);
-  if (adsOff) config = { ...config, plugins: (config.plugins ?? []).filter((p) => !isGoogleAds(p)) };
+  // Ad-free build: no AdMob and no tracking prompt, so the binary has no NSUserTrackingUsageDescription
+  // (App Store Connect otherwise asks which data "tracks" users).
+  if (adsOff) config = withoutTracking({ ...(config as ExpoConfig), plugins: (config.plugins ?? []).filter((p) => !isAdPlugin(p)) });
   // The app reads extra.firebaseEnabled so it never loads the Firebase JS without its native side.
   const base = { ...(config as ExpoConfig), extra: { ...config.extra, firebaseEnabled } };
   if (!firebaseEnabled) return base;
@@ -69,4 +74,17 @@ function withStaticFrameworks(plugin: Plugin): Plugin {
   if (!Array.isArray(plugin) || plugin[0] !== 'expo-build-properties') return plugin;
   const props = (plugin[1] ?? {}) as { ios?: object };
   return ['expo-build-properties', { ...props, ios: { ...props.ios, useFrameworks: 'static' } }];
+}
+
+/** Drops the ATT prompt text from the localized Info.plist strings (locales/*.json). */
+function withoutTracking(config: ExpoConfig): ExpoConfig {
+  const locales: Record<string, object> = {};
+  for (const [lang, file] of Object.entries(config.locales ?? {})) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const data = typeof file === 'string' ? (require(file) as { ios?: Record<string, string> }) : (file as { ios?: Record<string, string> });
+    const ios = { ...data.ios };
+    delete ios.NSUserTrackingUsageDescription;
+    locales[lang] = { ...data, ios };
+  }
+  return { ...config, locales };
 }

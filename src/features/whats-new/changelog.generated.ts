@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.12",
+    "date": "2026-10-11",
+    "items": [
+      "The App Store version no longer includes the ad-tracking permission text (it shows no ads)."
+    ]
+  },
+  {
     "version": "1.0.11",
     "date": "2026-10-11",
     "items": [

@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.12 — 2026-10-11
+- The App Store version no longer includes the ad-tracking permission text (it shows no ads).
+
 ## 1.0.11 — 2026-10-11
 - Friends league: everyone who opens your links joins your weekly league. Pick a nickname and an animal, climb the table, and win the 👑.
 

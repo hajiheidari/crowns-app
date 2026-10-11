@@ -163,7 +163,10 @@ Read these before writing code:
   (Amir must add "Other User Content" to the App Privacy label).
   The web release hold no longer fails the Cloudflare build: it copies the live game files back (hash-checked from files.json),
   so Worker/API and static pages still deploy while the web game stays frozen.
-- **Release hold (Amir 2026-10-11):** test on iPhone (TestFlight) first; web + Android are updated together once final.
+- v1.0.12: the ad-free build (`EXPO_PUBLIC_ADS=off`) drops `expo-tracking-transparency` and the locales' NSUserTrackingUsageDescription
+  (`withoutTracking` in app.config.ts): App Store Connect flagged the ATT text though the build shows no ads.
+- **Release hold (Amir 2026-10-11, lifted the same day):** Amir only wanted to save build credits; web (Cloudflare) and the local
+  Android builds cost none, so web + Android + iPhone are updated together again (`web-release.json` hold = false).
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` reuse the live game files (the web game stays at 1.0.7) while the
   Worker and web/ pages still deploy. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
