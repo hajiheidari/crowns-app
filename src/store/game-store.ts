@@ -7,8 +7,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
-import { confirmedInvites, reportOpen } from '@/services/invites';
-import type { SolveLog } from '@/features/brain/score';
+import { confirmedInvites, fetchLeague, postMe, reportOpen, type LeaguePlayer } from '@/services/invites';
+import { leaguePoints, weekStart, type SolveLog } from '@/features/brain/score';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, type Language } from '@/i18n';
@@ -88,6 +88,13 @@ export interface Meta {
   hintCredits: number;
   /** Friend opens already turned into hints (the server's running count). */
   confirmedInvites: number;
+  /** Friends league: nickname and avatar shown to friends ('' = not chosen yet). */
+  nickname: string;
+  avatar: string;
+  /** Last profile/score sent to the league server, to skip identical posts. */
+  leagueSent: string;
+  /** Rank among friends from the last league fetch (for the Home card). */
+  leagueRank: { week: string; rank: number; total: number } | null;
 }
 
 export interface WinResult {
@@ -179,6 +186,10 @@ const DEFAULT_META: Meta = {
   lastRepairKey: null,
   hintCredits: HINT_REWARDS.start,
   confirmedInvites: 0,
+  nickname: '',
+  avatar: '',
+  leagueSent: '',
+  leagueRank: null,
 };
 
 const newStats = (): DifficultyStats => ({ solved: 0, bestSeconds: null, totalSeconds: 0, hintFree: 0, recent: [] });
@@ -367,6 +378,28 @@ export async function syncEarnedHints(): Promise<number> {
   const fresh = Math.max(0, confirmed - meta.confirmedInvites) * HINT_REWARDS.perFriend;
   if (confirmed !== meta.confirmedInvites) updateMeta({ confirmedInvites: confirmed, hintCredits: meta.hintCredits + fresh });
   return fresh;
+}
+
+/** Send this week's league score (and nickname/avatar) when it changed since the last send. */
+export async function syncLeague(): Promise<void> {
+  const today = dateKey();
+  const { meta, log, updateMeta } = useGameStore.getState();
+  const me = { code: getRefCode(), name: meta.nickname, emoji: meta.avatar, week: weekStart(today), score: leaguePoints(log, today) };
+  const key = JSON.stringify(me);
+  if (key === meta.leagueSent) return;
+  if (await postMe(me)) updateMeta({ leagueSent: key });
+}
+
+/** Fetch the league for this week and remember this player's rank for the Home card. */
+export async function loadLeague(): Promise<LeaguePlayer[] | null> {
+  await syncLeague();
+  const week = weekStart(dateKey());
+  const players = await fetchLeague(getRefCode(), week);
+  if (players) {
+    const rank = players.findIndex((p) => p.me) + 1;
+    useGameStore.getState().updateMeta({ leagueRank: rank > 0 ? { week, rank, total: players.length } : null });
+  }
+  return players;
 }
 
 /** Use one free hint. False when none are left. */

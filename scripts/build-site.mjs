@@ -3,25 +3,37 @@
 // Run by `wrangler deploy` (build.command in wrangler.jsonc), so Cloudflare builds it on every push.
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
-
-// Release hold (web-release.json): while on, the Cloudflare build stops here, so the live site keeps its last version.
-// SITE_RELEASE=1 builds anyway (e.g. to try the site locally).
-const release = JSON.parse(readFileSync('web-release.json', 'utf8'));
-if (release.hold && process.env.SITE_RELEASE !== '1') {
-  console.error(`Web release on hold, nothing deployed: ${release.note}`);
-  process.exit(1);
-}
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 
 const OUT = 'dist-site';
+const LIVE = 'https://tiaro.espadna.com';
 rmSync(OUT, { recursive: true, force: true });
-execSync(`npx expo export --platform web --output-dir ${OUT}`, {
-  stdio: 'inherit',
-  // EXPO_OFFLINE: the export needs no Expo servers. EXPO_PUBLIC_SITE: see src/constants/store.ts.
-  env: { ...process.env, EXPO_OFFLINE: '1', EXPO_PUBLIC_SITE: '1', CI: '1' },
-});
-if (!existsSync(`${OUT}/index.html`)) throw new Error('expo export made no index.html');
+
+// Release hold (web-release.json): while on, the web game is NOT rebuilt. The game files currently live are copied
+// back unchanged (from the live files.json), so a push only updates the Worker (invite/league API) and the static
+// pages in web/. SITE_RELEASE=1 builds the game anyway (e.g. to try the site locally).
+const release = JSON.parse(readFileSync('web-release.json', 'utf8'));
+if (release.hold && process.env.SITE_RELEASE !== '1') {
+  console.log(`Web game release on hold (${release.note}); keeping the live game files.`);
+  const live = await (await fetch(`${LIVE}/files.json`)).json();
+  for (const f of live.files) {
+    if (existsSync(join('web', f.path))) continue; // static pages come from web/ below
+    const res = await fetch(`${LIVE}/${f.path}`);
+    if (!res.ok) throw new Error(`could not copy live ${f.path}: ${res.status}`);
+    const data = Buffer.from(await res.arrayBuffer());
+    if (createHash('sha256').update(data).digest('hex') !== f.sha256) throw new Error(`live ${f.path} changed while copying`);
+    mkdirSync(dirname(join(OUT, f.path)), { recursive: true });
+    writeFileSync(join(OUT, f.path), data);
+  }
+} else {
+  execSync(`npx expo export --platform web --output-dir ${OUT}`, {
+    stdio: 'inherit',
+    // EXPO_OFFLINE: the export needs no Expo servers. EXPO_PUBLIC_SITE: see src/constants/store.ts.
+    env: { ...process.env, EXPO_OFFLINE: '1', EXPO_PUBLIC_SITE: '1', CI: '1' },
+  });
+}
+if (!existsSync(`${OUT}/index.html`)) throw new Error('no index.html for the web game');
 
 // The game owns / and handles /c/<code> and /?r=<ref> itself (not_found_handling in wrangler.jsonc).
 const SKIP = new Set(['web/README.md']);

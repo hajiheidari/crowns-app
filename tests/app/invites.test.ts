@@ -57,3 +57,49 @@ test('invite API: at most 5 friends a day, bad codes rejected, other paths go to
   const page = await worker.fetch(new Request('https://tiaro.espadna.com/'), env);
   assert.equal(await page.text(), 'asset');
 });
+
+const post = (env: object, path: string, body: object, ip = '7.7.7.7') =>
+  worker
+    .fetch(
+      new Request(`https://tiaro.espadna.com${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': ip },
+        body: JSON.stringify(body),
+      }),
+      env,
+    )
+    .then((r: Response) => r.json());
+const league = (env: object, code: string, week: string) =>
+  worker.fetch(new Request(`https://tiaro.espadna.com/api/league?code=${code}&week=${week}`), env).then((r: Response) => r.json());
+
+test('league: opening a link makes friends both ways; weekly scores, nicknames and last week\'s crown', async () => {
+  const env = makeEnv();
+  // Same network: no hint, but they still become friends.
+  await open(env, 'aaaaaa', 'bbbbbb', '1.1.1.1');
+  await open(env, 'aaaaaa', 'cccccc', '1.1.1.1');
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', week: '2026-10-03', score: 50 });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sara http://spam.com', emoji: '🐯', week: '2026-10-03', score: 90 });
+  // New week: last week's scores move to `last`.
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', week: '2026-10-10', score: 120 });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sara', emoji: '🐯', week: '2026-10-10', score: 30 });
+  await post(env, '/api/me', { code: 'cccccc', name: '<b>Ali</b>', emoji: 'nope', week: '2026-10-10', score: 9999 }); // rejected: too high
+
+  const a = await league(env, 'aaaaaa', '2026-10-10');
+  assert.deepEqual(
+    a.players.map((p: { name: string; score: number; me: boolean; crown: boolean }) => [p.name, p.score, p.me, p.crown]),
+    [
+      ['Amir', 120, true, false],
+      ['Sara', 30, false, true], // won last week (90 > 50)
+      ['', 0, false, false], // Ali never saved a valid score
+    ],
+  );
+  // Friendship goes both ways.
+  const b = await league(env, 'bbbbbb', '2026-10-10');
+  assert.deepEqual(b.players.map((p: { name: string }) => p.name), ['Amir', 'Sara']);
+  // Bad input is refused; names lose tags and links.
+  assert.equal((await post(env, '/api/me', { code: 'XX', week: '2026-10-10', score: 1 })).ok, false);
+  await post(env, '/api/me', { code: 'dddddd', name: '<i>Rez</i>', emoji: '🐼', week: '2026-10-10', score: 5 });
+  await open(env, 'dddddd', 'aaaaaa', '2.2.2.2');
+  const d = await league(env, 'dddddd', '2026-10-10');
+  assert.equal(d.players.find((p: { me: boolean }) => p.me).name, 'iRez/i');
+});

@@ -1,4 +1,4 @@
 {
   "hold": true,
-  "note": "Amir 2026-10-11: test everything on iPhone (TestFlight) first; the web site and Android are updated together once it is final. While hold is true, Cloudflare's build stops on purpose and tiaro.espadna.com keeps the last released version. Set hold to false to release."
+  "note": "Amir 2026-10-11: test everything on iPhone (TestFlight) first; the web site and Android are updated together once it is final. While hold is true, the web game is not rebuilt: the build copies the live game files back unchanged, so only the Worker API and the static pages in web/ update. Set hold to false to release."
 }

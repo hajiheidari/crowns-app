@@ -31,3 +31,13 @@ test('brain score: rolling 7 days vs the 7 before, per-day bars and levels', () 
   assert.equal(weekChange(10, 0), null);
   assert.deepEqual([0, 20, 80, 200, 400].map(brainLevel), ['resting', 'warming', 'sharp', 'brilliant', 'genius']);
 });
+
+test('league week: starts on Saturday and counts only this week', async () => {
+  const { weekStart, leaguePoints } = await import('../../src/features/brain/score');
+  assert.equal(weekStart('2026-10-10'), '2026-10-10'); // Saturday
+  assert.equal(weekStart('2026-10-11'), '2026-10-10'); // Sunday
+  assert.equal(weekStart('2026-10-16'), '2026-10-10'); // Friday
+  assert.equal(weekStart('2026-10-17'), '2026-10-17'); // next Saturday
+  const log = [solve('2026-10-09', 'easy', 120), solve('2026-10-10', 'easy', 120), solve('2026-10-12', 'hard', 600)];
+  assert.equal(leaguePoints(log, '2026-10-12'), solvePoints(log[1]) + solvePoints(log[2]));
+});

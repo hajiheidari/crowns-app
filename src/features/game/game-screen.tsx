@@ -23,7 +23,7 @@ import { enableDailyReminder, remindersSupported } from '@/services/notification
 import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
-import { currentStreak, spendHint, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
+import { currentStreak, spendHint, syncLeague, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
 import { getLanguage, S } from '@/strings';
 import { Text } from '@/components/text';
 
@@ -76,6 +76,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       if (!puzzle || !g || g.solved || !isSolved(puzzle, g.board)) return;
       const result = complete(id, puzzle.difficulty);
       if (!result) return;
+      void syncLeague(); // friends see the new weekly score
       const mode = puzzleInfo(id)?.mode ?? 'unlimited';
       track('puzzle_complete', { mode, difficulty: puzzle.difficulty, n: puzzle.n, seconds: result.seconds, hints: result.hints });
       const milestone = result.streak !== undefined ? streakMilestone(result.streak) : null;

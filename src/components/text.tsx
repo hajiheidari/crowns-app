@@ -21,7 +21,7 @@ const FA_FONT: Record<string, string> = {
   '900': 'Vazirmatn-Bold',
 };
 
-const RTL_TEXT = { textAlign: Platform.OS === 'web' ? 'right' : 'left', writingDirection: 'rtl' } as const;
+export const RTL_TEXT = { textAlign: Platform.OS === 'web' ? 'right' : 'left', writingDirection: 'rtl' } as const;
 
 function persianDigits(children: ReactNode): ReactNode {
   return Children.map(children, (child) => {

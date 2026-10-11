@@ -154,9 +154,18 @@ Read these before writing code:
   (`src/services/widget.ios.ts`, no-op elsewhere) from `BrainCard`. Extension target `ExpoWidgetsTarget`, bundle id
   `com.espadna.tiaro.ExpoWidgetsTarget` (ASC bundleId HSSAH38UN5, created via API), app group `group.com.espadna.tiaro`
   (APP_GROUPS capability enabled via API on both ids; the group itself must be created + assigned in the developer portal: no API).
+- v1.0.11 (Amir): **friends league** — worker: any open of a friend's link (`/api/open`, self excluded) stores friendship both
+  ways (`f:<code>` lists); `POST /api/me {code,name,emoji,week,score}` (`p:<code>`: name ≤16 chars, no links; emoji from the list in
+  `features/league/avatars.ts` = EMOJIS in the worker; score ≤5000; a new week moves the old one to `last`); `GET /api/league?code=&week=`
+  → players sorted by score, `crown` = last week's top. Weeks start Saturday (`weekStart`, `leaguePoints` in brain/score.ts).
+  App: `syncLeague()` after each win + Home, `loadLeague()` on Home (caches `meta.leagueRank` for the 🏆 chip on BrainCard,
+  which now opens `/league`). Screen `src/app/league.tsx` (nickname + avatar setup, table, invite). Privacy pages + listing updated
+  (Amir must add "Other User Content" to the App Privacy label).
+  The web release hold no longer fails the Cloudflare build: it copies the live game files back (hash-checked from files.json),
+  so Worker/API and static pages still deploy while the web game stays frozen.
 - **Release hold (Amir 2026-10-11):** test on iPhone (TestFlight) first; web + Android are updated together once final.
-  `web-release.json` `"hold": true` makes `scripts/build-site.mjs` exit 1, so Cloudflare's push build fails on purpose and the live
-  site stays at 1.0.7. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
+  `web-release.json` `"hold": true` makes `scripts/build-site.mjs` reuse the live game files (the web game stays at 1.0.7) while the
+  Worker and web/ pages still deploy. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
 - M8 started: store screenshots in `store/` (6 captioned shots for iOS 1290×2796 and Android 1080×1920 + Play feature graphic),
   made from the web export with seeded saves (`store/tools/`, see `store/README.md`). Re-run them after visible UI changes.
 - v0.8.8 (M8): store texts in `store/listing.md` (lengths checked by `node store/tools/check-listing.mjs`) incl. answers for the

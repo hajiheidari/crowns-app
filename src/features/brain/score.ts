@@ -52,3 +52,15 @@ export function brainLevel(score: number): BrainLevel {
   if (score < 250) return 'brilliant';
   return 'genius';
 }
+
+/** League weeks start on Saturday (Amir 2026-10-11): everyone starts from zero then. Returns that Saturday's key. */
+export function weekStart(today: string): string {
+  const day = new Date(Date.parse(`${today}T00:00:00Z`)).getUTCDay(); // 0 = Sunday … 6 = Saturday
+  return addDays(today, -((day + 1) % 7));
+}
+
+/** Brain points since this week's Saturday (the league score). */
+export function leaguePoints(log: SolveLog[], today: string): number {
+  const start = weekStart(today);
+  return log.filter((l) => l.day >= start && l.day <= today).reduce((sum, l) => sum + solvePoints(l), 0);
+}

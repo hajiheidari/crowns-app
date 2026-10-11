@@ -79,6 +79,9 @@ App Store "App Privacy": Data Collected → **Identifiers → User ID** (the ran
 ID): used for **App Functionality** only, **not linked** to the user's identity, **not used for tracking**. Tracking: **No.**
 Google Play Data safety: Collected → **Device or other IDs** (random app code), purpose **App functionality**, not shared,
 encrypted in transit, processed ephemerally: No; users can't request deletion via account (no account): point to the policy.
+From 1.0.11 (friends league) also tick: **User Content → Other User Content** (the chosen nickname and the weekly
+score shown to friends): purpose **App Functionality**, **not linked**, **no tracking**. Google Play Data safety: add
+**App activity → Other user-generated content** (same purpose, not shared).
 Everything else stays on the device. Use the answers below once ads/analytics are added in an update.
 
 ### App Store "App Privacy" (nutrition label)

@@ -15,7 +15,7 @@ import { streakRepairOffer } from '@/features/monetization/policy';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { currentStreak, noteInvitedBy, syncEarnedHints, useGameStore } from '@/store/game-store';
+import { currentStreak, loadLeague, noteInvitedBy, syncEarnedHints, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { watchRewarded } from '@/features/monetization/rewarded';
@@ -59,6 +59,7 @@ export default function HomeScreen() {
   // Friends who opened this player's links since the last look turn into free hints (checked by the server).
   useEffect(() => {
     const check = async () => {
+      void loadLeague(); // keeps the league rank on the brain card fresh
       const n = await syncEarnedHints();
       if (n > 0) setInviteNote(S.hintEarned(n));
     };
@@ -148,7 +149,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <BrainCard today={today} streak={streak} solvedToday={!!todayGame?.solved} onPress={() => router.push('/stats')} />
+        <BrainCard today={today} streak={streak} solvedToday={!!todayGame?.solved} onPress={() => router.push('/league')} />
 
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
           <Text style={[styles.hintsTitle, { color: c.text }]}>💡 {S.freeHintsTitle(meta.hintCredits)}</Text>

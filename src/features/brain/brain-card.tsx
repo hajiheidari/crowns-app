@@ -8,11 +8,12 @@ import { syncWidget } from '@/services/widget';
 import { useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
 
-import { brainLevel, weekChange, weekScore } from './score';
+import { brainLevel, weekChange, weekScore, weekStart } from './score';
 
 export function BrainCard({ today, streak, solvedToday, onPress }: { today: string; streak: number; solvedToday: boolean; onPress: () => void }) {
   const { c } = usePalette();
   const log = useGameStore((s) => s.log);
+  const rank = useGameStore((s) => s.meta.leagueRank);
   const { score, previous, days } = weekScore(log, today);
   const change = weekChange(score, previous);
   const max = Math.max(...days, 1);
@@ -39,6 +40,12 @@ export function BrainCard({ today, streak, solvedToday, onPress }: { today: stri
           <View style={[styles.level, { backgroundColor: c.gold + '33' }]}>
             <Text style={[styles.levelText, { color: c.text }]}>{level}</Text>
           </View>
+          {/* Friends league: rank this week, or an invitation to open it. */}
+          <View style={[styles.level, { backgroundColor: c.surfaceMuted }]}>
+            <Text style={[styles.levelText, { color: c.text }]} numberOfLines={1}>
+              {rank && rank.week === weekStart(today) && rank.total > 1 ? S.leagueRank(rank.rank, rank.total) : S.leagueOpen}
+            </Text>
+          </View>
         </View>
         <Text style={[styles.change, { color: change === null ? c.textSecondary : change >= 0 ? c.success : c.flame }]} numberOfLines={1}>
           {changeText || ' '}
@@ -64,7 +71,7 @@ const styles = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 18, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 8, gap: 12 },
   text: { flexShrink: 1, gap: 0 },
   title: { fontSize: 13, fontWeight: '700' },
-  scoreRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  scoreRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   score: { fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] },
   level: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
   levelText: { fontSize: 13, fontWeight: '700' },
