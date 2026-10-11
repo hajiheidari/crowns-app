@@ -65,7 +65,7 @@ Unlimited Puzzles in four levels, from relaxing 5×5 boards to tough 11×11 grid
 
 MADE FOR YOU
 • Tap to mark, drag to fill, long-press for a crown
-• Undo, redo and automatic ✕ marks
+• Undo, redo and automatic X marks
 • Pinch to zoom on big boards
 • Dark mode and color-blind patterns
 • Screen reader support
