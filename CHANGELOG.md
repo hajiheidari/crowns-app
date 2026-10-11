@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.0.8 — 2026-10-11
+- Persian and Arabic texts really start on the right on phones now (cards, tiles and titles).
+
 ## 1.0.7 — 2026-10-11
 - The daily reminder is on from the start (you can turn it off or change the time in Settings).
 - Home fills the whole screen, and the free-hints card says how a hint is earned.

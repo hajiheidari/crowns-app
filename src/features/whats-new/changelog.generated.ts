@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.0.8",
+    "date": "2026-10-11",
+    "items": [
+      "Persian and Arabic texts really start on the right on phones now (cards, tiles and titles)."
+    ]
+  },
+  {
     "version": "1.0.7",
     "date": "2026-10-11",
     "items": [
