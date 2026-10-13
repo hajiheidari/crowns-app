@@ -13,12 +13,9 @@ import { formatClock, isRTL, S } from '@/strings';
 import { PRIVACY_URL, PRIVACY_URL_FA, SUPPORT_EMAIL, TERMS_URL } from '@/constants/links';
 import { APP_VERSION } from '@/constants/version';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { ADS_OFF, PUBLIC_SITE, STORE } from '@/constants/store';
+import { STORE } from '@/constants/store';
 import { LANGUAGES } from '@/i18n';
-import { privacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { track } from '@/services/analytics';
-import { REMOVE_ADS_FALLBACK_PRICE } from '@/constants/monetization';
-import { buyRemoveAds, getRemoveAdsPrice, iapMode, restorePurchases, undoTestPurchase } from '@/services/iap';
 import { MONO, Text } from '@/components/text';
 import { Button } from '@/components/button';
 import { copyText } from '@/services/share';
@@ -31,10 +28,6 @@ export default function SettingsScreen() {
   const settings = useGameStore((s) => s.settings);
   const updateSettings = useGameStore((s) => s.updateSettings);
   const updateMeta = useGameStore((s) => s.updateMeta);
-  const [adChoices, setAdChoices] = useState(false);
-  useEffect(() => {
-    privacyOptionsRequired().then(setAdChoices);
-  }, []);
   const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
 
@@ -138,8 +131,6 @@ export default function SettingsScreen() {
 
         <BackupSection />
 
-        <PurchasesSection />
-
         <Section title={S.help}>
           <LinkRow label={S.howToPlay} onPress={() => router.push('/tutorial')} />
           <LinkRow
@@ -147,7 +138,6 @@ export default function SettingsScreen() {
             onPress={() => openLink(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(S.supportSubject(APP_VERSION))}`)}
           />
           <LinkRow label={S.privacyPolicy} onPress={() => openLink(STORE === 'bazaar' ? PRIVACY_URL_FA : PRIVACY_URL)} />
-          {adChoices && <LinkRow label={S.adPrivacyChoices} onPress={() => showPrivacyOptions()} />}
           <LinkRow label={S.termsOfUse} onPress={() => openLink(TERMS_URL)} last />
         </Section>
 
@@ -255,51 +245,6 @@ function BackupSection() {
           <Button label={S.backupRestoreGo} variant="secondary" onPress={ask} disabled={!typed.trim()} />
         )}
       </View>
-      {note && <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text>}
-    </Section>
-  );
-}
-
-function PurchasesSection() {
-  const { c } = usePalette();
-  const removeAds = useGameStore((s) => s.meta.removeAds);
-  const [price, setPrice] = useState(REMOVE_ADS_FALLBACK_PRICE);
-  const [note, setNote] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    getRemoveAdsPrice().then(setPrice);
-  }, []);
-
-  const run = async (task: () => Promise<string | null>) => {
-    setBusy(true);
-    setNote(await task());
-    setBusy(false);
-  };
-  const buy = () =>
-    run(async () => {
-      const r = await buyRemoveAds();
-      if (r === 'purchased') track('remove_ads_purchase');
-      return r === 'unavailable' ? S.purchaseUnavailable : r === 'failed' ? S.purchaseFailed : null;
-    });
-  const restore = () =>
-    run(async () => {
-      const r = await restorePurchases();
-      return r === 'restored' ? S.restoreDone : r === 'none' ? S.restoreNone : r === 'failed' ? S.purchaseFailed : S.purchaseUnavailable;
-    });
-
-  // Cafe Bazaar build without Bazaar billing yet: nothing to buy, so no section.
-  if ((STORE === 'bazaar' || PUBLIC_SITE || ADS_OFF) && iapMode === 'unavailable') return null;
-  return (
-    <Section title={S.purchases}>
-      {removeAds ? (
-        <Row label={S.removeAdsOwned} />
-      ) : (
-        <LinkRow label={S.removeAds} value={price} onPress={() => !busy && buy()} />
-      )}
-      {!removeAds && <Text style={[styles.note, { color: c.textSecondary }]}>{S.removeAdsHelp}</Text>}
-      <LinkRow label={S.restorePurchases} onPress={() => !busy && restore()} last={iapMode !== 'test' || !removeAds} />
-      {iapMode === 'test' && removeAds && <LinkRow label={S.undoTestPurchase} onPress={undoTestPurchase} last />}
-      {iapMode === 'test' && <Text style={[styles.note, { color: c.textSecondary }]}>{S.purchaseTestNote}</Text>}
       {note && <Text style={[styles.note, { color: c.textSecondary }]}>{note}</Text>}
     </Section>
   );

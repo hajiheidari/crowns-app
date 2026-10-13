@@ -79,24 +79,6 @@
       "./plugins/with-no-push-entitlement",
       "expo-notifications",
       [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
-          "delayAppMeasurementInit": true,
-          "skAdNetworkItems": [
-            "cstr6suwn9.skadnetwork"
-          ],
-          "userTrackingUsageDescription": "Your data is used only to show ads that fit you better. Tiaro works the same either way."
-        }
-      ],
-      [
-        "expo-tracking-transparency",
-        {
-          "userTrackingPermission": "Your data is used only to show ads that fit you better. Tiaro works the same either way."
-        }
-      ],
-      [
         "expo-build-properties",
         {
           "android": {
@@ -140,10 +122,5 @@
       "ar": "./locales/ar.json",
       "fa": "./locales/fa.json"
     }
-  },
-  "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-3940256099942544~3347511713",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
-    "delay_app_measurement_init": true
   }
 }

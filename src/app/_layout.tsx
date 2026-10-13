@@ -12,7 +12,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AdHost } from '@/features/monetization/ad-host';
 import { usePalette } from '@/hooks/use-palette';
 import { initAds } from '@/services/ads';
-import { initPurchases } from '@/services/iap';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
@@ -54,7 +53,6 @@ export default function RootLayout() {
     s.updateMeta({ sessions: s.meta.sessions + 1 });
     const asked = languageFromUrl();
     if (asked) s.updateSettings({ language: asked });
-    initPurchases();
     initAds();
     // The daily reminder is on by default (Amir 2026-10-11): ask for notification permission once, at the first
     // launch, and keep it on only if the player allows it. Settings can turn it off or change the time.

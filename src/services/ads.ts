@@ -1,32 +1,15 @@
 /**
- * Web preview stand-in for AdMob (ads.native.ts): no real ads, but a short fake ad shows where
- * a rewarded or interstitial ad would appear, so the flow can be tried in a browser.
- * The public site (tiaro.espadna.com) shows no ads at all and gives rewards for free.
+ * Web: no real ads. The preview (the Artifact Amir plays) shows a short stand-in for a rewarded ad so the coin flow can
+ * be tried; the public site (tiaro.espadna.com) offers no ads at all.
  */
 import { PUBLIC_SITE } from '@/constants/store';
 import { showMockAd } from '@/features/monetization/ad-ui';
 
-export const adsSupported = false;
-export const AD_UNIT_IDS = { banner: '', interstitial: '', rewarded: '' };
-export const adRequestOptions = () => ({ requestNonPersonalizedAdsOnly: false });
-export const adsReady = () => true;
+export const rewardedAvailable = !PUBLIC_SITE;
 
 export async function initAds(): Promise<void> {}
 
-/** The web preview has no consent form. */
-export async function privacyOptionsRequired(): Promise<boolean> {
-  return false;
-}
-
-export async function showPrivacyOptions(): Promise<void> {}
-
-export async function showInterstitial(): Promise<boolean> {
-  if (PUBLIC_SITE) return false;
-  await showMockAd('interstitial');
-  return true;
-}
-
+/** True when the player watched to the end (and earns the reward). */
 export function showRewarded(): Promise<boolean> {
-  if (PUBLIC_SITE) return Promise.resolve(true);
-  return showMockAd('rewarded');
+  return PUBLIC_SITE ? Promise.resolve(false) : showMockAd();
 }

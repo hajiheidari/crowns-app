@@ -9,6 +9,9 @@ import { persist } from 'zustand/middleware';
 import { HINT_REWARDS } from '@/constants/monetization';
 import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, type LeaguePeriod, type LeaguePlayer } from '@/services/invites';
 import { getKeychainKey, saveKeychainKey } from '@/services/keychain';
+import { adAllowed, adReward, COINS, loginReward, winReward, type CoinDay } from '@/features/coins/policy';
+import { rewardedAvailable, showRewarded } from '@/services/ads';
+import { track } from '@/services/analytics';
 import { calendarFor, leaguePoints, periodScores, periodStart, pointsFromLog, solvePoints, weekFirstFor, weekStart, type DayPoints, type SolveLog } from '@/features/brain/score';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
@@ -62,6 +65,9 @@ export interface Settings {
   reminder: { enabled: boolean; hour: number; minute: number };
   /** UI language; the Bazaar build starts in Persian, others in English. */
   language: Language;
+  /** Shop items in use (see features/shop/catalog.ts). */
+  boardTheme: string;
+  crownStyle: string;
 }
 
 /** Bookkeeping that is not gameplay: install date, "What's new", review prompt. */
@@ -75,20 +81,25 @@ export interface Meta {
   ref: string | null;
   /** Invite code of the friend whose link brought this player (kept for future referral rewards). */
   invitedBy: string | null;
-  /** App launches (the first session never shows interstitials). */
+  /** App launches. */
   sessions: number;
-  winsSinceInterstitial: number;
-  lastInterstitialAt: number | null;
-  /** Remove-Ads purchase, cached from the store so it works offline. */
-  removeAds: boolean;
-  /** Archive days unlocked with a rewarded ad. */
+  /** Archive days unlocked with coins. */
   archiveUnlocked: string[];
   /** Day the last streak repair was used. */
   lastRepairKey: string | null;
-  /** Free hints left (earned when friends open this player's links). */
+  /** Hints left: bought with coins (and the free ones earned before 1.1). */
   hintCredits: number;
-  /** Friend opens already turned into hints (the server's running count). */
+  /** Friend opens already paid out (the server's running count). */
   confirmedInvites: number;
+  /** Coins (features/coins/policy.ts). */
+  coins: number;
+  /** Last day the daily login coins were paid, and the run of days in a row. */
+  loginKey: string | null;
+  loginStreak: number;
+  /** Coins earned today from wins and ads (daily caps). */
+  coinDay: CoinDay | null;
+  /** Shop items bought. */
+  owned: string[];
   /** Friends league: nickname and avatar shown to friends ('' = not chosen yet). */
   nickname: string;
   avatar: string;
@@ -112,6 +123,8 @@ export interface WinResult {
   newBest: boolean;
   /** Daily streak after this solve (daily puzzles only). */
   streak?: number;
+  /** Coins earned by this win (0 at the daily cap or for easy/medium Unlimited). */
+  coins: number;
 }
 
 interface Store {
@@ -179,6 +192,8 @@ export const DEFAULT_SETTINGS: Settings = {
   patterns: false,
   reminder: { enabled: false, hour: 9, minute: 0 },
   language: DEFAULT_LANGUAGE,
+  boardTheme: 'classic',
+  crownStyle: 'classic',
 };
 
 const DEFAULT_META: Meta = {
@@ -190,13 +205,15 @@ const DEFAULT_META: Meta = {
   ref: null,
   invitedBy: null,
   sessions: 0,
-  winsSinceInterstitial: 0,
-  lastInterstitialAt: null,
-  removeAds: false,
   archiveUnlocked: [],
   lastRepairKey: null,
   hintCredits: HINT_REWARDS.start,
   confirmedInvites: 0,
+  coins: 0,
+  loginKey: null,
+  loginStreak: 0,
+  coinDay: null,
+  owned: [],
   nickname: '',
   avatar: '',
   leagueSent: '',
@@ -310,7 +327,7 @@ export const useGameStore = create<Store>()(
             },
           };
           const games = { ...s.games, [id]: { ...g, solved: true, undo: [], redo: [] } };
-          const result: WinResult = { seconds: g.seconds, hints: g.hints, newBest };
+          const result: WinResult = { seconds: g.seconds, hints: g.hints, newBest, coins: 0 };
 
           let daily = s.daily;
           let unlimitedIndex = s.unlimitedIndex;
@@ -334,7 +351,10 @@ export const useGameStore = create<Store>()(
           const entry: SolveLog = { day: dateKey(), d: difficulty, s: g.seconds, h: g.hints, daily: info?.mode === 'daily' };
           const log = [...s.log, entry].slice(-LOG_MAX);
           const points = { ...s.points, [entry.day]: (s.points[entry.day] ?? 0) + solvePoints(entry) };
-          set({ games, stats, daily, unlimitedIndex, log, points, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
+          const reward = winReward(difficulty, entry.daily, s.meta.coinDay, entry.day);
+          result.coins = reward.coins;
+          const meta = { ...s.meta, wins: s.meta.wins + 1, coins: s.meta.coins + reward.coins, coinDay: reward.next };
+          set({ games, stats, daily, unlimitedIndex, log, points, meta });
           return result;
         },
 
@@ -388,15 +408,50 @@ export const useGameStore = create<Store>()(
 );
 
 /**
- * Turn friends' new link opens (counted by the server) into free hints. Returns how many were added.
+ * Turn friends' new link opens (counted by the server) into coins. Returns how many coins were added.
  */
-export async function syncEarnedHints(): Promise<number> {
+export async function syncEarnedCoins(): Promise<number> {
   const confirmed = await confirmedInvites(getRefCode());
   if (confirmed === null) return 0;
   const { meta, updateMeta } = useGameStore.getState();
-  const fresh = Math.max(0, confirmed - meta.confirmedInvites) * HINT_REWARDS.perFriend;
-  if (confirmed !== meta.confirmedInvites) updateMeta({ confirmedInvites: confirmed, hintCredits: meta.hintCredits + fresh });
+  const fresh = Math.max(0, confirmed - meta.confirmedInvites) * COINS.perFriend;
+  if (confirmed !== meta.confirmedInvites) updateMeta({ confirmedInvites: confirmed, coins: meta.coins + fresh });
   return fresh;
+}
+
+/** Pays today's login coins once a day. Returns what was paid (for the Home toast), or null. */
+export function claimLoginCoins(day = dateKey()): { coins: number; streak: number } | null {
+  const { meta, updateMeta } = useGameStore.getState();
+  const reward = loginReward(meta.loginKey, meta.loginStreak, day);
+  if (!reward) return null;
+  updateMeta({ coins: meta.coins + reward.coins, loginKey: day, loginStreak: reward.streak });
+  return reward;
+}
+
+/** Spend coins; false (and nothing spent) when there are not enough. */
+export function spendCoins(amount: number): boolean {
+  const { meta, updateMeta } = useGameStore.getState();
+  if (meta.coins < amount) return false;
+  updateMeta({ coins: meta.coins - amount });
+  return true;
+}
+
+/**
+ * Watch a rewarded ad for coins. 'earned' (coins added), 'limit' (5 a day reached), 'unavailable' (no ad right now)
+ * or 'skipped' (closed early).
+ */
+export async function watchAdForCoins(): Promise<'earned' | 'limit' | 'unavailable' | 'skipped'> {
+  const day = dateKey();
+  if (!adAllowed(useGameStore.getState().meta.coinDay, day)) return 'limit';
+  if (!rewardedAvailable) return 'unavailable';
+  track('rewarded_offer', { placement: 'coins' });
+  const watched = await showRewarded();
+  if (!watched) return 'skipped';
+  track('rewarded_complete', { placement: 'coins' });
+  const { meta, updateMeta } = useGameStore.getState();
+  const reward = adReward(meta.coinDay, day);
+  updateMeta({ coins: meta.coins + reward.coins, coinDay: reward.next });
+  return 'earned';
 }
 
 /** Send this week's league score (and nickname/avatar) when it changed since the last send. */
@@ -553,11 +608,11 @@ export async function restoreBackup(key: string): Promise<'ok' | 'missing' | 'of
   return 'ok';
 }
 
-/** Use one free hint. False when none are left. */
+/** Use one hint: a hint left over first, otherwise one bought with coins. False when neither is possible. */
 export function spendHint(): boolean {
   const { meta, updateMeta } = useGameStore.getState();
-  if (meta.hintCredits <= 0) return false;
-  updateMeta({ hintCredits: meta.hintCredits - 1 });
+  if (meta.hintCredits > 0) updateMeta({ hintCredits: meta.hintCredits - 1 });
+  else if (!spendCoins(COINS.hint)) return false;
   return true;
 }
 

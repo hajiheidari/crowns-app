@@ -3,23 +3,27 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, AppState, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ADS_OFF } from '@/constants/store';
 import { Button } from '@/components/button';
 import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
-import { AdBanner } from '@/features/monetization/ad-banner';
 import { BrainCard } from '@/features/brain/brain-card';
+import { CoinsSheet } from '@/features/coins/coins-sheet';
+import { COINS } from '@/features/coins/policy';
 import { streakRepairOffer } from '@/features/monetization/policy';
+import { rewardedAvailable } from '@/services/ads';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { currentStreak, loadLeague, noteInvitedBy, syncBackup, syncEarnedHints, useGameStore } from '@/store/game-store';
+import { claimLoginCoins, currentStreak, loadLeague, noteInvitedBy, spendCoins, syncBackup, syncEarnedCoins, useGameStore, watchAdForCoins } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
-import { watchRewarded } from '@/features/monetization/rewarded';
 import { Text } from '@/components/text';
+
+/** Unlimited Puzzles tile heights: one row of four needs TILE_MIN; two rows of two grow up to TILE_MAX each. */
+const TILE_MIN = 76;
+const TILE_MAX = 170;
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -52,11 +56,15 @@ export default function HomeScreen() {
   const todayGame = useGameStore((s) => s.games[todayId]);
   const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();
   const [inviteNote, setInviteNote] = useState<string | null>(null);
+  const [coinsSheet, setCoinsSheet] = useState<number | null | undefined>(undefined); // undefined = closed
+  const [dailyHeight, setDailyHeight] = useState(0);
+  const [gridHeight, setGridHeight] = useState(0);
 
   // Opened from an invite link (<LINK_BASE>/?r=<code>).
   useEffect(() => noteInvitedBy(invitedBy), [invitedBy]);
 
-  // Friends who opened this player's links since the last look turn into free hints (checked by the server).
+  // Daily login coins (once a day, more for days in a row), then friends who opened this player's links since the
+  // last look (checked by the server) turn into coins.
   useEffect(() => {
     const check = async () => {
       // First: on a reinstalled iPhone this brings the old progress back (keychain key) before anything else runs.
@@ -65,9 +73,11 @@ export default function HomeScreen() {
         useGameStore.getState().updateMeta({ restoredAuto: false });
         Alert.alert(S.backupWelcomeTitle, S.backupWelcomeBody);
       }
+      const login = claimLoginCoins();
+      if (login) setInviteNote(S.loginBonus(login.coins, login.streak));
       void loadLeague(); // keeps the league rank on the brain card fresh
-      const n = await syncEarnedHints();
-      if (n > 0) setInviteNote(S.hintEarned(n));
+      const n = await syncEarnedCoins();
+      if (n > 0) setInviteNote(S.hintEarned(n / COINS.perFriend));
     };
     void check();
     const sub = AppState.addEventListener('change', (state) => state === 'active' && void check());
@@ -78,9 +88,16 @@ export default function HomeScreen() {
   const puzzle = getPuzzle(todayId);
   const streak = currentStreak(daily, today);
   const repairable = streakRepairOffer(daily, today, meta.lastRepairKey);
-  const repair = async () => {
-    if (await watchRewarded('streak_repair')) useGameStore.getState().repairStreak(dateKey());
+  const repair = () => {
+    if (spendCoins(COINS.streakRepair)) useGameStore.getState().repairStreak(dateKey());
+    else setCoinsSheet(COINS.streakRepair);
   };
+  const watchAd = async () => {
+    const r = await watchAdForCoins();
+    setInviteNote(r === 'earned' ? S.coinsEarned(COINS.rewardedAd) : r === 'limit' ? S.coinsAdLimit : r === 'unavailable' ? S.coinsAdUnavailable : null);
+  };
+  // Unlimited tiles: one row of four, or two rows of two when the screen leaves enough height (Amir: as big as possible).
+  const twoRows = gridHeight >= 2 * TILE_MIN + 8;
 
   const state = todayGame?.solved ? 'solved' : todayGame && todayGame.seconds > 0 ? 'continue' : 'play';
   const cta =
@@ -97,9 +114,10 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
       {/*
-        Home layout (Amir asked for this many times, keep it): one screen, no scrolling, no gaps. Everything has its natural
-        height except the brain card, which takes all the free height (flexGrow) and scales up on tall phones. The page
-        only scrolls when the content really can't fit (tiny phones, huge fonts), and never bounces when it fits.
+        Home layout (Amir asked for this many times, keep it): one screen, no scrolling, no gaps. The brain card is exactly
+        as tall as the daily card (1.1); the Unlimited Puzzles tiles take all the free height (flexGrow), in one row of four
+        or, when there is room, two rows of two. The page only scrolls when the content really can't fit (tiny phones,
+        huge fonts), and never bounces when it fits.
       */}
       <ScrollView
         contentContainerStyle={[styles.scroll, narrow && styles.scrollNarrow]}
@@ -115,6 +133,15 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.headerRight}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={S.coinsCardTitle(meta.coins)}
+              onPress={() => setCoinsSheet(null)}
+              hitSlop={4}
+              style={({ pressed }) => [styles.streak, { backgroundColor: c.gold + '2E', opacity: pressed ? 0.7 : 1 }]}>
+              <Text style={styles.flame}>🪙</Text>
+              <Text style={[styles.streakText, { color: c.text }]}>{meta.coins}</Text>
+            </Pressable>
             <View
               accessible
               accessibilityLabel={S.streakDays(streak)}
@@ -131,7 +158,9 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
+        <View
+          style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}
+          onLayout={(e) => setDailyHeight(Math.round(e.nativeEvent.layout.height))}>
           <View style={styles.cardHead}>
             <View style={styles.flexShrink}>
               <Text style={[styles.cardEyebrow, { color: c.textSecondary }]}>{S.today.toUpperCase()}</Text>
@@ -160,22 +189,40 @@ export default function HomeScreen() {
           {repairable !== null && (
             <View style={[styles.repair, { backgroundColor: c.surfaceMuted }]}>
               <Text style={[styles.repairText, { color: c.text }]}>🔥 {S.streakBroken(repairable)}</Text>
-              <Button label={ADS_OFF ? S.streakRepairFree : S.withAd(S.streakRepair)} variant="ghost" onPress={repair} />
+              <Button label={S.streakRepair} variant="ghost" onPress={repair} />
             </View>
           )}
         </View>
 
-        <BrainCard today={today} streak={streak} solvedToday={!!todayGame?.solved} onPress={() => router.push('/league')} />
+        <BrainCard
+          today={today}
+          streak={streak}
+          solvedToday={!!todayGame?.solved}
+          onPress={() => router.push('/league')}
+          height={repairable === null && dailyHeight > 0 ? dailyHeight : undefined}
+        />
 
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
-          <Text style={[styles.hintsTitle, { color: c.text }]}>💡 {S.freeHintsTitle(meta.hintCredits)}</Text>
-          <Text style={[styles.hintsBody, { color: c.textSecondary }]}>{S.freeHintsBody}</Text>
-          <Button
-            label={`🎁 ${S.inviteFriends}`}
-            onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
-            style={styles.compactButton}
-          />
-          {/* How a hint is earned, always under the button; replaced by the result once something was sent. */}
+          <View style={styles.coinsHead}>
+            <Text style={[styles.hintsTitle, { color: c.text }]}>{S.coinsCardTitle(meta.coins)}</Text>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/shop')} hitSlop={10}>
+              {({ pressed }) => (
+                <Text style={[styles.archiveLink, { color: c.text, opacity: pressed ? 0.6 : 1 }]}>🛍 {S.shopTitle}</Text>
+              )}
+            </Pressable>
+          </View>
+          <Text style={[styles.hintsBody, { color: c.textSecondary }]} numberOfLines={2}>{S.coinsCardBody}</Text>
+          <View style={styles.coinsButtons}>
+            <Button
+              label={`🎁 ${S.inviteFriends}`}
+              onPress={async () => setInviteNote(shareNote(await shareInvite(), S.inviteCopied))}
+              style={[styles.compactButton, styles.flex]}
+            />
+            {rewardedAvailable && (
+              <Button label={`▶ +${COINS.rewardedAd} 🪙`} variant="secondary" onPress={watchAd} style={styles.compactButton} />
+            )}
+          </View>
+          {/* How coins are earned, always under the buttons; replaced by the latest reward or share result. */}
           <Text selectable style={[styles.hintsNote, { color: inviteNote ? c.text : c.textSecondary }]}>
             {inviteNote ?? S.hintPending}
           </Text>
@@ -183,9 +230,19 @@ export default function HomeScreen() {
 
         <View style={styles.unlimited}>
           <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
-          <View style={styles.gridRow}>
-            {DIFFICULTIES.map((d) => (
-              <DifficultyTile key={d} difficulty={d} solved={unlimitedIndex[d]} onPress={() => open(unlimitedId(d, unlimitedIndex[d]))} />
+          <View style={styles.grid} onLayout={(e) => setGridHeight(Math.round(e.nativeEvent.layout.height))}>
+            {(twoRows ? [DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)] : [DIFFICULTIES]).map((row) => (
+              <View key={row.join()} style={[styles.gridRow, { maxHeight: twoRows ? TILE_MAX : TILE_MIN + 24 }]}>
+                {row.map((d) => (
+                  <DifficultyTile
+                    key={d}
+                    difficulty={d}
+                    solved={unlimitedIndex[d]}
+                    big={twoRows}
+                    onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
+                  />
+                ))}
+              </View>
             ))}
           </View>
         </View>
@@ -195,7 +252,7 @@ export default function HomeScreen() {
           <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
         </View>
       </ScrollView>
-      <AdBanner />
+      <CoinsSheet visible={coinsSheet !== undefined} need={coinsSheet ?? undefined} onClose={() => setCoinsSheet(undefined)} />
     </SafeAreaView>
   );
 }
@@ -222,7 +279,7 @@ function Chip({ text }: { text: string }) {
   );
 }
 
-function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficulty; solved: number; onPress: () => void }) {
+function DifficultyTile({ difficulty, solved, big, onPress }: { difficulty: Difficulty; solved: number; big: boolean; onPress: () => void }) {
   const { c, regions } = usePalette();
   const accent = { easy: regions[3], medium: regions[2], hard: regions[1], expert: regions[0] }[difficulty];
   return (
@@ -233,11 +290,11 @@ function DifficultyTile({ difficulty, solved, onPress }: { difficulty: Difficult
       style={({ pressed }) => [styles.tile, { backgroundColor: c.surface, borderColor: c.border, opacity: pressed ? 0.75 : 1 }]}>
       {/* On the reading side (right in Persian and Arabic); `start` is not flipped by react-native-web. */}
       <View style={[styles.tileAccent, isRTL() ? { right: 0 } : { left: 0 }, { backgroundColor: accent }]} />
-      <Text style={[styles.tileTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.3}>{DIFFICULTY_LABEL[difficulty]}</Text>
-      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
+      <Text style={[styles.tileTitle, big && styles.tileTitleBig, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.3}>{DIFFICULTY_LABEL[difficulty]}</Text>
+      <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
         {DIFFICULTY_SIZES[difficulty]}
       </Text>
-      <Text style={[styles.tileSub, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
+      <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
         {S.solvedCount(solved)}
       </Text>
     </Pressable>
@@ -272,15 +329,22 @@ const styles = StyleSheet.create({
   countdown: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   archiveLink: { fontSize: 15, fontWeight: '700' },
   section: { fontSize: 19, fontWeight: '700', marginTop: 2 },
-  unlimited: { gap: 6 },
-  gridRow: { flexDirection: 'row', gap: 8, height: 76 },
+  // Takes the free height; its tiles grow with it.
+  unlimited: { flexGrow: 1, gap: 6 },
+  grid: { flexGrow: 1, minHeight: TILE_MIN, gap: 8 },
+  gridRow: { flex: 1, flexDirection: 'row', gap: 8, minHeight: TILE_MIN },
   bottom: { gap: 2 },
   howTo: { minHeight: 42 },
   compactButton: { minHeight: 44 },
   tile: { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, paddingVertical: 6, paddingHorizontal: 11, gap: 1, overflow: 'hidden' },
   tileAccent: { position: 'absolute', top: 0, bottom: 0, width: 6 },
   tileTitle: { fontSize: 15, fontWeight: '700' },
+  tileTitleBig: { fontSize: 22 },
   tileSub: { fontSize: 11 },
+  tileSubBig: { fontSize: 14 },
+  coinsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  coinsButtons: { flexDirection: 'row', gap: 8 },
+  flex: { flex: 1 },
   footer: { textAlign: 'center', fontSize: 12 },
   hints: { borderRadius: 20, borderWidth: 1.5, paddingHorizontal: 16, paddingVertical: 8, gap: 5 },
   hintsTitle: { fontSize: 17, fontWeight: '800' },

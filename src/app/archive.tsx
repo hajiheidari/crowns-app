@@ -7,17 +7,16 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ADS_OFF } from '@/constants/store';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ScreenHeader } from '@/components/screen-header';
 import { dateKey } from '@/engine';
-import { AdBanner } from '@/features/monetization/ad-banner';
 import { archiveLocked, archiveStart } from '@/features/monetization/policy';
-import { watchRewarded } from '@/features/monetization/rewarded';
+import { CoinsSheet } from '@/features/coins/coins-sheet';
+import { COINS } from '@/features/coins/policy';
 import { dailyIdFor } from '@/features/puzzles/catalog';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { usePalette } from '@/hooks/use-palette';
-import { useGameStore } from '@/store/game-store';
+import { spendCoins, useGameStore } from '@/store/game-store';
 import { S } from '@/strings';
 import { Text } from '@/components/text';
 
@@ -30,12 +29,13 @@ export default function ArchiveScreen() {
   const meta = useGameStore((s) => s.meta);
   const [asking, setAsking] = useState<string | null>(null);
 
-  const locked = (key: string) => archiveLocked(key, today, meta.removeAds || ADS_OFF, meta.archiveUnlocked);
+  const [needCoins, setNeedCoins] = useState(false);
+  const locked = (key: string) => archiveLocked(key, today, meta.archiveUnlocked);
   const open = (key: string) => router.push({ pathname: '/play/[id]', params: { id: dailyIdFor(key, meta.installedKey) } });
   const onPressDay = (key: string) => (locked(key) ? setAsking(key) : open(key));
-  const unlock = async (key: string) => {
+  const unlock = (key: string) => {
     setAsking(null);
-    if (!(await watchRewarded('archive'))) return;
+    if (!spendCoins(COINS.archiveDay)) return setNeedCoins(true);
     const m = useGameStore.getState().meta;
     useGameStore.getState().updateMeta({ archiveUnlocked: [...m.archiveUnlocked, key] });
     open(key);
@@ -53,17 +53,17 @@ export default function ArchiveScreen() {
             mark={(key) => (locked(key) ? 'locked' : games[dailyIdFor(key, meta.installedKey)]?.board.some((m) => m) ? 'started' : null)}
           />
         </View>
-        {!meta.removeAds && !ADS_OFF && <Text style={[styles.help, { color: c.textSecondary }]}>{S.archiveHelp}</Text>}
+        <Text style={[styles.help, { color: c.textSecondary }]}>{S.archiveHelp}</Text>
       </ScrollView>
-      <AdBanner />
       <ConfirmDialog
         visible={asking !== null}
         title={asking ? S.archiveUnlockTitle(S.dateLabel(asking)) : ''}
         body={S.archiveUnlockBody}
-        confirmLabel={S.withAd(S.archiveUnlock)}
+        confirmLabel={S.archiveUnlock}
         onCancel={() => setAsking(null)}
         onConfirm={() => asking && unlock(asking)}
       />
+      <CoinsSheet visible={needCoins} need={COINS.archiveDay} onClose={() => setNeedCoins(false)} />
     </SafeAreaView>
   );
 }

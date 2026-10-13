@@ -45,6 +45,7 @@ export function WinOverlay({ result, isDaily, onNext, onHome, onShare, onArchive
           {result.newBest && <Badge text={S.newBest} color={c.goldText} bg={c.surfaceMuted} />}
           <Badge text={result.hints === 0 ? S.noHints : S.hintsUsed(result.hints)} color={c.textSecondary} bg={c.surfaceMuted} />
           {result.streak !== undefined && <Badge text={`🔥 ${S.streakDays(result.streak)}`} color={c.flame} bg={c.surfaceMuted} />}
+          {result.coins > 0 && <Badge text={S.coinsWon(result.coins)} color={c.goldText} bg={c.gold + '33'} />}
         </View>
         {versus !== undefined && (
           <View style={[styles.versus, { backgroundColor: c.surfaceMuted }]}>

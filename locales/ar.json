@@ -1,6 +1,5 @@
 {
   "ios": {
-    "NSUserTrackingUsageDescription": "تُستخدم بياناتك فقط لعرض إعلانات أنسب لك. يعمل تيارو بالطريقة نفسها في الحالتين.",
     "NSPhotoLibraryUsageDescription": "لا يستخدم تيارو صورك إلا إذا اخترت مشاركة صورة نتيجتك في تطبيق مثل إنستغرام.",
     "NSPhotoLibraryAddUsageDescription": "يحفظ تيارو صورة نتيجتك فقط عندما تختار مشاركتها أو حفظها."
   }

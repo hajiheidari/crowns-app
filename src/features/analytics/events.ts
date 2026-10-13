@@ -5,7 +5,7 @@
 import type { Difficulty } from '@/engine';
 
 type Mode = 'daily' | 'unlimited';
-export type RewardedPlacement = 'hint' | 'archive' | 'streak_repair';
+export type RewardedPlacement = 'coins';
 
 export interface AnalyticsEvents {
   tutorial_begin: undefined;
@@ -24,6 +24,7 @@ export interface AnalyticsEvents {
   remove_ads_purchase: undefined;
   reminder_enabled: undefined;
   setting_changed: { name: string; value: string };
+  shop_buy: { item: string; price: number };
 }
 
 export type EventName = keyof AnalyticsEvents;

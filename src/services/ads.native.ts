@@ -1,27 +1,13 @@
 /**
- * Ads on phones: AdMob for the App Store / Google Play builds, Adivery for the Cafe Bazaar build, none in the
- * ad-free build (ADS_OFF).
- * Only the chosen network's module is loaded, so the other SDK (left out of that build) is never touched.
+ * Ads on phones are rewarded only (Amir 2026-10-13): the player chooses to watch one and earns coins. No banners and
+ * no full-screen ads. The Cafe Bazaar build uses Adivery; the App Store / Google Play builds have no ad network yet
+ * (Amir is picking one), so they offer no ads. Only the chosen network's module is loaded.
  */
-import { ADS_OFF, STORE } from '@/constants/store';
+import { STORE } from '@/constants/store';
 
-type AdsModule = typeof import('./ad-networks/admob');
+type AdsModule = typeof import('./ad-networks/none');
 
 /* eslint-disable @typescript-eslint/no-require-imports -- lazy: only the chosen SDK is loaded */
-const ads: AdsModule = ADS_OFF
-  ? require('./ad-networks/none')
-  : STORE === 'bazaar'
-    ? require('./ad-networks/adivery')
-    : require('./ad-networks/admob');
+const ads: AdsModule = STORE === 'bazaar' ? require('./ad-networks/adivery') : require('./ad-networks/none');
 
-export const {
-  adsSupported,
-  AD_UNIT_IDS,
-  adRequestOptions,
-  adsReady,
-  initAds,
-  showInterstitial,
-  showRewarded,
-  privacyOptionsRequired,
-  showPrivacyOptions,
-} = ads;
+export const { rewardedAvailable, initAds, showRewarded } = ads;

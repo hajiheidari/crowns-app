@@ -17,6 +17,7 @@ import { CrownIcon } from '@/components/crown-icon';
 import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, regionColorName, type Mark, type Puzzle } from '@/engine';
 import { RegionPatterns } from '@/features/game/region-patterns';
 import { clampZoom, gestureClock, pinchZoom, toBoard, ZOOM_MIN_N, type ZoomState } from '@/features/game/zoom';
+import { crownStyle } from '@/features/shop/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import type { Settings } from '@/store/game-store';
 import { getLanguage, S } from '@/strings';
@@ -44,7 +45,8 @@ interface Props {
 type DragMode = 'paint' | 'erase';
 
 export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick, highlight, danger, finger, decorative }: Props) {
-  const { c, regions: regionColors, dark } = usePalette();
+  const { c, regions: regionColors, dark, frame } = usePalette();
+  const crown = crownStyle(settings.crownStyle);
   const { n, regions } = puzzle;
   const [width, setWidth] = useState(0);
   const cellSize = width / n;
@@ -224,7 +226,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
   return (
     <View
       // The grid keeps row/column order in every language (spec §7: the board must NOT mirror in RTL).
-      style={[styles.frame, { borderColor: c.gridThick, direction: 'ltr' }]}
+      style={[styles.frame, { borderColor: frame, direction: 'ltr' }]}
       accessibilityLabel={decorative ? undefined : S.boardLabel(n)}
       accessibilityElementsHidden={decorative}
       importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}>
@@ -260,9 +262,11 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                   rightLine={col < n - 1}
                   bottomThick={row < n - 1 && regions[i] !== regions[i + n]}
                   bottomLine={row < n - 1}
-                  thickColor={c.gridThick}
+                  thickColor={frame}
                   thinColor={c.gridThin}
                   markColor={c.mark}
+                  crownColor={crown.fill ?? c.mark}
+                  crownGem={crown.gem}
                   autoColor={c.autoMark}
                   dangerColor={c.danger}
                 />
@@ -306,6 +310,8 @@ interface CellProps {
   thickColor: string;
   thinColor: string;
   markColor: string;
+  crownColor: string;
+  crownGem: string | null;
   autoColor: string;
   dangerColor: string;
 }
@@ -341,7 +347,7 @@ const Cell = memo(function Cell(p: CellProps) {
         },
       ]}>
       {p.conflict && <View style={[StyleSheet.absoluteFill, { backgroundColor: p.dangerColor, opacity: 0.22 }]} />}
-      {p.mark === CROWN && <CrownIcon size={icon} color={p.conflict ? p.dangerColor : p.markColor} />}
+      {p.mark === CROWN && <CrownIcon size={icon} color={p.conflict ? p.dangerColor : p.crownColor} gem={p.conflict ? null : p.crownGem} />}
       {p.mark === CROWN && p.conflict && <ConflictBadge size={p.size} color={p.dangerColor} />}
       {p.mark === CROSS && <CrossIcon size={p.size * 0.32} color={p.markColor} width={2} />}
       {p.mark === EMPTY && p.auto && <CrossIcon size={p.size * 0.26} color={p.autoColor} width={1.5} />}

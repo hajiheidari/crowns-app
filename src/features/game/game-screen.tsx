@@ -12,15 +12,15 @@ import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
 import { ZOOM_MIN_N } from '@/features/game/zoom';
-import { interstitialAllowed } from '@/features/monetization/policy';
+import { CoinsSheet } from '@/features/coins/coins-sheet';
+import { COINS } from '@/features/coins/policy';
 import { streakMilestone } from '@/features/analytics/events';
-import { shareChallenge, shareInvite, shareNote } from '@/features/share/actions';
+import { shareChallenge, shareNote } from '@/features/share/actions';
 import { ShareSheet } from '@/features/share/share-sheet';
 import { getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { usePalette } from '@/hooks/use-palette';
 import { haptics } from '@/services/haptics';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
-import { showInterstitial } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { maybeAskForReview } from '@/services/review';
 import { currentStreak, spendHint, syncBackup, syncLeague, tapCycle, useGameStore, type WinResult } from '@/store/game-store';
@@ -47,7 +47,6 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const [sharing, setSharing] = useState(false);
   const [hint, setHint] = useState<{ hint: Hint; stage: 1 | 2; board: Mark[]; hidden?: boolean } | null>(null);
   const [noHints, setNoHints] = useState(false);
-  const [hintNote, setHintNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!puzzle || !info) return;
@@ -127,8 +126,8 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
   const freshHint = hint && !solved && sameBoard(hint.board, board) ? hint : null;
   const activeHint = freshHint && !paused && !freshHint.hidden ? freshHint : null;
 
-  // Hints are earned by sharing and inviting (no ads): asking for one spends a free hint; its "why" and "apply"
-  // steps are then included.
+  // Asking for a hint uses one left over, or buys one with coins (1.1); its "why" and "apply" steps are included.
+  // Without either, the "get coins" sheet opens.
   const askHint = () => {
     if (activeHint) return;
     // Closed it a moment ago on this same board: show it again without spending another.
@@ -147,10 +146,6 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
     if (!activeHint) return;
     track('hint_used', { stage: 3, level: puzzle.difficulty, via_ad: false });
     applyHintNow();
-  };
-  const inviteForHint = async () => {
-    setNoHints(false);
-    setHintNote(shareNote(await shareInvite(), S.inviteCopied));
   };
   const applyHintNow = () => {
     if (!activeHint) return;
@@ -225,15 +220,9 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
     if (router.canGoBack()) router.back();
     else router.replace('/');
   };
-  const goNext = async () => {
+  const goNext = () => {
     if (info.mode !== 'unlimited') return;
-    const s = useGameStore.getState();
-    // Interstitials only ever show here: after a finished Unlimited puzzle, once "Next" is tapped.
-    if (interstitialAllowed(s.meta, 'unlimited', Date.now()) && (await showInterstitial())) {
-      s.updateMeta({ winsSinceInterstitial: 0, lastInterstitialAt: Date.now() });
-    } else {
-      maybeAskForReview();
-    }
+    maybeAskForReview();
     const next = unlimitedId(info.difficulty, useGameStore.getState().unlimitedIndex[info.difficulty]);
     router.replace({ pathname: '/play/[id]', params: { id: next } });
   };
@@ -296,7 +285,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
         ) : (
           !solved && (
             <Text style={[styles.help, { color: c.textSecondary }]}>
-              {hintNote ?? (puzzle.n >= ZOOM_MIN_N ? S.controlsZoom : S.controls)}
+              {puzzle.n >= ZOOM_MIN_N ? S.controlsZoom : S.controls}
             </Text>
           )
         )}
@@ -316,18 +305,11 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       <View style={styles.toolbar}>
         <ToolButton label={S.undo} glyph="↶" onPress={() => act(() => undo(id))} disabled={locked || !game?.undo.length} />
         <ToolButton label={S.redo} glyph="↷" onPress={() => act(() => redo(id))} disabled={locked || !game?.redo.length} />
-        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} badge={String(hintCredits)} />
+        <ToolButton label={S.hint} glyph="💡" onPress={askHint} disabled={locked} badge={hintCredits > 0 ? String(hintCredits) : `${COINS.hint}🪙`} />
         <ToolButton label={S.clear} glyph="⌫" onPress={() => setConfirmClear(true)} disabled={locked || !board.some((m) => m)} />
       </View>
 
-      <ConfirmDialog
-        visible={noHints}
-        title={S.noHintsTitle}
-        body={S.noHintsBody}
-        confirmLabel={S.inviteFriends}
-        onCancel={() => setNoHints(false)}
-        onConfirm={inviteForHint}
-      />
+      <CoinsSheet visible={noHints} need={COINS.hint} onClose={() => setNoHints(false)} />
       <ConfirmDialog
         visible={confirmClear}
         title={S.clearTitle}

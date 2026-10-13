@@ -1,7 +1,7 @@
 /**
  * Home card: this week's brain score, its level, the friends-league rank, the change vs the week before and a 7-day
- * bar chart. Always gold (both themes, like the iPhone widget) so it stands out. It takes the free height on Home:
- * on tall phones it grows and the score, bars and padding scale with it (`onLayout`).
+ * bar chart. Always gold (both themes, like the iPhone widget) so it stands out. On Home it is as tall as the daily
+ * card (Amir 2026-10-13: it had grown too big); score, bars and padding scale with its height (`onLayout`).
  */
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
@@ -23,11 +23,14 @@ export function BrainCard({
   streak,
   solvedToday,
   onPress,
+  height: fixed,
 }: {
   today: string;
   streak: number;
   solvedToday: boolean;
   onPress: () => void;
+  /** Height to match (the daily card's); natural height when not known yet. */
+  height?: number;
 }) {
   const log = useGameStore((s) => s.log);
   const rank = useGameStore((s) => s.meta.leagueRank);
@@ -44,7 +47,7 @@ export function BrainCard({
     syncWidget({ score, level, change: changeText, streak, solvedToday, days });
   }, [score, level, changeText, streak, solvedToday, days]);
 
-  // Grow with the space Home gives the card (110 at least, about 260 on the tallest phones).
+  // Scale with the card's height (92 at least).
   const big = Math.min(1, Math.max(0, (height - 92) / 160));
   const scoreSize = 26 + big * 28;
   const barsHeight = 42 + big * 74;
@@ -55,7 +58,7 @@ export function BrainCard({
       accessibilityLabel={`${S.brainTitle}: ${score}, ${level}, ${league}`}
       onPress={onPress}
       onLayout={(e) => setHeight(Math.round(e.nativeEvent.layout.height))}
-      style={({ pressed }) => [styles.press, { opacity: pressed ? 0.85 : 1 }]}>
+      style={({ pressed }) => [styles.press, fixed ? { height: fixed } : null, { opacity: pressed ? 0.85 : 1 }]}>
       <LinearGradient colors={BRAIN_GOLD} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.card, { paddingVertical: 8 + big * 14 }]}>
         <View style={[styles.text, { gap: 2 + big * 6 }]}>
           <Text style={styles.title} numberOfLines={1}>
@@ -101,7 +104,7 @@ export function BrainCard({
 }
 
 const styles = StyleSheet.create({
-  press: { flexGrow: 1, minHeight: 92, borderRadius: 18, overflow: 'hidden' },
+  press: { minHeight: 92, borderRadius: 18, overflow: 'hidden' },
   card: {
     flex: 1,
     flexDirection: 'row',
