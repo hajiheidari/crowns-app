@@ -69,7 +69,7 @@ export const fa: Dict = {
   certMore: 'گواهی‌نامه‌های بیشتر',
   certOpen: '🏅 گواهی‌نامه‌ها',
   language: 'زبان',
-  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
+  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },
   notifTitle: 'پازل امروز تیارو آماده است 👑',
   notifBody: 'یک پازل تازه منتظرت است. زنجیره‌ی روزهایت را نگه دار!',
   crashTitle: 'تیارو به خطا خورد',

@@ -120,7 +120,8 @@
     "owner": "hajiheidaris-team",
     "locales": {
       "ar": "./locales/ar.json",
-      "fa": "./locales/fa.json"
+      "fa": "./locales/fa.json",
+      "ru": "./locales/ru.json"
     }
   }
 }

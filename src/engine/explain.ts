@@ -23,7 +23,15 @@ export const REGION_COLOR_NAMES_AR = [
   'البنفسجية', 'البرتقالية', 'الزرقاء', 'الخضراء', 'الرمادية', 'الحمراء', 'الصفراء', 'الفيروزية', 'الوردية', 'البنية', 'الليمونية',
 ];
 
-export type ExplainLanguage = 'en' | 'fa' | 'ar';
+/** Russian region names (feminine adjectives agreeing with «область»): nominative and genitive/prepositional. */
+export const REGION_COLOR_NAMES_RU = [
+  'фиолетовая', 'оранжевая', 'синяя', 'зелёная', 'серая', 'красная', 'жёлтая', 'бирюзовая', 'розовая', 'коричневая', 'лаймовая',
+];
+const REGION_COLOR_NAMES_RU_OBL = [
+  'фиолетовой', 'оранжевой', 'синей', 'зелёной', 'серой', 'красной', 'жёлтой', 'бирюзовой', 'розовой', 'коричневой', 'лаймовой',
+];
+
+export type ExplainLanguage = 'en' | 'fa' | 'ar' | 'ru';
 
 export interface ExplainOptions {
   regionName?: (index: number) => string;
@@ -31,7 +39,7 @@ export interface ExplainOptions {
 }
 
 export function regionColorName(index: number, lang: ExplainLanguage = 'en'): string {
-  const names = lang === 'fa' ? REGION_COLOR_NAMES_FA : lang === 'ar' ? REGION_COLOR_NAMES_AR : REGION_COLOR_NAMES;
+  const names = lang === 'fa' ? REGION_COLOR_NAMES_FA : lang === 'ar' ? REGION_COLOR_NAMES_AR : lang === 'ru' ? REGION_COLOR_NAMES_RU : REGION_COLOR_NAMES;
   return names[index] ?? `#${index + 1}`;
 }
 
@@ -46,17 +54,29 @@ export function unitName(u: UnitRef, opts: ExplainOptions = {}): string {
     if (u.kind === 'column') return `العمود ${u.index + 1}`;
     return `المنطقة ${opts.regionName?.(u.index) ?? regionColorName(u.index, 'ar')}`;
   }
+  if (opts.lang === 'ru') return ruUnit(u, 'nom');
   if (u.kind === 'row') return `row ${u.index + 1}`;
   if (u.kind === 'column') return `column ${u.index + 1}`;
   const name = opts.regionName?.(u.index) ?? REGION_COLOR_NAMES[u.index] ?? `#${u.index + 1}`;
   return `the ${name} region`;
 }
 
+type RuCase = 'nom' | 'gen' | 'prep';
+
+/** Russian unit names in the case a sentence needs: «ряд 3 / ряда 3 / в ряду 3», «синяя область / синей области». */
+function ruUnit(u: UnitRef, c: RuCase): string {
+  const n = u.index + 1;
+  if (u.kind === 'row') return { nom: `ряд ${n}`, gen: `ряда ${n}`, prep: `ряду ${n}` }[c];
+  if (u.kind === 'column') return { nom: `столбец ${n}`, gen: `столбца ${n}`, prep: `столбце ${n}` }[c];
+  const adj = c === 'nom' ? REGION_COLOR_NAMES_RU[u.index] : REGION_COLOR_NAMES_RU_OBL[u.index];
+  return `${adj ?? `№${n}`} ${c === 'nom' ? 'область' : 'области'}`;
+}
+
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function list(items: string[], lang: ExplainLanguage = 'en'): string {
   if (items.length <= 1) return items.join('');
-  const [sep, and] = lang === 'fa' ? ['، ', ' و '] : lang === 'ar' ? ['، ', ' و'] : [', ', ' and '];
+  const [sep, and] = lang === 'fa' ? ['، ', ' و '] : lang === 'ar' ? ['، ', ' و'] : lang === 'ru' ? [', ', ' и '] : [', ', ' and '];
   return `${items.slice(0, -1).join(sep)}${and}${items[items.length - 1]}`;
 }
 
@@ -68,6 +88,7 @@ export interface Explanation {
 export function explainStep(step: Step, opts: ExplainOptions = {}): Explanation {
   if (opts.lang === 'fa') return explainStepFa(step, opts);
   if (opts.lang === 'ar') return explainStepAr(step, opts);
+  if (opts.lang === 'ru') return explainStepRu(step);
   const name = (u: UnitRef) => unitName(u, opts);
   switch (step.rule) {
     case 'lastCell': {
@@ -195,6 +216,50 @@ function explainStepAr(step: Step, opts: ExplainOptions): Explanation {
       return {
         title: 'ماذا لو…؟',
         body: `تخيّل تاجًا في الخانة المميزة. باتباع القواعد البسيطة، لن يبقى مكان لتاج في ${name(step.units[0])}. لذا يجب أن تبقى هذه الخانة فارغة.`,
+      };
+  }
+}
+
+function explainStepRu(step: Step): Explanation {
+  const nom = (u: UnitRef) => ruUnit(u, 'nom');
+  const gen = (u: UnitRef) => ruUnit(u, 'gen');
+  const prep = (u: UnitRef) => ruUnit(u, 'prep');
+  // «в ряду / в столбце / в … области»
+  const inUnit = (u: UnitRef) => `в ${prep(u)}`;
+  switch (step.rule) {
+    case 'lastCell':
+      return { title: 'Осталось одно место', body: `${inUnit(step.units[0]).replace(/^в/, 'В')} осталась только одна свободная клетка, значит корона там.` };
+    case 'confinement': {
+      const [a, b] = step.units;
+      if (a.kind === 'region') {
+        return {
+          title: 'Область в одной линии',
+          body: `Все свободные клетки ${gen(a)} лежат ${inUnit(b)}. Её корона должна быть там, поэтому остальные клетки ${gen(b)} можно зачеркнуть.`,
+        };
+      }
+      return {
+        title: 'Линия одной области',
+        body: `Все свободные клетки ${gen(a)} принадлежат: ${nom(b)}. Корона этой линии будет ${inUnit(b)}, поэтому остальные клетки ${gen(b)} можно зачеркнуть.`,
+      };
+    }
+    case 'blocksUnit':
+      return {
+        title: 'Эта клетка мешает слишком многому',
+        body: `Корона на выделенной клетке закрыла бы все свободные клетки ${gen(step.units[0])}, и для короны там не осталось бы места. Значит, здесь короны быть не может.`,
+      };
+    case 'group': {
+      const k = step.units.length / 2;
+      const first = list(step.units.slice(0, k).map(nom), 'ru');
+      const second = list(step.units.slice(k).map(prep), 'ru');
+      return {
+        title: `${k} в ${k}`,
+        body: `${cap(first)}: все их свободные клетки лежат в ${second}. Эти ${k} делят между собой ${k} ${k >= 2 && k <= 4 ? 'короны' : 'корон'}, поэтому все остальные свободные клетки там зачёркиваются.`,
+      };
+    }
+    case 'contradiction':
+      return {
+        title: 'А что если…?',
+        body: `Представьте корону на выделенной клетке. По простым правилам ${inUnit(step.units[0])} не останется места для короны. Значит, эта клетка должна быть пустой.`,
       };
   }
 }

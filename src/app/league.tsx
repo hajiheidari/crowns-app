@@ -60,7 +60,7 @@ export default function LeagueScreen() {
     if (meIndex === 0 && me.score > 0) headline = S.leagueLeading;
     else if (meIndex > 0 && leader.score > me.score) headline = S.leagueBehind(leader.score - me.score, label(leader));
   }
-  const inputFont = getLanguage() === 'en' ? undefined : 'Vazirmatn-Regular';
+  const inputFont = getLanguage() === 'en' || getLanguage() === 'ru' ? undefined : 'Vazirmatn-Regular';
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>

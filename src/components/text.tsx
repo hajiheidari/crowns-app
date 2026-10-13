@@ -35,7 +35,8 @@ function persianDigits(children: ReactNode): ReactNode {
 }
 
 export function Text({ style, children, ...rest }: TextProps) {
-  if (getLanguage() === 'en') {
+  // English and Russian use the system font (Vazirmatn has no Cyrillic) and Latin digits.
+  if (getLanguage() === 'en' || getLanguage() === 'ru') {
     return (
       <RNText style={style} {...rest}>
         {children}

@@ -72,7 +72,7 @@ export const ar: Dict = {
   certMore: 'احصل على المزيد',
   certOpen: '🏅 الشهادات',
   language: 'اللغة',
-  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
+  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },
   notifTitle: 'لغز تيارو اليومي جاهز 👑',
   notifBody: 'لغز جديد بانتظارك. حافظ على سلسلتك!',
   crashTitle: 'حدث خطأ في تيارو',

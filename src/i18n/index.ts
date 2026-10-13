@@ -1,6 +1,6 @@
 /**
  * Current UI language. The Bazaar build starts in Persian; every other build starts in the phone's language
- * (Arabic or Persian when the phone uses it, else English). Players can switch in Settings (saved in the game
+ * (Arabic, Persian or Russian when the phone uses it, else English). Players can switch in Settings (saved in the game
  * store, applied with `setLanguage`, and the root layout remounts on change).
  */
 import { STORE } from '@/constants/store';
@@ -8,10 +8,11 @@ import { STORE } from '@/constants/store';
 import { en, type Dict } from './en';
 import { ar } from './ar';
 import { fa } from './fa';
+import { ru } from './ru';
 
-export type Language = 'en' | 'fa' | 'ar';
+export type Language = 'en' | 'fa' | 'ar' | 'ru';
 /** Languages offered in Settings. The Cafe Bazaar build is for Iran: Persian and English only (Amir, 2026-10-05). */
-export const LANGUAGES: Language[] = STORE === 'bazaar' ? ['en', 'fa'] : ['en', 'fa', 'ar'];
+export const LANGUAGES: Language[] = STORE === 'bazaar' ? ['en', 'fa'] : ['en', 'fa', 'ar', 'ru'];
 
 /**
  * The phone's (or browser's) language, if we have it. Intl works on Hermes and on the web.
@@ -23,6 +24,7 @@ function deviceLanguage(): Language {
     const tag = Intl.DateTimeFormat().resolvedOptions().locale.toLowerCase();
     if (tag.startsWith('ar')) return 'ar';
     if (tag.startsWith('fa')) return 'fa';
+    if (tag.startsWith('ru')) return 'ru';
   } catch {
     // No Intl: English.
   }
@@ -31,7 +33,7 @@ function deviceLanguage(): Language {
 
 export const DEFAULT_LANGUAGE: Language = STORE === 'bazaar' ? 'fa' : deviceLanguage();
 
-const dicts: Record<Language, Dict> = { en, fa, ar };
+const dicts: Record<Language, Dict> = { en, fa, ar, ru };
 let current: Language = DEFAULT_LANGUAGE;
 
 export const getLanguage = () => current;

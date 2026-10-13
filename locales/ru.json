@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "NSPhotoLibraryUsageDescription": "Tiaro обращается к вашим фото, только когда вы сами делитесь картинкой результата, например в Instagram.",
+    "NSPhotoLibraryAddUsageDescription": "Tiaro сохраняет картинку результата, только когда вы сами решите поделиться ею или сохранить её."
+  }
+}

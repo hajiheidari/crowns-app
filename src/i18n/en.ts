@@ -65,7 +65,7 @@ export const en = {
   certMore: 'Earn more',
   certOpen: '🏅 Certificates',
   language: 'Language',
-  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
+  languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },
   notifTitle: 'Your daily Tiaro puzzle is ready 👑',
   notifBody: 'A fresh puzzle is waiting. Keep your streak going!',
   crashTitle: 'Tiaro hit an error',
