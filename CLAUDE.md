@@ -192,6 +192,11 @@ Read these before writing code:
   with declined unit names, `locales/ru.json`, `store/listing-ru.md`). Home: brain card height = daily card (`onLayout`),
   Unlimited tiles take the free height (two rows of two when there is room), coins card drops its text on short phones;
   game board `boardMax` from the window (iPad/unfolded phones up to 900). Store screenshots now 7 (certificates shot).
+- v1.1.1 (Amir): board styles are textures now (`features/shop/textures.tsx`: per-region fill + SVG pattern; toy, football, metal,
+  marble, galaxy, khatam; hue order kept, `mark` = ink color on dark styles). Certificate redesigned vertical 9:16 green/gold with a
+  medal (`certificate.tsx`, GreatVibes script font for Latin names; `worker/certs.js` page matches). Certificates are de-duplicated
+  (`uniqueCerts`, single-flight `checkCertificates`). Tap bug: a pan that never left its start cell is a tap (board.tsx `d.left`).
+  `CoinIcon`: Text turns every 🪙 into the gold drawing. Home squeezes itself in steps (index.tsx `squeeze` 0–6) until it fits.
 - **iOS builds now run on GitHub Actions** (`.github/workflows/ios-build.yml`, 2026-10-13): the repo is public, so the macos-26
   runner (Xcode 26.6) is free; `eas build --local` uses no Expo build credits, then `eas submit` to TestFlight (~45 min). Start it
   with the MCP `actions_run_trigger` (run_workflow, ref = this branch) or a commit message containing the trigger words (keep them

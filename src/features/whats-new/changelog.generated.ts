@@ -3,6 +3,16 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.1",
+    "date": "2026-10-13",
+    "items": [
+      "New board styles in the Shop: toy bricks, football pitch, colored metal, marble, galaxy and khatam inlay.",
+      "Certificates have a new story-sized design (green and gold, with a medal), and a certificate is never shown twice.",
+      "Fixed: with \"crown first\", a slightly moving tap could place an X instead of a crown.",
+      "Home fits on small phones without scrolling. Coins are gold everywhere."
+    ]
+  },
+  {
     "version": "1.1.0",
     "date": "2026-10-13",
     "items": [

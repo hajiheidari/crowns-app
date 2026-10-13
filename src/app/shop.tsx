@@ -12,6 +12,7 @@ import { ScreenHeader } from '@/components/screen-header';
 import { Text } from '@/components/text';
 import { CoinsSheet } from '@/features/coins/coins-sheet';
 import { BOARD_THEMES, CROWN_STYLES, HINT_PACKS, type BoardTheme, type CrownStyle } from '@/features/shop/catalog';
+import { BoardTexture } from '@/features/shop/textures';
 import { usePalette } from '@/hooks/use-palette';
 import { track } from '@/services/analytics';
 import { spendCoins, useGameStore } from '@/store/game-store';
@@ -19,6 +20,8 @@ import { S } from '@/strings';
 
 /** A tiny 4×4 board in the style's colors (the same regions every time). */
 const PREVIEW = [0, 0, 2, 2, 1, 0, 2, 3, 1, 5, 5, 3, 6, 6, 5, 7];
+/** Inner size of the preview board (the frame adds 2.5 px a side). */
+const MINI = 112;
 
 export default function ShopScreen() {
   const { c, dark } = usePalette();
@@ -87,9 +90,14 @@ export default function ShopScreen() {
             return (
               <Item key={t.id} title={S.boardThemeNames[t.id] ?? t.id} button={label(ownedNow, inUse, t.price)} inUse={inUse} onPress={() => pickBoard(t)}>
                 <View style={[styles.mini, { borderColor: frame }]}>
-                  {PREVIEW.map((r, i) => (
-                    <View key={i} style={[styles.miniCell, { backgroundColor: colors[r] }]} />
-                  ))}
+                  {t.texture ? (
+                    <BoardTexture n={4} regions={PREVIEW} size={MINI} colors={colors} texture={t.texture} />
+                  ) : (
+                    PREVIEW.map((r, i) => <View key={i} style={[styles.miniCell, { backgroundColor: colors[r] }]} />)
+                  )}
+                  <View style={styles.miniCrown} pointerEvents="none">
+                    <CrownIcon size={MINI / 4 - 8} color={t.mark ?? c.mark} />
+                  </View>
                 </View>
               </Item>
             );
@@ -166,9 +174,11 @@ const styles = StyleSheet.create({
   itemTitle: { fontSize: 15, fontWeight: '700', textAlign: 'center' },
   itemButton: { alignSelf: 'stretch', borderRadius: 10, paddingVertical: 7, alignItems: 'center' },
   itemButtonText: { fontSize: 14, fontWeight: '800', textAlign: 'center' },
-  mini: { width: 92, height: 92, flexDirection: 'row', flexWrap: 'wrap', borderWidth: 2.5, borderRadius: 6, overflow: 'hidden', direction: 'ltr' },
+  mini: { width: MINI + 5, height: MINI + 5, flexDirection: 'row', flexWrap: 'wrap', borderWidth: 2.5, borderRadius: 6, overflow: 'hidden', direction: 'ltr' },
+  // One crown on the preview (top-left region), so dark textures show their light marks.
+  miniCrown: { position: 'absolute', left: 4, top: 4 },
   miniCell: { width: '25%', height: '25%' },
-  crownBox: { width: 92, height: 92, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  crownBox: { width: MINI + 5, height: MINI + 5, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   packs: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   pack: { flexGrow: 1, flexBasis: 150, borderRadius: 16, borderWidth: 1, padding: 12, gap: 8, alignItems: 'center' },
   packTitle: { fontSize: 16, fontWeight: '800' },

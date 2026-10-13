@@ -317,7 +317,7 @@ export const ru: Dict = {
   shopFree: 'Бесплатно',
   shopBought: 'Куплено! 🎉',
   shopPreviewNote: 'Каждая область сохраняет свой цвет, поэтому подсказки по-прежнему говорят «фиолетовая область».',
-  boardThemeNames: { classic: 'Классика', sorbet: 'Сорбет', vivid: 'Яркий', jewel: 'Самоцветы', royal: 'Королевское золото' },
+  boardThemeNames: { classic: 'Классика', toy: 'Кубики', football: 'Футбол', metal: 'Цветной металл', marble: 'Мрамор', galaxy: 'Галактика', khatam: 'Персидская инкрустация' },
   crownNames: { classic: 'Классика', gold: 'Золото', ruby: 'Рубин', sapphire: 'Сапфир', emerald: 'Изумруд', diamond: 'Бриллиант' },
   hintPending: 'Друг открыл вашу ссылку = +25 монет вам 🪙',
   hintEarned: (n: number) =>

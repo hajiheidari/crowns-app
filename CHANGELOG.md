@@ -2,6 +2,12 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.1.1 — 2026-10-13
+- New board styles in the Shop: toy bricks, football pitch, colored metal, marble, galaxy and khatam inlay.
+- Certificates have a new story-sized design (green and gold, with a medal), and a certificate is never shown twice.
+- Fixed: with "crown first", a slightly moving tap could place an X instead of a crown.
+- Home fits on small phones without scrolling. Coins are gold everywhere.
+
 ## 1.1.0 — 2026-10-13
 - Coins: a daily bonus (more for days in a row), coins for daily, hard and expert wins, and for friends who open your links. Spend them in the new Shop on hints, crowns and board styles.
 - Certificates: become champion of your friends league for a week or a month, keep a 30- or 100-day streak, or reach Genius, and get a certificate to share.

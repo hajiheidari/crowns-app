@@ -309,7 +309,7 @@ export const fa: Dict = {
   shopFree: 'رایگان',
   shopBought: 'خریدی! 🎉',
   shopPreviewNote: 'رنگ هر ناحیه همان می‌ماند، پس راهنماها هنوز می‌گویند «ناحیه‌ی بنفش».',
-  boardThemeNames: { classic: 'کلاسیک', sorbet: 'بستنی', vivid: 'پررنگ', jewel: 'جواهر', royal: 'طلای سلطنتی' } as Record<string, string>,
+  boardThemeNames: { classic: 'کلاسیک', toy: 'آجرک اسباب‌بازی', football: 'فوتبالی', metal: 'فلز رنگی', marble: 'سنگ مرمر', galaxy: 'کهکشانی', khatam: 'خاتم‌کاری' } as Record<string, string>,
   crownNames: { classic: 'کلاسیک', gold: 'طلایی', ruby: 'یاقوت', sapphire: 'یاقوت کبود', emerald: 'زمرد', diamond: 'الماس' } as Record<string, string>,
   hintPending: 'دوستت لینکت را باز کند = ۲۵ سکه برای تو 🪙',
   hintEarned: (n: number) => `${n === 1 ? 'یک دوستت' : `${n} دوستت`} لینکت را باز کرد: +${n * 25} سکه 🪙`,

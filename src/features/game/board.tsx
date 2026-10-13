@@ -16,6 +16,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { CrownIcon } from '@/components/crown-icon';
 import { autoCrossCells, CROSS, CROWN, EMPTY, findConflicts, regionColorName, type Mark, type Puzzle } from '@/engine';
 import { RegionPatterns } from '@/features/game/region-patterns';
+import { BoardTexture } from '@/features/shop/textures';
 import { clampZoom, gestureClock, pinchZoom, toBoard, ZOOM_MIN_N, type ZoomState } from '@/features/game/zoom';
 import { crownStyle } from '@/features/shop/catalog';
 import { usePalette } from '@/hooks/use-palette';
@@ -45,7 +46,7 @@ interface Props {
 type DragMode = 'paint' | 'erase';
 
 export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onDrag, onDragTick, highlight, danger, finger, decorative }: Props) {
-  const { c, regions: regionColors, dark, frame } = usePalette();
+  const { c, regions: regionColors, dark, frame, texture, mark: markInk } = usePalette();
   const crown = crownStyle(settings.crownStyle);
   const { n, regions } = puzzle;
   const [width, setWidth] = useState(0);
@@ -252,6 +253,9 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
           {width > 0 && settings.patterns && (
             <RegionPatterns puzzle={puzzle} size={width} colors={regionColors} ink={dark ? '#FFFFFF' : '#2B2620'} />
           )}
+          {width > 0 && !settings.patterns && texture && (
+            <BoardTexture n={n} regions={regions} size={width} colors={regionColors} texture={texture} />
+          )}
           {width > 0 &&
             shown.map((mark, i) => {
               const row = Math.floor(i / n);
@@ -266,7 +270,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                   left={col * cellSize}
                   top={row * cellSize}
                   size={cellSize}
-                  bg={settings.patterns ? 'transparent' : regionColors[regions[i]]}
+                  bg={settings.patterns || texture ? 'transparent' : regionColors[regions[i]]}
                   mark={mark}
                   auto={auto.has(i)}
                   conflict={conflicts.has(i)}
@@ -280,10 +284,10 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
                   bottomLine={row < n - 1}
                   thickColor={frame}
                   thinColor={c.gridThin}
-                  markColor={c.mark}
-                  crownColor={crown.fill ?? c.mark}
+                  markColor={markInk}
+                  crownColor={crown.fill ?? markInk}
                   crownGem={crown.gem}
-                  autoColor={c.autoMark}
+                  autoColor={markInk === c.mark ? c.autoMark : 'rgba(255,255,255,0.5)'}
                   dangerColor={c.danger}
                 />
               );

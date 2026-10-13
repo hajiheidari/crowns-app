@@ -5,6 +5,8 @@
  */
 import { RegionColors } from '@/constants/theme';
 
+import type { TextureId } from './textures';
+
 export interface BoardTheme {
   id: string;
   price: number;
@@ -12,37 +14,60 @@ export interface BoardTheme {
   dark: readonly string[];
   /** Thick region lines and outer frame; null = the app's default. */
   frame: { light: string; dark: string } | null;
+  /** Drawn over the region colors (features/shop/textures.tsx). */
+  texture?: TextureId;
+  /** Crosses and plain crowns on dark textures. */
+  mark?: string;
 }
 
+const same = (colors: string[]) => ({ light: colors, dark: colors });
+
+/** Order = REGION_COLOR_NAMES: purple, orange, blue, green, gray, red, yellow, teal, pink, brown, lime. */
 export const BOARD_THEMES: BoardTheme[] = [
   { id: 'classic', price: 0, light: RegionColors.light, dark: RegionColors.dark, frame: null },
   {
-    id: 'sorbet',
-    price: 200,
-    light: ['#E3D4F7', '#FFD9B3', '#CFE5FB', '#D3EFC6', '#E6E6E6', '#FBCACA', '#FBF0BC', '#C8EFE9', '#F9D3E8', '#E8D2BF', '#E8F5C2'],
-    dark: ['#7D68AE', '#B87C42', '#4F80B5', '#5E9A54', '#7A7A7A', '#B5585C', '#B8A540', '#3F9C90', '#B36496', '#8D6A50', '#8FAA43'],
-    frame: { light: '#8C7A9E', dark: '#D9CDE8' },
-  },
-  {
-    id: 'vivid',
+    id: 'toy',
     price: 300,
-    light: ['#B08AE8', '#FFAE5C', '#7DB8F5', '#8FD677', '#BDBDBD', '#FF8080', '#FFE066', '#5FD3C4', '#FF9ED2', '#C99A73', '#C6EB6A'],
-    dark: ['#7B4FCF', '#E07B1F', '#2F7FD6', '#3E9E2F', '#5E5E5E', '#D03B42', '#D4B21E', '#13A08F', '#D2479A', '#8F5E36', '#86B82A'],
-    frame: null,
+    ...same(['#8E5BD6', '#FF8A1F', '#2F7DE1', '#2EAA4A', '#A0A0A0', '#E53935', '#FFD21F', '#16B3A3', '#FF6FB1', '#9A5B2E', '#9BD22C']),
+    frame: { light: '#333333', dark: '#E0E0E0' },
+    texture: 'toy',
   },
   {
-    id: 'jewel',
-    price: 500,
-    light: ['#9C7BC9', '#E39A55', '#6F9FD8', '#7DB66B', '#A9A9A9', '#D9777A', '#E2C661', '#55B3A6', '#D886B6', '#B08A6A', '#AFCF5E'],
-    dark: ['#5B3E91', '#9A5420', '#22528F', '#2F6E2A', '#4A4A4A', '#8E2B33', '#8F7A16', '#14695F', '#8C2F67', '#5E3E26', '#5C7A1E'],
-    frame: { light: '#3B2A55', dark: '#E8D9A8' },
+    id: 'football',
+    price: 400,
+    ...same(['#7E57C2', '#FB8C00', '#1E88E5', '#43A047', '#9E9E9E', '#E53935', '#FDD835', '#00ACC1', '#EC407A', '#8D6E63', '#C0CA33']),
+    frame: { light: '#1B5E20', dark: '#A5D6A7' },
+    texture: 'football',
   },
   {
-    id: 'royal',
+    id: 'metal',
+    price: 450,
+    ...same(['#9C7BD0', '#E8964A', '#5E9BE0', '#5DBB7A', '#A8AEB5', '#E06A6A', '#E8C64A', '#4FC2B5', '#E68AB8', '#B08060', '#B8D85A']),
+    frame: { light: '#5F6B73', dark: '#C9D1D6' },
+    texture: 'metal',
+  },
+  {
+    id: 'marble',
+    price: 550,
+    ...same(['#B8A6CC', '#E5B48E', '#9EB8D6', '#A8C9A4', '#C9C6C0', '#D99A96', '#E6D59A', '#98CCC4', '#E2B0C6', '#C2A48A', '#C9DA9C']),
+    frame: { light: '#8C8478', dark: '#D8D2C6' },
+    texture: 'marble',
+  },
+  {
+    id: 'galaxy',
+    price: 700,
+    ...same(['#3B1F6E', '#7A3418', '#12305E', '#134A3A', '#2C2C3A', '#5E1630', '#6B5A12', '#0F4A55', '#5C1F55', '#3E2616', '#2F4D12']),
+    frame: { light: '#8E7CC3', dark: '#B9A8F0' },
+    texture: 'galaxy',
+    mark: '#FFFFFF',
+  },
+  {
+    id: 'khatam',
     price: 800,
-    light: ['#C5B0E6', '#F2BE8A', '#A8C6EC', '#B2D7A2', '#D9D4C7', '#EFA9A9', '#F0DC8C', '#9FD5CB', '#EDB9D5', '#D3B79E', '#D3E59A'],
-    dark: ['#6A4F9C', '#A2652B', '#3A679C', '#4A8040', '#6E675A', '#9E4448', '#A08A2A', '#2C8478', '#9A4E80', '#7A563C', '#7A9330'],
+    ...same(['#6A3D8F', '#C8742B', '#1F5FA8', '#2E7D4F', '#7A7066', '#A8323A', '#D4A62A', '#1B8A82', '#C2557F', '#7B4A2A', '#8FB33A']),
     frame: { light: '#B8901F', dark: '#E0BD4A' },
+    texture: 'khatam',
+    mark: '#FFFFFF',
   },
 ];
 

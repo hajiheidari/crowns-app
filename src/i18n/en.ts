@@ -310,7 +310,7 @@ export const en = {
   shopFree: 'Free',
   shopBought: 'Bought! 🎉',
   shopPreviewNote: 'Each region keeps its color, so hints still say "the purple region".',
-  boardThemeNames: { classic: 'Classic', sorbet: 'Sorbet', vivid: 'Vivid', jewel: 'Jewel', royal: 'Royal gold' } as Record<string, string>,
+  boardThemeNames: { classic: 'Classic', toy: 'Toy bricks', football: 'Football', metal: 'Colored metal', marble: 'Marble', galaxy: 'Galaxy', khatam: 'Persian inlay' } as Record<string, string>,
   crownNames: { classic: 'Classic', gold: 'Gold', ruby: 'Ruby', sapphire: 'Sapphire', emerald: 'Emerald', diamond: 'Diamond' } as Record<string, string>,
   hintPending: 'A friend opens your link = +25 coins for you 🪙',
   hintEarned: (n: number) => `${n === 1 ? 'A friend' : `${n} friends`} opened your link: +${n * 25} coins 🪙`,

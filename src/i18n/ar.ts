@@ -314,7 +314,7 @@ export const ar: Dict = {
   shopFree: 'مجاني',
   shopBought: 'تم الشراء! 🎉',
   shopPreviewNote: 'تحتفظ كل منطقة بلونها، فتبقى التلميحات صحيحة مثل "المنطقة البنفسجية".',
-  boardThemeNames: { classic: 'كلاسيكي', sorbet: 'سوربيه', vivid: 'زاهٍ', jewel: 'جواهر', royal: 'ذهبي ملكي' } as Record<string, string>,
+  boardThemeNames: { classic: 'كلاسيكي', toy: 'مكعبات الألعاب', football: 'كرة القدم', metal: 'معدن ملوّن', marble: 'رخام', galaxy: 'مجرّة', khatam: 'تطعيم فارسي' } as Record<string, string>,
   crownNames: { classic: 'كلاسيكي', gold: 'ذهبي', ruby: 'ياقوت', sapphire: 'ياقوت أزرق', emerald: 'زمرد', diamond: 'ألماس' } as Record<string, string>,
   hintPending: 'يفتح صديقك رابطك = 25 عملة لك 🪙',
   hintEarned: (n: number) => `${n === 1 ? 'فتح صديق رابطك' : `فتح ${n} أصدقاء رابطك`}: +${n * 25} عملة 🪙`,

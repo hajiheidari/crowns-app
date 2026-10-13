@@ -27,6 +27,8 @@ import { Text } from '@/components/text';
 const TILE_MIN = 76;
 /** Two rows of two only when each row gets at least this (big tiles hold bigger text, Persian lines are tall). */
 const TILE_BIG = 112;
+// The brain card on squeezed phones: its smallest height that still fits Vazirmatn's tall lines.
+const BRAIN_COMPACT = 112;
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -108,12 +110,19 @@ export default function HomeScreen() {
   };
   // Unlimited tiles: one row of four, or two rows of two when the screen leaves enough height (Amir: as big as possible).
   // Never scroll on a phone: if the content still comes out taller than the screen (fonts, languages, safe areas
-  // differ per phone), squeeze step by step: 1 = one row of tiles, 2 = no coins description (Amir 2026-10-13).
+  // differ per phone), squeeze step by step: 1 = one row of tiles, 2 = no coins description, 3 = a compact brain card,
+  // 4 = no note under the invite button, 5 = tiles without the solved count, 6 = no version line (it is in Settings too)
+  // (Amir 2026-10-13).
   const [squeeze, setSqueeze] = useState(0);
   const [viewH, setViewH] = useState(0);
-  const onContent = (_w: number, h: number) => {
-    if (viewH > 0 && h > viewH + 1 && squeeze < 2) setSqueeze(squeeze + 1);
-  };
+  const [contentH, setContentH] = useState(0);
+  // Both sizes can arrive in either order, and a step that changes nothing sends no new size: so after each step wait a
+  // moment for the new content height, then squeeze again if it still overflows.
+  useEffect(() => {
+    if (!(viewH > 0 && contentH > viewH && squeeze < 6)) return;
+    const t = setTimeout(() => setSqueeze((q) => Math.min(6, q + 1)), 60);
+    return () => clearTimeout(t);
+  }, [viewH, contentH, squeeze]);
   const twoRows = squeeze === 0 && gridHeight >= 2 * TILE_BIG + 8;
 
   const state = todayGame?.solved ? 'solved' : todayGame && todayGame.seconds > 0 ? 'continue' : 'play';
@@ -146,7 +155,7 @@ export default function HomeScreen() {
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
         onLayout={(e) => setViewH(Math.round(e.nativeEvent.layout.height))}
-        onContentSizeChange={onContent}>
+        onContentSizeChange={(_w, h) => setContentH(Math.round(h))}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <CrownIcon size={narrow ? 24 : 30} color={c.gold} />
@@ -221,7 +230,7 @@ export default function HomeScreen() {
           streak={streak}
           solvedToday={!!todayGame?.solved}
           onPress={() => router.push('/league')}
-          height={repairable === null && dailyHeight > 0 ? dailyHeight : undefined}
+          height={squeeze >= 3 ? BRAIN_COMPACT : repairable === null && dailyHeight > 0 ? dailyHeight : undefined}
         />
 
         <View style={[styles.hints, { backgroundColor: c.gold + '24', borderColor: c.gold }]}>
@@ -245,9 +254,11 @@ export default function HomeScreen() {
             )}
           </View>
           {/* How coins are earned, always under the buttons; replaced by the latest reward or share result. */}
-          <Text selectable style={[styles.hintsNote, { color: inviteNote ? c.text : c.textSecondary }]}>
-            {inviteNote ?? S.hintPending}
-          </Text>
+          {(squeeze < 4 || inviteNote) && (
+            <Text selectable style={[styles.hintsNote, { color: inviteNote ? c.text : c.textSecondary }]}>
+              {inviteNote ?? S.hintPending}
+            </Text>
+          )}
         </View>
 
         <View style={styles.unlimited}>
@@ -261,6 +272,7 @@ export default function HomeScreen() {
                     difficulty={d}
                     solved={unlimitedIndex[d]}
                     big={twoRows}
+                    compact={squeeze >= 5}
                     onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
                   />
                 ))}
@@ -271,7 +283,7 @@ export default function HomeScreen() {
 
         <View style={styles.bottom}>
           <Button label={S.howToPlay} variant="secondary" onPress={() => router.push('/tutorial')} style={styles.howTo} />
-          <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
+          {squeeze < 6 && <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>}
         </View>
       </ScrollView>
       <ConfirmDialog
@@ -312,7 +324,7 @@ function Chip({ text }: { text: string }) {
   );
 }
 
-function DifficultyTile({ difficulty, solved, big, onPress }: { difficulty: Difficulty; solved: number; big: boolean; onPress: () => void }) {
+function DifficultyTile({ difficulty, solved, big, compact, onPress }: { difficulty: Difficulty; solved: number; big: boolean; compact: boolean; onPress: () => void }) {
   const { c, regions } = usePalette();
   const accent = { easy: regions[3], medium: regions[2], hard: regions[1], expert: regions[0] }[difficulty];
   return (
@@ -327,9 +339,11 @@ function DifficultyTile({ difficulty, solved, big, onPress }: { difficulty: Diff
       <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
         {DIFFICULTY_SIZES[difficulty]}
       </Text>
-      <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
-        {S.solvedCount(solved)}
-      </Text>
+      {!compact && (
+        <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
+          {S.solvedCount(solved)}
+        </Text>
+      )}
     </Pressable>
   );
 }
