@@ -1,0 +1,66 @@
+# iPhone/iPad build on GitHub's free macOS runner (public repo = no cost), sent to TestFlight.
+# Uses `eas build --local`, so it does NOT use the Expo plan's monthly build credits.
+# Runs when a pushed commit message contains "[ios build]", or by hand (Actions → iOS build → Run workflow).
+# Repository secrets (Settings → Secrets and variables → Actions): EXPO_TOKEN, EXPO_ASC_API_KEY (the .p8 key body,
+# without the BEGIN/END lines), EXPO_ASC_KEY_ID, EXPO_ASC_ISSUER_ID. They are never printed or committed.
+name: iOS build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, claude/android-app-execution-uzwdw8]
+
+concurrency:
+  group: ios-build
+  cancel-in-progress: true # a newer build replaces an older one still running
+
+jobs:
+  ios:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ios build]')
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: App Store Connect key file
+        env:
+          ASC_KEY: ${{ secrets.EXPO_ASC_API_KEY }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/asc"
+          body=$(printf '%s' "$ASC_KEY" | sed -e 's/-----[A-Z ]*-----//g' | tr -d ' \r\n')
+          { echo '-----BEGIN PRIVATE KEY-----'; printf '%s' "$body" | fold -w 64; echo; echo '-----END PRIVATE KEY-----'; } > "$RUNNER_TEMP/asc/AuthKey.p8"
+
+      - name: Build (EAS local)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/asc/AuthKey.p8
+          EXPO_ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
+          EXPO_APPLE_TEAM_ID: RGR5G6VN69
+          EXPO_APPLE_TEAM_TYPE: INDIVIDUAL
+          # Apple's capability API has a bug with this app; capabilities are set via the App Store Connect API instead.
+          EXPO_NO_CAPABILITY_SYNC: '1'
+        run: npx --yes eas-cli@latest build -p ios --profile production --local --non-interactive --output "$RUNNER_TEMP/tiaro.ipa"
+
+      - name: Submit to TestFlight
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/asc/AuthKey.p8
+          EXPO_ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
+        run: |
+          # The key is added to eas.json only inside this runner (never committed).
+          node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('eas.json','utf8'));Object.assign(j.submit.production.ios,{ascApiKeyPath:process.env.EXPO_ASC_API_KEY_PATH,ascApiKeyIssuerId:process.env.EXPO_ASC_ISSUER_ID,ascApiKeyId:process.env.EXPO_ASC_KEY_ID});fs.writeFileSync('eas.json',JSON.stringify(j,null,2))"
+          npx --yes eas-cli@latest submit -p ios --profile production --path "$RUNNER_TEMP/tiaro.ipa" --non-interactive
+
+      - name: Remove the key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/asc"
