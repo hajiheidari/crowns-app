@@ -192,7 +192,7 @@ Read these before writing code:
   with declined unit names, `locales/ru.json`, `store/listing-ru.md`). Home: brain card height = daily card (`onLayout`),
   Unlimited tiles take the free height (two rows of two when there is room), coins card drops its text on short phones;
   game board `boardMax` from the window (iPad/unfolded phones up to 900). Store screenshots now 7 (certificates shot).
- Amir only wanted to save build credits; web (Cloudflare) and the local
+- **Release hold (Amir 2026-10-11, lifted the same day):** Amir only wanted to save build credits; web (Cloudflare) and the local
   Android builds cost none, so web + Android + iPhone are updated together again (`web-release.json` hold = false).
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` reuse the live game files (the web game stays at 1.0.7) while the
   Worker and web/ pages still deploy. To release: set hold to false (also rebuild Android: local Bazaar + preview APKs).
