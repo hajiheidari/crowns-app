@@ -26,6 +26,7 @@ const WEEK = /^\d{4}-\d{2}-\d{2}$/;
 const DAILY_CAP = 5;
 const MAX_FRIENDS = 100;
 const MAX_WEEK_SCORE = 5000;
+const MAX_MONTH_SCORE = 25000;
 const BACKUP_KEY = /^[a-z2-9]{12}$/;
 const MAX_BACKUP_BYTES = 200_000;
 /** Avatars the app offers; anything else is replaced. */
@@ -134,11 +135,21 @@ async function me(request, env) {
   // Scores per week start; the 8 most recent weeks are kept (enough for this and last week of both kinds).
   const weeks = { ...legacyWeeks(old), ...old.weeks };
   for (const w of entries) weeks[w.week] = Math.max(weeks[w.week] ?? 0, w.score);
-  const kept = Object.fromEntries(Object.entries(weeks).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, 8));
+  const kept = newest(weeks, 8);
+  // Monthly league (1.1): scores per month start (Gregorian and Jalali months start on different days), 6 kept.
+  const months = { ...old.months };
+  const monthList = Array.isArray(body?.months) ? body.months.slice(0, 4) : [];
+  for (const m of monthList) {
+    const score = Math.round(Number(m?.score));
+    if (WEEK.test(m?.month ?? '') && score >= 0 && score <= MAX_MONTH_SCORE) months[m.month] = Math.max(months[m.month] ?? 0, score);
+  }
   const next = { name: cleanName(body.name), emoji: EMOJIS.includes(body.emoji) ? body.emoji : EMOJIS[0], weeks: kept };
+  if (Object.keys(months).length) next.months = newest(months, 6);
   if (JSON.stringify(next) !== JSON.stringify(old)) await env.INVITES.put(`p:${code}`, JSON.stringify(next));
   return json({ ok: true });
 }
+
+const newest = (map, n) => Object.fromEntries(Object.entries(map).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, n));
 
 /** Profiles saved before `weeks` existed: { week, score, last: { week, score } }. */
 function legacyWeeks(p) {
@@ -177,15 +188,24 @@ async function loadBackup(env, url) {
 
 const addDaysKey = (key, days) => new Date(Date.parse(`${key}T00:00:00Z`) + days * 86400000).toISOString().slice(0, 10);
 
+/**
+ * The league table for a week (`week=<start>`, last week = 7 days before) or a month (`month=<start>&prev=<start of
+ * the month before>`: the client knows its calendar). `crown` marks the top player of the period before.
+ */
 async function league(env, url) {
   const code = url.searchParams.get('code') ?? '';
   const week = url.searchParams.get('week') ?? '';
-  if (!CODE.test(code) || !WEEK.test(week)) return json({ players: [] }, 400);
+  const month = url.searchParams.get('month') ?? '';
+  const prev = url.searchParams.get('prev') ?? '';
+  const monthly = WEEK.test(month) && WEEK.test(prev);
+  if (!CODE.test(code) || (!monthly && !WEEK.test(week))) return json({ players: [] }, 400);
   const friends = (await env.INVITES.get(`f:${code}`, 'json')) ?? [];
   const codes = [code, ...friends.filter((f) => f !== code)];
   const profiles = await Promise.all(codes.map((c) => env.INVITES.get(`p:${c}`, 'json')));
-  const lastWeek = addDaysKey(week, -7);
-  const best = Math.max(0, ...profiles.map((p) => scoreFor(p, lastWeek)));
+  const score = monthly ? (p, m) => p?.months?.[m] ?? 0 : scoreFor;
+  const period = monthly ? month : week;
+  const before = monthly ? prev : addDaysKey(week, -7);
+  const best = Math.max(0, ...profiles.map((p) => score(p, before)));
   const players = codes.map((c, i) => {
     const p = profiles[i];
     return {
@@ -194,12 +214,12 @@ async function league(env, url) {
       me: c === code,
       name: p?.name ?? '',
       emoji: p?.emoji ?? EMOJIS[i % EMOJIS.length],
-      score: scoreFor(p, week),
-      crown: best > 0 && scoreFor(p, lastWeek) === best,
+      score: score(p, period),
+      crown: best > 0 && score(p, before) === best,
     };
   });
   players.sort((a, b) => b.score - a.score || Number(b.me) - Number(a.me));
-  return json({ week, players });
+  return json(monthly ? { month, players } : { week, players });
 }
 
 export default {

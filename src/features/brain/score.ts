@@ -3,6 +3,7 @@
  * speed and solving without hints. Rolling 7 days, compared with the 7 days before.
  */
 import { addDays, type Difficulty } from '@/engine';
+import { jalaliFromKey, toGregorian } from '@/utils/jalali';
 
 /** One finished puzzle, kept in the store's `log`. */
 export interface SolveLog {
@@ -67,4 +68,43 @@ export function weekStart(today: string, first: WeekFirst = 'sat'): string {
 export function leaguePoints(log: SolveLog[], today: string, first: WeekFirst = 'sat'): number {
   const start = weekStart(today, first);
   return log.filter((l) => l.day >= start && l.day <= today).reduce((sum, l) => sum + solvePoints(l), 0);
+}
+
+/** Brain points per local day (all time; unlike `log` it is never trimmed). */
+export type DayPoints = Record<string, number>;
+
+export function pointsFromLog(log: SolveLog[]): DayPoints {
+  const out: DayPoints = {};
+  for (const l of log) out[l.day] = (out[l.day] ?? 0) + solvePoints(l);
+  return out;
+}
+
+/** Month and year follow the player's calendar: Jalali in Persian, Gregorian otherwise. */
+export type Calendar = 'jalali' | 'gregorian';
+export const calendarFor = (lang: string): Calendar => (lang === 'fa' ? 'jalali' : 'gregorian');
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** First day (date key) of the month or year that `today` falls in. */
+export function periodStart(today: string, period: 'month' | 'year', calendar: Calendar = 'gregorian'): string {
+  if (calendar === 'gregorian') return period === 'month' ? `${today.slice(0, 8)}01` : `${today.slice(0, 5)}01-01`;
+  const { jy, jm } = jalaliFromKey(today);
+  const g = toGregorian(jy, period === 'month' ? jm : 1, 1);
+  return `${g.gy}-${pad(g.gm)}-${pad(g.gd)}`;
+}
+
+/** Brain points this week (rolling 7 days), this month, this year and since the first solve. */
+export function periodScores(points: DayPoints, today: string, calendar: Calendar = 'gregorian') {
+  const month = periodStart(today, 'month', calendar);
+  const year = periodStart(today, 'year', calendar);
+  const week = addDays(today, -6);
+  const out = { week: 0, month: 0, year: 0, all: 0 };
+  for (const [day, p] of Object.entries(points)) {
+    if (day > today) continue;
+    out.all += p;
+    if (day >= year) out.year += p;
+    if (day >= month) out.month += p;
+    if (day >= week) out.week += p;
+  }
+  return out;
 }

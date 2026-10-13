@@ -1,5 +1,5 @@
 /**
- * Friends league: this week's brain points (since Saturday in Persian, Monday in English and Arabic) for the player and everyone connected by a shared link,
+ * Friends league: this week's (or month's) brain points (since Saturday in Persian, Monday in English and Arabic) for the player and everyone connected by a shared link,
  * with last week's winner crowned. Players pick a nickname and an animal avatar; nothing else about them is shown.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -26,11 +26,17 @@ export default function LeagueScreen() {
   const [name, setName] = useState(meta.nickname);
   const [avatar, setAvatar] = useState<string>(meta.avatar || AVATARS[0]);
   const [note, setNote] = useState<string | null>(null);
+  const [kind, setKind] = useState<'week' | 'month'>('week');
 
-  const refresh = useCallback(async () => setPlayers((await loadLeague()) ?? 'error'), []);
+  const refresh = useCallback(async () => setPlayers((await loadLeague(kind)) ?? 'error'), [kind]);
   useEffect(() => {
-    void loadLeague().then((p) => setPlayers(p ?? 'error'));
-  }, []);
+    void loadLeague(kind).then((p) => setPlayers(p ?? 'error'));
+  }, [kind]);
+  const pick = (k: 'week' | 'month') => {
+    if (k === kind) return;
+    setPlayers(null);
+    setKind(k);
+  };
 
   const save = async () => {
     const nickname = name.trim().slice(0, 16);
@@ -92,7 +98,7 @@ export default function LeagueScreen() {
           </View>
         ) : (
           <View style={styles.meRow}>
-            <Text style={[styles.week, { color: c.textSecondary }]}>{S.leagueWeek}</Text>
+            <Text style={[styles.week, { color: c.textSecondary }]}>{kind === 'week' ? S.leagueWeek : S.leagueMonth}</Text>
             <Pressable accessibilityRole="button" onPress={() => setEditing(true)} hitSlop={8}>
               <Text style={[styles.edit, { color: c.text }]}>
                 {meta.avatar || AVATARS[0]} {S.leagueEdit}
@@ -100,6 +106,21 @@ export default function LeagueScreen() {
             </Pressable>
           </View>
         )}
+
+        <View style={[styles.tabs, { backgroundColor: c.surfaceMuted }]}>
+          {(['week', 'month'] as const).map((k) => (
+            <Pressable
+              key={k}
+              accessibilityRole="button"
+              accessibilityState={{ selected: k === kind }}
+              onPress={() => pick(k)}
+              style={[styles.tab, k === kind && { backgroundColor: c.surface }]}>
+              <Text style={[styles.tabText, { color: k === kind ? c.text : c.textSecondary }]}>
+                {k === 'week' ? S.leagueTabWeek : S.leagueTabMonth}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
         {headline && <Text style={[styles.headline, { color: c.text }]}>{headline}</Text>}
 
@@ -132,7 +153,7 @@ export default function LeagueScreen() {
           )}
         </View>
 
-        <Text style={[styles.note, { color: c.textSecondary }]}>{S.leagueCrownNote}</Text>
+        <Text style={[styles.note, { color: c.textSecondary }]}>{kind === 'week' ? S.leagueCrownNote : S.leagueCrownNoteMonth}</Text>
         <Button label={`🎁 ${S.leagueInvite}`} onPress={async () => setNote(shareNote(await shareInvite(), S.inviteCopied))} />
         {note && <Text selectable style={[styles.note, { color: c.text }]}>{note}</Text>}
       </ScrollView>
@@ -150,6 +171,9 @@ const styles = StyleSheet.create({
   avatarChoice: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 22 },
   input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 17 },
+  tabs: { flexDirection: 'row', borderRadius: 12, padding: 3 },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 10 },
+  tabText: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
   meRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   week: { fontSize: 13, fontWeight: '700', flexShrink: 1 },
   edit: { fontSize: 14, fontWeight: '700' },

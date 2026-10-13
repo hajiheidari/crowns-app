@@ -39,12 +39,18 @@ export interface LeaguePlayer {
   name: string;
   emoji: string;
   score: number;
-  /** Won last week among this group. */
+  /** Won the period before (last week / last month) among this group. */
   crown: boolean;
 }
 
 /** Save this player's nickname, avatar and score for the week (shown to friends). */
-export async function postMe(me: { code: string; name: string; emoji: string; weeks: { week: string; score: number }[] }): Promise<boolean> {
+export async function postMe(me: {
+  code: string;
+  name: string;
+  emoji: string;
+  weeks: { week: string; score: number }[];
+  months: { month: string; score: number }[];
+}): Promise<boolean> {
   try {
     const res = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(me) });
     return res.ok;
@@ -53,10 +59,14 @@ export async function postMe(me: { code: string; name: string; emoji: string; we
   }
 }
 
-/** This player and their friends for a week, best first (null when offline). */
-export async function fetchLeague(code: string, week: string): Promise<LeaguePlayer[] | null> {
+/** Which table: a week (by its start) or a month (its start and the start of the month before, for the crown). */
+export type LeaguePeriod = { week: string } | { month: string; prev: string };
+
+/** This player and their friends for a week or month, best first (null when offline). */
+export async function fetchLeague(code: string, period: LeaguePeriod): Promise<LeaguePlayer[] | null> {
+  const query = 'week' in period ? `week=${period.week}` : `month=${period.month}&prev=${period.prev}`;
   try {
-    const res = await fetch(`${API}/league?code=${encodeURIComponent(code)}&week=${encodeURIComponent(week)}`);
+    const res = await fetch(`${API}/league?code=${encodeURIComponent(code)}&${query}`);
     if (!res.ok) return null;
     const { players } = (await res.json()) as { players?: LeaguePlayer[] };
     return Array.isArray(players) ? players : null;

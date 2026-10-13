@@ -7,9 +7,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
-import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, type LeaguePlayer } from '@/services/invites';
+import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, type LeaguePeriod, type LeaguePlayer } from '@/services/invites';
 import { getKeychainKey, saveKeychainKey } from '@/services/keychain';
-import { leaguePoints, weekFirstFor, weekStart, type SolveLog } from '@/features/brain/score';
+import { calendarFor, leaguePoints, periodScores, periodStart, pointsFromLog, solvePoints, weekFirstFor, weekStart, type DayPoints, type SolveLog } from '@/features/brain/score';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, getLanguage, type Language } from '@/i18n';
@@ -124,6 +124,8 @@ interface Store {
   meta: Meta;
   /** Finished puzzles with their date (newest last, capped), for the weekly brain score. */
   log: SolveLog[];
+  /** Brain points per day, all time (month/year/lifetime scores; `log` is trimmed, this is not). */
+  points: DayPoints;
 
   startGame: (id: string, n: number) => void;
   commit: (id: string, cells: number[], to: Mark[]) => void;
@@ -242,6 +244,7 @@ export const useGameStore = create<Store>()(
         settings: DEFAULT_SETTINGS,
         tutorialSeen: false,
         log: [],
+        points: {},
         meta: DEFAULT_META,
 
         startGame: (id, n) => {
@@ -330,7 +333,8 @@ export const useGameStore = create<Store>()(
 
           const entry: SolveLog = { day: dateKey(), d: difficulty, s: g.seconds, h: g.hints, daily: info?.mode === 'daily' };
           const log = [...s.log, entry].slice(-LOG_MAX);
-          set({ games, stats, daily, unlimitedIndex, log, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
+          const points = { ...s.points, [entry.day]: (s.points[entry.day] ?? 0) + solvePoints(entry) };
+          set({ games, stats, daily, unlimitedIndex, log, points, meta: { ...s.meta, wins: s.meta.wins + 1, winsSinceInterstitial: s.meta.winsSinceInterstitial + 1 } });
           return result;
         },
 
@@ -353,8 +357,9 @@ export const useGameStore = create<Store>()(
       name: 'crowns-store',
       version: 1,
       storage: persistStorage,
-      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log }) => ({
+      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points }) => ({
         log,
+        points,
         games,
         unlimitedIndex,
         stats,
@@ -375,6 +380,7 @@ export const useGameStore = create<Store>()(
           settings: { ...DEFAULT_SETTINGS, ...p.settings },
           meta: { ...DEFAULT_META, ...p.meta },
           log: p.log ?? seedLog(p.daily),
+          points: p.points ?? pointsFromLog(p.log ?? seedLog(p.daily)),
         };
       },
     },
@@ -396,23 +402,36 @@ export async function syncEarnedHints(): Promise<number> {
 /** Send this week's league score (and nickname/avatar) when it changed since the last send. */
 export async function syncLeague(): Promise<void> {
   const today = dateKey();
-  const { meta, log, updateMeta } = useGameStore.getState();
-  // Both week kinds go up, so friends who play in another language still see this player's score for their own week.
+  const { meta, log, points, updateMeta } = useGameStore.getState();
+  // Both week kinds go up, so friends who play in another language still see this player's score for their own week;
+  // the same for months (Gregorian and Jalali).
   const weeks = (['sat', 'mon'] as const).map((f) => ({ week: weekStart(today, f), score: leaguePoints(log, today, f) }));
-  const me = { code: getRefCode(), name: meta.nickname, emoji: meta.avatar, weeks };
+  const months = (['gregorian', 'jalali'] as const).map((cal) => ({
+    month: periodStart(today, 'month', cal),
+    score: periodScores(points, today, cal).month,
+  }));
+  const me = { code: getRefCode(), name: meta.nickname, emoji: meta.avatar, weeks, months };
   const key = JSON.stringify(me);
   if (key === meta.leagueSent) return;
   if (await postMe(me)) updateMeta({ leagueSent: key });
 }
 
-/** Fetch the league for this week and remember this player's rank for the Home card. */
-export async function loadLeague(): Promise<LeaguePlayer[] | null> {
+/** The league period the player sees: this week, or this month in their calendar. */
+export function leaguePeriod(kind: 'week' | 'month', today = dateKey()): LeaguePeriod {
+  const lang = getLanguage();
+  if (kind === 'week') return { week: weekStart(today, weekFirstFor(lang)) };
+  const month = periodStart(today, 'month', calendarFor(lang));
+  return { month, prev: periodStart(addDays(month, -1), 'month', calendarFor(lang)) };
+}
+
+/** Fetch the league for this week (or month) and remember this player's weekly rank for the Home card. */
+export async function loadLeague(kind: 'week' | 'month' = 'week'): Promise<LeaguePlayer[] | null> {
   await syncLeague();
-  const week = weekStart(dateKey(), weekFirstFor(getLanguage()));
-  const players = await fetchLeague(getRefCode(), week);
-  if (players) {
+  const period = leaguePeriod(kind);
+  const players = await fetchLeague(getRefCode(), period);
+  if (players && 'week' in period) {
     const rank = players.findIndex((p) => p.me) + 1;
-    useGameStore.getState().updateMeta({ leagueRank: rank > 0 ? { week, rank, total: players.length } : null });
+    useGameStore.getState().updateMeta({ leagueRank: rank > 0 ? { week: period.week, rank, total: players.length } : null });
   }
   return players;
 }
@@ -477,7 +496,7 @@ export function parseBackupKey(text: string): string | null {
 
 /** What a backup holds: everything except bookkeeping about the backup/league uploads themselves. */
 function snapshot(): object {
-  const { games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log } = useGameStore.getState();
+  const { games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points } = useGameStore.getState();
   // Unfinished games and solved dailies (Home/Archive show them); undo history is left out to keep it small.
   const kept = Object.fromEntries(
     Object.entries(games)
@@ -486,7 +505,7 @@ function snapshot(): object {
       .map(([id, g]) => [id, { ...g, undo: [], redo: [] }]),
   );
   const { backupSent: _sent, backupAt: _at, restoredAuto: _auto, leagueSent: _league, leagueRank: _rank, ...rest } = meta;
-  return { v: 1, games: kept, unlimitedIndex, stats, daily, settings, tutorialSeen, meta: rest, log };
+  return { v: 1, games: kept, unlimitedIndex, stats, daily, settings, tutorialSeen, meta: rest, log, points };
 }
 
 function fingerprint(text: string): string {
@@ -526,6 +545,7 @@ export async function restoreBackup(key: string): Promise<'ok' | 'missing' | 'of
     settings: { ...DEFAULT_SETTINGS, ...d.settings },
     tutorialSeen: d.tutorialSeen ?? s.tutorialSeen,
     log: d.log ?? [],
+    points: d.points ?? pointsFromLog(d.log ?? []),
     meta: { ...DEFAULT_META, ...d.meta, ref: backup.code, backupKey: key, backupSent: '', backupAt: 0, leagueSent: '', leagueRank: null },
   });
   keyTask = Promise.resolve(key);

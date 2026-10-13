@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/screen-header';
 import { dateKey, DIFFICULTIES, formatTime } from '@/engine';
 import { AdBanner } from '@/features/monetization/ad-banner';
+import { BrainTotals } from '@/features/brain/brain-totals';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { Sparkline } from '@/features/stats/sparkline';
 import { usePalette } from '@/hooks/use-palette';
@@ -21,6 +22,7 @@ export default function StatsScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>
       <ScreenHeader title={S.stats} />
       <ScrollView contentContainerStyle={styles.scroll}>
+        <BrainTotals />
         <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
           <View style={styles.tiles}>
             <Tile label={S.currentStreak} value={`🔥 ${streak}`} />

@@ -116,6 +116,24 @@ test('league: Saturday and Monday weeks side by side (friends in different langu
   assert.deepEqual(en.players.map((p: { name: string; score: number }) => [p.name, p.score]), [['Amir', 50], ['Sam', 40]]);
 });
 
+test('league: monthly table with last month\'s crown (each calendar sends its own month start)', async () => {
+  const env = makeEnv();
+  await open(env, 'aaaaaa', 'bbbbbb', '3.3.3.3');
+  const w = [{ week: '2026-10-12', score: 1 }];
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', weeks: w, months: [{ month: '2026-09-01', score: 300 }, { month: '2026-09-23', score: 200 }] });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sam', emoji: '🐯', weeks: w, months: [{ month: '2026-09-01', score: 500 }] });
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', weeks: w, months: [{ month: '2026-10-01', score: 90 }, { month: '2026-99-99', score: 1 }] });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sam', emoji: '🐯', weeks: w, months: [{ month: '2026-10-01', score: 99999 }] }); // too high: ignored
+  const m = await worker
+    .fetch(new Request('https://tiaro.espadna.com/api/league?code=aaaaaa&month=2026-10-01&prev=2026-09-01'), env)
+    .then((r: Response) => r.json());
+  assert.equal(m.month, '2026-10-01');
+  assert.deepEqual(m.players.map((p: { name: string; score: number; crown: boolean }) => [p.name, p.score, p.crown]), [
+    ['Amir', 90, false],
+    ['Sam', 0, true], // won September (500 > 300)
+  ]);
+});
+
 test('backup: save under the secret key, load it back (any case), refuse bad keys', async () => {
   const env = makeEnv();
   const data = { daily: { streak: 9 }, meta: { hintCredits: 3 } };
