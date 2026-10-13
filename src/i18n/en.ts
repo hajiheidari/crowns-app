@@ -30,6 +30,40 @@ export const en = {
     const [, m, d] = key.split('-').map(Number);
     return `${MONTHS[m - 1].slice(0, 3)} ${d}`;
   },
+  fullDate: (key: string) => {
+    const [y, m, d] = key.split('-').map(Number);
+    return `${MONTHS[m - 1]} ${d}, ${y}`;
+  },
+  certsTitle: 'Certificates',
+  certKicker: 'Certificate of achievement',
+  certHeads: { week: 'Champion of the Week', month: 'Champion of the Month', streak30: '30-Day Streak', streak100: '100-Day Streak', genius: 'Genius Level' } as Record<string, string>,
+  certCertify: 'This certifies that',
+  certBody: {
+    week: (date: string) => `won the Tiaro Friends League for the week of ${date}.`,
+    month: (date: string) => `won the Tiaro Friends League for the month of ${date}.`,
+    streak30: (date: string) => `solved the Tiaro daily puzzle 30 days in a row, reaching it on ${date}.`,
+    streak100: (date: string) => `solved the Tiaro daily puzzle 100 days in a row, reaching it on ${date}.`,
+    genius: (date: string) => `reached the Genius level of the Tiaro weekly brain score on ${date}.`,
+  } as Record<string, (date: string) => string>,
+  certPlayer: 'A Tiaro player',
+  certNo: 'No.',
+  certSigned: 'Tiaro · Daily Logic Puzzle',
+  certShare: 'Share certificate',
+  certEarnedTitle: 'You earned a certificate! 🎉',
+  certEarnedBody: (head: string) => `${head}. Open it and share it with your friends.`,
+  certView: 'View',
+  certEmpty: 'No certificates yet. Here is how to earn them:',
+  certGoals: {
+    week: 'Top your friends league for a week',
+    month: 'Top your friends league for a month',
+    streak30: 'Solve the daily puzzle 30 days in a row',
+    streak100: 'Solve the daily puzzle 100 days in a row',
+    genius: 'Reach Genius in the weekly brain score',
+  } as Record<string, string>,
+  certNameHint: 'Your league nickname is printed on your certificates.',
+  certSetName: 'Set nickname',
+  certMore: 'Earn more',
+  certOpen: '🏅 Certificates',
   language: 'Language',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
   notifTitle: 'Your daily Tiaro puzzle is ready 👑',

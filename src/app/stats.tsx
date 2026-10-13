@@ -1,6 +1,8 @@
+import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/button';
 import { ScreenHeader } from '@/components/screen-header';
 import { dateKey, DIFFICULTIES, formatTime } from '@/engine';
 import { BrainTotals } from '@/features/brain/brain-totals';
@@ -13,6 +15,7 @@ import { Text } from '@/components/text';
 
 export default function StatsScreen() {
   const { c } = usePalette();
+  const router = useRouter();
   const daily = useGameStore((s) => s.daily);
   const stats = useGameStore((s) => s.stats);
   const streak = currentStreak(daily, dateKey());
@@ -22,6 +25,7 @@ export default function StatsScreen() {
       <ScreenHeader title={S.stats} />
       <ScrollView contentContainerStyle={styles.scroll}>
         <BrainTotals />
+        <Button label={S.certOpen} variant="secondary" onPress={() => router.push('/certificates')} />
         <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
           <View style={styles.tiles}>
             <Tile label={S.currentStreak} value={`🔥 ${streak}`} />

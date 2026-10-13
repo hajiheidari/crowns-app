@@ -145,3 +145,25 @@ test('backup: save under the secret key, load it back (any case), refuse bad key
   assert.equal((await worker.fetch(new Request('https://tiaro.espadna.com/api/backup?key=zzzzzzzzzzzz'), env)).status, 404);
   assert.equal((await post(env, '/api/backup', { key: 'short', code: 'aaaaaa', data })).ok, false);
 });
+
+test('certificates: champions are checked by the server; ids are stable; the page shows the name', async () => {
+  const env = makeEnv();
+  await open(env, 'aaaaaa', 'bbbbbb', '4.4.4.4');
+  await post(env, '/api/me', { code: 'aaaaaa', name: 'Amir', emoji: '🦊', weeks: [{ week: '2026-10-05', score: 300 }], months: [{ month: '2026-09-01', score: 10 }] });
+  await post(env, '/api/me', { code: 'bbbbbb', name: 'Sam', emoji: '🐯', weeks: [{ week: '2026-10-05', score: 200 }], months: [{ month: '2026-09-01', score: 50 }] });
+  const issue = (code: string, kind: string, period: string) => post(env, '/api/cert', { code, kind, period, name: 'Amir', lang: 'en' });
+  const won = await issue('aaaaaa', 'week', '2026-10-05');
+  assert.equal(won.ok, true);
+  assert.match(won.id, /^[a-z2-9]{8}$/);
+  assert.equal((await issue('aaaaaa', 'week', '2026-10-05')).id, won.id); // same certificate again
+  assert.equal((await issue('bbbbbb', 'week', '2026-10-05')).ok, false); // Sam did not win that week
+  assert.equal((await issue('aaaaaa', 'month', '2026-09-01')).ok, false); // nor Amir that month
+  assert.equal((await issue('cccccc', 'week', '2026-10-05')).ok, false); // nobody else played with them
+  assert.equal((await issue('aaaaaa', 'streak30', '2026-10-30')).ok, true); // personal milestones are not checked
+  assert.equal((await issue('aaaaaa', 'nope', '2026-10-30')).ok, false);
+  const page = await worker.fetch(new Request(`https://tiaro.espadna.com/cert/${won.id}`), env);
+  assert.equal(page.status, 200);
+  const html = await page.text();
+  assert.ok(html.includes('Champion of the Week') && html.includes('Amir') && html.includes('2026-10-05'));
+  assert.equal((await worker.fetch(new Request('https://tiaro.espadna.com/cert/zzzzzzzz'), env)).status, 404);
+});

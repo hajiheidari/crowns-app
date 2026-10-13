@@ -25,6 +25,7 @@ export interface AnalyticsEvents {
   reminder_enabled: undefined;
   setting_changed: { name: string; value: string };
   shop_buy: { item: string; price: number };
+  certificate_shared: { kind: string };
 }
 
 export type EventName = keyof AnalyticsEvents;

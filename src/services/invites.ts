@@ -97,3 +97,16 @@ export async function fetchBackup(key: string): Promise<{ code: string; data: Re
     return null;
   }
 }
+
+/** Ask the server for a certificate id (null when offline, 'denied' when the server says it was not earned). */
+export async function requestCert(cert: { code: string; kind: string; period: string; name: string; lang: string }): Promise<string | 'denied' | null> {
+  try {
+    const res = await fetch(`${API}/cert`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cert) });
+    if (res.status === 403 || res.status === 400) return 'denied';
+    if (!res.ok) return null;
+    const body = (await res.json()) as { id?: string };
+    return body.id ?? null;
+  } catch {
+    return null;
+  }
+}

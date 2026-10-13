@@ -18,9 +18,12 @@
  * Backup: POST /api/backup { key, code, data } keeps the latest progress snapshot under a secret 12-letter recovery key
  * (shown to the player as XXXX-XXXX-XXXX); GET /api/backup?key= returns it on a new phone, after a reinstall or on the
  * web. The key is never shared in links (unlike the code).
+ * Certificates: see worker/certs.js (POST /api/cert, GET /cert/<id>).
  * Stored: random app codes, a chosen nickname + emoji, weekly scores and salted IP hashes (no IPs, no personal data).
  * KV namespace: tiaro-invites.
  */
+import { certPage, issueCert } from './certs.js';
+
 const CODE = /^[a-z2-9]{6}$/;
 const WEEK = /^\d{4}-\d{2}-\d{2}$/;
 const DAILY_CAP = 5;
@@ -233,8 +236,11 @@ export default {
       if (url.pathname === '/api/league' && request.method === 'GET') return league(env, url);
       if (url.pathname === '/api/backup' && request.method === 'POST') return saveBackup(request, env);
       if (url.pathname === '/api/backup' && request.method === 'GET') return loadBackup(env, url);
+      if (url.pathname === '/api/cert' && request.method === 'POST') return issueCert(request, env, json, cleanName);
       return json({ error: 'not found' }, 404);
     }
+    const cert = url.pathname.match(/^\/cert\/([a-z0-9]+)\/?$/i);
+    if (cert) return certPage(env, cert[1].toLowerCase());
     return env.ASSETS.fetch(request);
   },
 };

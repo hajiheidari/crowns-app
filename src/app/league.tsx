@@ -2,6 +2,7 @@
  * Friends league: this week's (or month's) brain points (since Saturday in Persian, Monday in English and Arabic) for the player and everyone connected by a shared link,
  * with last week's winner crowned. Players pick a nickname and an animal avatar; nothing else about them is shown.
  */
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,13 +14,14 @@ import { AVATARS } from '@/features/league/avatars';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { usePalette } from '@/hooks/use-palette';
 import type { LeaguePlayer } from '@/services/invites';
-import { loadLeague, syncLeague, useGameStore } from '@/store/game-store';
+import { issueCertificates, loadLeague, syncLeague, useGameStore } from '@/store/game-store';
 import { getLanguage, isRTL, S } from '@/strings';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default function LeagueScreen() {
   const { c } = usePalette();
+  const router = useRouter();
   const meta = useGameStore((s) => s.meta);
   const [players, setPlayers] = useState<LeaguePlayer[] | null | 'error'>(null);
   const [editing, setEditing] = useState(!meta.nickname);
@@ -43,6 +45,7 @@ export default function LeagueScreen() {
     if (!nickname) return;
     useGameStore.getState().updateMeta({ nickname, avatar });
     setEditing(false);
+    void issueCertificates(true); // the new nickname on certificate pages too
     await syncLeague();
     await refresh();
   };
@@ -154,6 +157,7 @@ export default function LeagueScreen() {
         </View>
 
         <Text style={[styles.note, { color: c.textSecondary }]}>{kind === 'week' ? S.leagueCrownNote : S.leagueCrownNoteMonth}</Text>
+        <Button label={S.certOpen} variant="secondary" onPress={() => router.push('/certificates')} />
         <Button label={`🎁 ${S.leagueInvite}`} onPress={async () => setNote(shareNote(await shareInvite(), S.inviteCopied))} />
         {note && <Text selectable style={[styles.note, { color: c.text }]}>{note}</Text>}
       </ScrollView>

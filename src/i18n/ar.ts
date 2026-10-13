@@ -37,6 +37,40 @@ export const ar: Dict = {
     const [, m, d] = key.split('-').map(Number);
     return `${d} ${MONTHS[m - 1]}`;
   },
+  fullDate: (key: string) => {
+    const [y, m, d] = key.split('-').map(Number);
+    return `${d} ${MONTHS[m - 1]} ${y}`;
+  },
+  certsTitle: 'الشهادات',
+  certKicker: 'شهادة تقدير',
+  certHeads: { week: 'بطل الأسبوع', month: 'بطل الشهر', streak30: '30 يومًا متتاليًا', streak100: '100 يوم متتالٍ', genius: 'مستوى العبقري' } as Record<string, string>,
+  certCertify: 'نشهد بأن',
+  certBody: {
+    week: (date: string) => `فاز بدوري أصدقاء تيارو في أسبوع ${date}.`,
+    month: (date: string) => `فاز بدوري أصدقاء تيارو في الشهر الذي بدأ في ${date}.`,
+    streak30: (date: string) => `حلّ لغز تيارو اليومي 30 يومًا متتاليًا، وبلغ ذلك في ${date}.`,
+    streak100: (date: string) => `حلّ لغز تيارو اليومي 100 يوم متتالٍ، وبلغ ذلك في ${date}.`,
+    genius: (date: string) => `بلغ مستوى العبقري في نقاط الذهن الأسبوعية في تيارو في ${date}.`,
+  } as Record<string, (date: string) => string>,
+  certPlayer: 'لاعب في تيارو',
+  certNo: 'رقم',
+  certSigned: 'تيارو · لغز منطقي يومي',
+  certShare: 'شارك الشهادة',
+  certEarnedTitle: 'حصلت على شهادة! 🎉',
+  certEarnedBody: (head: string) => `${head}. افتحها وشاركها مع أصدقائك.`,
+  certView: 'عرض',
+  certEmpty: 'لا شهادات بعد. إليك طرق الحصول عليها:',
+  certGoals: {
+    week: 'تصدّر دوري أصدقائك لمدة أسبوع',
+    month: 'تصدّر دوري أصدقائك لمدة شهر',
+    streak30: 'حُلّ اللغز اليومي 30 يومًا متتاليًا',
+    streak100: 'حُلّ اللغز اليومي 100 يوم متتالٍ',
+    genius: 'ابلغ مستوى العبقري في نقاط الذهن الأسبوعية',
+  } as Record<string, string>,
+  certNameHint: 'يُطبع لقبك في الدوري على شهاداتك.',
+  certSetName: 'اختر لقبًا',
+  certMore: 'احصل على المزيد',
+  certOpen: '🏅 الشهادات',
   language: 'اللغة',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
   notifTitle: 'لغز تيارو اليومي جاهز 👑',

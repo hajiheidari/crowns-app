@@ -7,12 +7,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { HINT_REWARDS } from '@/constants/monetization';
-import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, type LeaguePeriod, type LeaguePlayer } from '@/services/invites';
+import { confirmedInvites, fetchBackup, fetchLeague, postBackup, postMe, reportOpen, requestCert, type LeaguePeriod, type LeaguePlayer } from '@/services/invites';
 import { getKeychainKey, saveKeychainKey } from '@/services/keychain';
 import { adAllowed, adReward, COINS, loginReward, winReward, type CoinDay } from '@/features/coins/policy';
 import { rewardedAvailable, showRewarded } from '@/services/ads';
 import { track } from '@/services/analytics';
-import { calendarFor, leaguePoints, periodScores, periodStart, pointsFromLog, solvePoints, weekFirstFor, weekStart, type DayPoints, type SolveLog } from '@/features/brain/score';
+import { brainLevel, calendarFor, leaguePoints, weekScore, periodScores, periodStart, pointsFromLog, solvePoints, weekFirstFor, weekStart, type DayPoints, type SolveLog } from '@/features/brain/score';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, getLanguage, type Language } from '@/i18n';
@@ -100,6 +100,12 @@ export interface Meta {
   coinDay: CoinDay | null;
   /** Shop items bought. */
   owned: string[];
+  /** Certificates earned (features/certificates). `id` comes from the server (null until it answered). */
+  certs: Cert[];
+  /** Certificates not opened yet (Home shows "you earned a certificate"). */
+  certsNew: number;
+  /** Day the friends-league champion check last ran (once a day). */
+  certCheckedDay: string | null;
   /** Friends league: nickname and avatar shown to friends ('' = not chosen yet). */
   nickname: string;
   avatar: string;
@@ -115,6 +121,15 @@ export interface Meta {
   backupAt: number;
   /** Set when a reinstall restored progress from the keychain key; Home says "welcome back" once and clears it. */
   restoredAuto: boolean;
+}
+
+export type CertKind = 'week' | 'month' | 'streak30' | 'streak100' | 'genius';
+
+export interface Cert {
+  kind: CertKind;
+  /** Week/month start for champions, the day it was reached for milestones. */
+  period: string;
+  id: string | null;
 }
 
 export interface WinResult {
@@ -214,6 +229,9 @@ const DEFAULT_META: Meta = {
   loginStreak: 0,
   coinDay: null,
   owned: [],
+  certs: [],
+  certsNew: 0,
+  certCheckedDay: null,
   nickname: '',
   avatar: '',
   leagueSent: '',
@@ -643,4 +661,60 @@ export function useHydrated(): boolean {
     () => useGameStore.persist.hasHydrated(),
     () => false,
   );
+}
+
+/**
+ * Look for newly earned certificates: streak milestones and the Genius level (local), and last week's / last month's
+ * friends-league crown (from the server, once a day; the server checks it again before issuing). New ones are added
+ * to `meta.certs` and counted in `meta.certsNew`. Returns how many were added.
+ */
+export async function checkCertificates(today = dateKey()): Promise<number> {
+  const found: Cert[] = [];
+  const st = useGameStore.getState();
+  const have = (kind: CertKind, period?: string) => st.meta.certs.some((c) => c.kind === kind && (!period || c.period === period));
+  if (st.daily.bestStreak >= 30 && !have('streak30')) found.push({ kind: 'streak30', period: today, id: null });
+  if (st.daily.bestStreak >= 100 && !have('streak100')) found.push({ kind: 'streak100', period: today, id: null });
+  // Genius: once per league week.
+  const week = weekStart(today, weekFirstFor(getLanguage()));
+  if (brainLevel(weekScore(st.log, today).score) === 'genius' && !have('genius', week)) found.push({ kind: 'genius', period: week, id: null });
+  if (st.meta.certCheckedDay !== today) {
+    const code = getRefCode();
+    for (const kind of ['week', 'month'] as const) {
+      const period = leaguePeriod(kind, today);
+      const players = await fetchLeague(code, period);
+      if (!players) continue;
+      // The crown marks the winner of the period before this one.
+      const before = 'week' in period ? addDays(period.week, -7) : period.prev;
+      const others = players.filter((p) => !p.me);
+      if (players.find((p) => p.me)?.crown && others.length > 0 && !have(kind, before)) found.push({ kind, period: before, id: null });
+    }
+    useGameStore.getState().updateMeta({ certCheckedDay: today });
+  }
+  if (found.length) {
+    const m = useGameStore.getState().meta;
+    useGameStore.getState().updateMeta({ certs: [...m.certs, ...found], certsNew: m.certsNew + found.length });
+  }
+  await issueCertificates();
+  return found.length;
+}
+
+/**
+ * Get server ids for certificates that have none yet; drop champion ones the server refuses. `all`: send every
+ * certificate again (after a nickname change, so the verify pages show the new name; ids stay the same).
+ */
+export async function issueCertificates(all = false): Promise<void> {
+  const { meta } = useGameStore.getState();
+  const code = getRefCode();
+  for (const cert of meta.certs.filter((c) => all || !c.id)) {
+    const id = await requestCert({ code, kind: cert.kind, period: cert.period, name: meta.nickname, lang: getLanguage() });
+    if (id === null) return; // offline: try again later
+    const certs = useGameStore.getState().meta.certs;
+    const same = (c: Cert) => c.kind === cert.kind && c.period === cert.period;
+    const m = useGameStore.getState().meta;
+    useGameStore.getState().updateMeta(
+      id === 'denied'
+        ? { certs: certs.filter((c) => !same(c)), certsNew: Math.max(0, m.certsNew - 1) }
+        : { certs: certs.map((c) => (same(c) ? { ...c, id } : c)) },
+    );
+  }
 }

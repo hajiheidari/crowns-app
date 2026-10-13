@@ -4,6 +4,7 @@ import { Alert, AppState, Platform, Pressable, ScrollView, StyleSheet, useWindow
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, StatsIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
@@ -16,7 +17,7 @@ import { rewardedAvailable } from '@/services/ads';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
-import { claimLoginCoins, currentStreak, loadLeague, noteInvitedBy, spendCoins, syncBackup, syncEarnedCoins, useGameStore, watchAdForCoins } from '@/store/game-store';
+import { checkCertificates, claimLoginCoins, currentStreak, loadLeague, noteInvitedBy, spendCoins, syncBackup, syncEarnedCoins, useGameStore, watchAdForCoins } from '@/store/game-store';
 import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { Text } from '@/components/text';
@@ -59,6 +60,7 @@ export default function HomeScreen() {
   const [coinsSheet, setCoinsSheet] = useState<number | null | undefined>(undefined); // undefined = closed
   const [dailyHeight, setDailyHeight] = useState(0);
   const [gridHeight, setGridHeight] = useState(0);
+  const [newCert, setNewCert] = useState<string | null>(null);
 
   // Opened from an invite link (<LINK_BASE>/?r=<code>).
   useEffect(() => noteInvitedBy(invitedBy), [invitedBy]);
@@ -78,6 +80,11 @@ export default function HomeScreen() {
       void loadLeague(); // keeps the league rank on the brain card fresh
       const n = await syncEarnedCoins();
       if (n > 0) setInviteNote(S.hintEarned(n / COINS.perFriend));
+      // Say so once, when a new certificate shows up.
+      if ((await checkCertificates()) > 0) {
+        const { certs } = useGameStore.getState().meta;
+        if (certs.length) setNewCert(S.certHeads[certs[certs.length - 1].kind]);
+      }
     };
     void check();
     const sub = AppState.addEventListener('change', (state) => state === 'active' && void check());
@@ -255,6 +262,17 @@ export default function HomeScreen() {
           <Text style={[styles.footer, { color: c.textSecondary }]}>v{APP_VERSION}</Text>
         </View>
       </ScrollView>
+      <ConfirmDialog
+        visible={newCert !== null}
+        title={S.certEarnedTitle}
+        body={S.certEarnedBody(newCert ?? '')}
+        confirmLabel={S.certView}
+        onCancel={() => setNewCert(null)}
+        onConfirm={() => {
+          setNewCert(null);
+          router.push('/certificates');
+        }}
+      />
       <CoinsSheet visible={coinsSheet !== undefined} need={coinsSheet ?? undefined} onClose={() => setCoinsSheet(undefined)} />
     </SafeAreaView>
   );

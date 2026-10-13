@@ -34,6 +34,40 @@ export const fa: Dict = {
     const { jm, jd } = jalaliFromKey(key);
     return `${jd} ${MONTHS[jm - 1]}`;
   },
+  fullDate: (key: string) => {
+    const { jy, jm, jd } = jalaliFromKey(key);
+    return `${jd} ${MONTHS[jm - 1]} ${jy}`;
+  },
+  certsTitle: 'گواهی‌نامه‌ها',
+  certKicker: 'گواهی‌نامه‌ی افتخار',
+  certHeads: { week: 'قهرمان هفته', month: 'قهرمان ماه', streak30: '۳۰ روز پیاپی', streak100: '۱۰۰ روز پیاپی', genius: 'سطح نابغه' } as Record<string, string>,
+  certCertify: 'بدین‌وسیله گواهی می‌شود',
+  certBody: {
+    week: (date: string) => `قهرمان لیگ دوستان تیارو در هفته‌ی ${date} شد.`,
+    month: (date: string) => `قهرمان لیگ دوستان تیارو در ماهِ آغازشده در ${date} شد.`,
+    streak30: (date: string) => `پازل روزانه‌ی تیارو را ۳۰ روز پشت سر هم حل کرد و در ${date} به این رکورد رسید.`,
+    streak100: (date: string) => `پازل روزانه‌ی تیارو را ۱۰۰ روز پشت سر هم حل کرد و در ${date} به این رکورد رسید.`,
+    genius: (date: string) => `در ${date} به سطح «نابغه» در امتیاز ذهن هفتگی تیارو رسید.`,
+  } as Record<string, (date: string) => string>,
+  certPlayer: 'یک بازیکن تیارو',
+  certNo: 'شماره',
+  certSigned: 'تیارو · پازل منطقی روزانه',
+  certShare: 'اشتراک گواهی‌نامه',
+  certEarnedTitle: 'یک گواهی‌نامه گرفتی! 🎉',
+  certEarnedBody: (head: string) => `${head}. بازش کن و با دوستانت به اشتراک بگذار.`,
+  certView: 'دیدن',
+  certEmpty: 'هنوز گواهی‌نامه‌ای نداری. راه‌های گرفتنش:',
+  certGoals: {
+    week: 'یک هفته در لیگ دوستانت اول شو',
+    month: 'یک ماه در لیگ دوستانت اول شو',
+    streak30: 'پازل روزانه را ۳۰ روز پشت سر هم حل کن',
+    streak100: 'پازل روزانه را ۱۰۰ روز پشت سر هم حل کن',
+    genius: 'در امتیاز ذهن هفتگی به سطح نابغه برس',
+  } as Record<string, string>,
+  certNameHint: 'اسم مستعار لیگ روی گواهی‌نامه‌هایت چاپ می‌شود.',
+  certSetName: 'انتخاب اسم مستعار',
+  certMore: 'گواهی‌نامه‌های بیشتر',
+  certOpen: '🏅 گواهی‌نامه‌ها',
   language: 'زبان',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية' },
   notifTitle: 'پازل امروز تیارو آماده است 👑',

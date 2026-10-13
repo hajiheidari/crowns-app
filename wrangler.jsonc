@@ -1,5 +1,5 @@
 // Cloudflare Worker for tiaro.espadna.com (+ the espadna.com/tiaro-app* route): the static site (see scripts/build-site.mjs)
-// plus the invite API in worker/index.js (only /api/* runs the script; everything else is served straight from assets).
+// plus the invite API in worker/index.js (only /api/* and /cert/* run the script; everything else is served straight from assets).
 // `wrangler deploy` runs the build first; unknown paths (/c/<code>, /stats, …) get the web game's index.html.
 // The secret IP_SALT is set in the Cloudflare dashboard (Worker → Settings → Variables), never in this file.
 {
@@ -11,7 +11,7 @@
     "directory": "./dist-site",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/cert/*"]
   },
   "kv_namespaces": [{ "binding": "INVITES", "id": "11fdccaf49fc48d79be6d186ab52218b" }]
 }
