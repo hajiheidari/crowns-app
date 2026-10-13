@@ -1,0 +1,58 @@
+# Launch test: builds the app (Release, same JS as TestFlight) for the iPhone simulator, opens it and prints any crash
+# report and the app's log. Free on the public repo's macOS runner; needs no secrets. Run by hand (workflow_dispatch).
+name: iOS launch test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sim:
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prebuild
+        run: npx expo prebuild -p ios --no-install && cd ios && pod install
+
+      - name: Build for the simulator
+        run: |
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          set -o pipefail
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
+            | tail -40
+
+      - name: Launch
+        run: |
+          APP=$(ls -d build/Build/Products/Release-iphonesimulator/*.app | head -1)
+          DEV=$(xcrun simctl list devices available | grep -m1 -E 'iPhone 1[6-9] Pro \(' | grep -oE '[0-9A-F-]{36}')
+          xcrun simctl boot "$DEV"
+          xcrun simctl bootstatus "$DEV" -b
+          xcrun simctl install "$DEV" "$APP"
+          (xcrun simctl spawn "$DEV" log stream --level debug --predicate 'process == "Tiaro" OR eventMessage CONTAINS "Tiaro"' > app.log 2>&1 &)
+          xcrun simctl launch "$DEV" com.espadna.tiaro
+          sleep 40
+          xcrun simctl io "$DEV" screenshot shot.png || true
+          echo "=== running?"; xcrun simctl spawn "$DEV" launchctl list | grep -i tiaro || echo "NOT RUNNING"
+          echo "=== crash reports"
+          for f in ~/Library/Logs/DiagnosticReports/*Tiaro* ~/Library/Logs/DiagnosticReports/*tiaro*; do [ -f "$f" ] && { echo "--- $f"; head -c 60000 "$f"; }; done
+          echo "=== app log (last 300 lines)"; tail -300 app.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: launch-test
+          path: |
+            shot.png
+            app.log
+            ~/Library/Logs/DiagnosticReports/
