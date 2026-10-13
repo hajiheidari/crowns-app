@@ -6,14 +6,13 @@
 import GameCenter from '../../modules/tiaro-game-center';
 
 import { dateKey, DIFFICULTIES } from '@/engine';
-import { brainLevel, periodScores, weekScore } from '@/features/brain/score';
+import { brainLevel, leaguePoints, periodScores, weekScore } from '@/features/brain/score';
 import { useGameStore } from '@/store/game-store';
 
 export const LEADERBOARDS = {
-  /** Brain points this week (recurring weekly leaderboard). */
+  /** Brain points since Monday (recurring leaderboard, resets every Monday 00:00 UTC). Apple has no monthly
+   * recurrence, so the monthly table lives only in the friends league. */
   week: 'tiaro.week',
-  /** Brain points this month (recurring monthly leaderboard). */
-  month: 'tiaro.month',
   /** All brain points since the first solve. */
   allTime: 'tiaro.alltime',
   bestStreak: 'tiaro.beststreak',
@@ -47,10 +46,11 @@ export async function reportGameCenter(): Promise<void> {
   const { points, log, daily, stats } = useGameStore.getState();
   const today = dateKey();
   const totals = periodScores(points, today);
-  const week = weekScore(log, today).score;
+  // Points since Monday, like the leaderboard's own week; the level uses the rolling 7 days as on Home.
+  const week = leaguePoints(log, today, 'mon');
+  const level = brainLevel(weekScore(log, today).score);
   const scores: [string, number][] = [
-    [LEADERBOARDS.week, totals.week],
-    [LEADERBOARDS.month, totals.month],
+    [LEADERBOARDS.week, week],
     [LEADERBOARDS.allTime, totals.all],
     [LEADERBOARDS.bestStreak, daily.bestStreak],
   ];
@@ -62,7 +62,7 @@ export async function reportGameCenter(): Promise<void> {
     [ACHIEVEMENTS.streak30, Math.min(100, (daily.bestStreak / 30) * 100)],
     [ACHIEVEMENTS.streak100, Math.min(100, daily.bestStreak)],
     [ACHIEVEMENTS.expert10, Math.min(100, stats.expert.solved * 10)],
-    [ACHIEVEMENTS.genius, brainLevel(week) === 'genius' ? 100 : 0],
+    [ACHIEVEMENTS.genius, level === 'genius' ? 100 : 0],
     [ACHIEVEMENTS.noHints25, Math.min(100, (hintFree / 25) * 100)],
   ];
   try {
