@@ -51,7 +51,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
   const [width, setWidth] = useState(0);
   const cellSize = width / n;
   const [preview, setPreview] = useState<Map<number, Mark> | null>(null);
-  const drag = useRef<{ start: number; mode: DragMode | null; changed: Map<number, Mark>; last: { x: number; y: number } } | null>(
+  const drag = useRef<{ start: number; mode: DragMode | null; changed: Map<number, Mark>; last: { x: number; y: number }; left: boolean } | null>(
     null,
   );
 
@@ -109,6 +109,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
     const d = drag.current;
     if (!d) return;
     d.mode = null;
+    d.left = true; // not a tap either
     d.changed.clear();
     setPreview(null);
   };
@@ -122,7 +123,7 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
       .minDistance(8)
       .maxPointers(1)
       .onBegin((e) => {
-        drag.current = { start: cellAt(e.x, e.y), mode: null, changed: new Map(), last: { x: e.x, y: e.y } };
+        drag.current = { start: cellAt(e.x, e.y), mode: null, changed: new Map(), last: { x: e.x, y: e.y }, left: false };
       })
       .onStart((e) => {
         const d = drag.current;
@@ -130,23 +131,38 @@ export function Board({ puzzle, board, settings, locked, onTap, onLongPress, onD
         if (e.numberOfPointers > 1 || zooming.get()) return dropDrag();
         const m = board[d.start];
         d.mode = m === EMPTY ? 'paint' : m === CROSS ? 'erase' : null;
-        visit(d.start);
+        // The start cell is only marked once the finger reaches another cell: a tap that wobbles a few pixels
+        // used to become a one-cell drag and paint ✕ instead of the tap's crown (Amir 2026-10-13).
       })
       .onUpdate((e) => {
         const d = drag.current;
-        if (!d?.mode) return;
+        if (!d) return;
         if (e.numberOfPointers > 1 || zooming.get()) return dropDrag();
+        // Dragging from a crown marks nothing, but it is still not a tap once the finger leaves the cell.
+        if (!d.mode) {
+          if (cellAt(e.x, e.y) !== d.start) d.left = true;
+          return;
+        }
         // Sample along the finger's path so fast swipes don't skip cells.
         const dx = e.x - d.last.x;
         const dy = e.y - d.last.y;
         const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) / (cellSize / 3)));
-        for (let s = 1; s <= steps; s++) visit(cellAt(d.last.x + (dx * s) / steps, d.last.y + (dy * s) / steps));
+        for (let s = 1; s <= steps; s++) {
+          const cell = cellAt(d.last.x + (dx * s) / steps, d.last.y + (dy * s) / steps);
+          if (!d.left && cell >= 0 && cell !== d.start) {
+            d.left = true;
+            visit(d.start);
+          }
+          if (d.left) visit(cell);
+        }
         d.last = { x: e.x, y: e.y };
       })
       .onEnd((_e, success) => {
         const d = drag.current;
         // A second finger (pinch) cancels the drag: nothing is committed.
         if (success && d && d.changed.size) onDrag([...d.changed.keys()], [...d.changed.values()]);
+        // Never left the first cell: it was a tap after all (the Tap gesture lost the race to the pan).
+        else if (success && d && !d.left && d.start >= 0 && !zooming.get() && gestureClock() - zoomEndedAt.get() >= 300) onTap(d.start);
       })
       .onFinalize(() => {
         drag.current = null;

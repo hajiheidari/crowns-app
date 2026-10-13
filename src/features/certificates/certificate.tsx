@@ -1,129 +1,174 @@
 /**
- * A certificate in the style of real ones (Amir 2026-10-13): cream paper, a double gold frame, "This certifies that",
- * the player's name, what they did, a gold crown seal, a signature line and a verification number. Always light
- * (paper) in both themes. Sized by `width` (4:3); the share image is captured at 1440×1080.
+ * A certificate like the printed award certificates Amir sent (2026-10-13): portrait, Instagram-story size
+ * (9:16, shared at 1080×1920), deep green with gold corner shapes and dots, a gold medal with laurels and ribbons,
+ * "Proudly presented to", the name in a script font, what was achieved, a signature and a verification number.
+ * The same in both themes. Sized by `width`.
  */
+import { LinearGradient } from 'expo-linear-gradient';
 import { forwardRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import { Platform, Text as RNText, StyleSheet, View } from 'react-native';
+import Svg, { Circle, Defs, Ellipse, G, Path, Polygon, Rect, Stop, LinearGradient as SvgGradient, Text as SvgText } from 'react-native-svg';
 
-import { CrownIcon } from '@/components/crown-icon';
 import { MONO, Text } from '@/components/text';
 import { LINK_BASE } from '@/constants/links';
 import type { Cert } from '@/store/game-store';
-import { dirStyle, S } from '@/strings';
+import { dirStyle, getLanguage, S } from '@/strings';
 
-const GOLD = '#B8901F';
-const GOLD_DARK = '#8A6D0B';
-const INK = '#1F1B16';
-const PAPER = '#FFFCF4';
+const GOLD = '#E2C27A';
+const WHITE = '#F7F3EA';
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
-export const CERT_PIXELS = { width: 1440, height: 1080 };
+/** One line, shrunk to fit, on phones; react-native-web clips such lines (descenders, Persian marks), so there they wrap. */
+const FIT = Platform.OS === 'web' ? {} : ({ numberOfLines: 1, adjustsFontSizeToFit: true } as const);
+
+export const CERT_PIXELS = { width: 1080, height: 1920 };
+export const CERT_RATIO = 16 / 9;
+
+/** Latin names get the script font; Persian/Arabic/Cyrillic names keep the app font. */
+const isLatin = (s: string) => /^[\u0000-ɏ\s]+$/.test(s);
 
 export const Certificate = forwardRef<View, { cert: Cert; name: string; width: number }>(function Certificate({ cert, name, width }, ref) {
   const u = width / 100;
+  const H = width * CERT_RATIO;
+  const shown = name || S.certPlayer;
+  const latinName = isLatin(shown);
+  const latinUi = getLanguage() === 'en' || getLanguage() === 'ru';
+  const year = Number(cert.period.slice(0, 4));
   const host = LINK_BASE.replace(/^https?:\/\//, '');
   return (
-    <View ref={ref} collapsable={false} style={[styles.paper, { width, height: width * 0.75, padding: u * 2.2 }]}>
-      <View style={[styles.outer, { borderWidth: u * 0.6 }]}>
-        <View style={[styles.inner, { margin: u * 1, borderWidth: u * 0.18, paddingHorizontal: u * 6, paddingVertical: u * 3.4 }, dirStyle()]}>
-          {(['tl', 'tr', 'bl', 'br'] as const).map((k) => (
-            <Ornament key={k} size={u * 5} corner={k} />
-          ))}
-          <View style={[styles.brandRow, { gap: u * 1.2 }]}>
-            <CrownIcon size={u * 4.4} color={GOLD} />
-            <Text style={[styles.brand, { fontSize: u * 2.3, letterSpacing: u * 0.6 }]}>TIARO</Text>
-          </View>
-          <Text style={[styles.kicker, { fontSize: u * 1.9, marginTop: u * 0.6 }]}>{S.certKicker.toUpperCase()}</Text>
-          <Text style={[styles.head, { fontSize: u * 5.6, marginTop: u * 1.4 }]} numberOfLines={1} adjustsFontSizeToFit>
-            {S.certHeads[cert.kind]}
+    <View ref={ref} collapsable={false} style={{ width, height: H, overflow: 'hidden' }}>
+      <LinearGradient colors={['#11574B', '#0A3B33', '#06231E']} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }} style={StyleSheet.absoluteFill} />
+      <Decor width={width} height={H} year={year} />
+
+      <View style={[styles.content, { paddingHorizontal: u * 11, paddingTop: H * 0.31, paddingBottom: H * 0.1 }, dirStyle()]}>
+        <Text style={[styles.word, { fontSize: u * (latinUi ? 8.6 : 7.4), paddingVertical: u * 0.6, letterSpacing: latinUi ? u * 0.9 : 0 }]} {...FIT}>
+          {latinUi ? S.certWord.toUpperCase() : S.certWord}
+        </Text>
+        <Text style={[styles.kicker, { fontSize: u * 3.4, lineHeight: u * 5.4, letterSpacing: latinUi ? u * 0.6 : 0, marginTop: u * 0.4 }]}>
+          {latinUi ? S.certKicker.toUpperCase() : S.certKicker}
+        </Text>
+        <Text style={[styles.head, { fontSize: u * (latinUi ? 6.2 : 5.6), paddingVertical: u * 0.6, marginTop: u * 2.5 }]} {...FIT}>
+          {S.certHeads[cert.kind]}
+        </Text>
+        <Text style={[styles.certify, { fontSize: u * 3, lineHeight: u * 5, letterSpacing: latinUi ? u * 0.5 : 0, marginTop: u * 2.5 }]}>
+          {latinUi ? S.certCertify.toUpperCase() : S.certCertify}
+        </Text>
+        {latinName ? (
+          <RNText style={[styles.script, { fontSize: u * 13, paddingVertical: u * 1, marginTop: 0 }]} {...FIT}>
+            {shown}
+          </RNText>
+        ) : (
+          <Text style={[styles.nameFa, { fontSize: u * 9, paddingVertical: u * 0.8, marginTop: 0 }]} {...FIT}>
+            {shown}
           </Text>
-          <Text style={[styles.certify, { fontSize: u * 2.3, marginTop: u * 1.6 }]}>{S.certCertify}</Text>
-          <Text style={[styles.name, { fontSize: u * 5.2, marginTop: u * 0.8, paddingHorizontal: u * 4 }]} numberOfLines={1} adjustsFontSizeToFit>
-            {name || S.certPlayer}
+        )}
+        <View style={[styles.rule, { width: u * 52, marginTop: u * 1 }]} />
+        <Text style={[styles.body, { fontSize: u * (latinUi ? 3.6 : 3.3), lineHeight: u * (latinUi ? 5.6 : 6), marginTop: u * 2.5 }]}>
+          {(S.certBody[cert.kind] ?? (() => ''))(S.fullDate(cert.period))}
+        </Text>
+
+        <View style={[styles.sign, { marginTop: 'auto', gap: u * 0.6 }]}>
+          <RNText style={[styles.signature, { fontSize: u * 9, lineHeight: u * 12.5 }]}>Tiaro</RNText>
+          <View style={[styles.signLine, { width: u * 40 }]} />
+          <Text style={[styles.small, { fontSize: u * 2.6, letterSpacing: latinUi ? u * 0.3 : 0 }]}>{S.certSigned}</Text>
+        </View>
+        <View style={[styles.footer, { marginTop: u * 3, gap: u * 0.4 }]}>
+          <Text style={[styles.small, { fontSize: u * 2.6 }]}>
+            {S.certNo} <Text style={[styles.small, styles.latin, { fontSize: u * 2.6 }]}>{(cert.id ?? '········').toUpperCase()}</Text>
           </Text>
-          <View style={[styles.rule, { width: u * 46, marginTop: u * 0.4 }]} />
-          <Text style={[styles.body, { fontSize: u * 2.3, lineHeight: u * 3.5, marginTop: u * 1.8 }]}>
-            {(S.certBody[cert.kind] ?? (() => ''))(S.fullDate(cert.period))}
+          <Text style={[styles.small, styles.latin, { fontSize: u * 2.4 }]}>
+            {host}/cert/{cert.id ?? ''}
           </Text>
-          <View style={[styles.foot, { marginTop: 'auto', gap: u * 3 }]}>
-            <View style={[styles.footSide, { gap: u * 0.4 }]}>
-              <Text style={[styles.small, { fontSize: u * 1.6 }]}>
-                {S.certNo} <Text style={[styles.small, styles.latin, { fontSize: u * 1.6 }]}>{(cert.id ?? '········').toUpperCase()}</Text>
-              </Text>
-              <Text style={[styles.small, styles.latin, { fontSize: u * 1.35 }]}>
-                {host}/cert/{cert.id ?? ''}
-              </Text>
-            </View>
-            <Seal size={u * 15} />
-            <View style={[styles.footSide, { alignItems: 'center', gap: u * 0.5 }]}>
-              <Text style={[styles.signature, { fontSize: u * 3.2 }]}>Tiaro</Text>
-              <View style={[styles.signLine, { width: u * 22 }]} />
-              <Text style={[styles.small, { fontSize: u * 1.5 }]}>{S.certSigned}</Text>
-            </View>
-          </View>
         </View>
       </View>
     </View>
   );
 });
 
-/** Gold seal: scalloped rim, ribbon tails and a crown. */
-function Seal({ size }: { size: number }) {
-  const points = Array.from({ length: 24 }, (_, i) => {
-    const a = (i / 24) * Math.PI * 2;
-    const r = i % 2 === 0 ? 48 : 43;
-    return `${50 + r * Math.cos(a)},${50 + r * Math.sin(a)}`;
-  }).join(' ');
+/** Gold corner shapes, dots, a thin frame and the medal (drawn in a 100 × 177.8 box). */
+function Decor({ width, height, year }: { width: number; height: number; year: number }) {
+  const h = 177.8;
+  const dots: [number, number][] = [];
+  // Dots in the bottom-left corner, away from the text and the signature.
+  for (let x = 6; x <= 26; x += 3.2) for (let y = 146; y <= 172; y += 3.2) if (x - 6 + (172 - y) < 24) dots.push([x, y]);
+  // Laurel leaves around the medal: two arcs of small leaves.
+  const leaves = Array.from({ length: 9 }, (_, i) => i);
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={size} height={size} viewBox="0 0 100 100" style={StyleSheet.absoluteFill}>
-        <Path d="M34 70 L24 99 L35 92 L42 100 L48 74 Z" fill="#9E2B25" />
-        <Path d="M66 70 L76 99 L65 92 L58 100 L52 74 Z" fill="#9E2B25" />
-        <Path d={`M${points.split(' ').join(' L')} Z`} fill={GOLD} />
-        <Circle cx={50} cy={50} r={36} fill="#E2BE4B" stroke={GOLD_DARK} strokeWidth={1.5} />
-        <Circle cx={50} cy={50} r={31} fill="none" stroke={GOLD_DARK} strokeWidth={0.8} strokeDasharray="2 2" />
-        {/* The crown (same shape as CrownIcon's 24-unit path), centred in the seal. */}
-        <Path d="M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z M3.4 19h17.2v2.2H3.4Z" fill={INK} transform="translate(29 29) scale(1.75)" />
-      </Svg>
-    </View>
+    <Svg width={width} height={height} viewBox={`0 0 100 ${h}`} style={StyleSheet.absoluteFill}>
+      <Defs>
+        <SvgGradient id="certGold" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#F6E3A6" />
+          <Stop offset="0.55" stopColor="#D9B45A" />
+          <Stop offset="1" stopColor="#A9802F" />
+        </SvgGradient>
+        <SvgGradient id="certMedal" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FBEAB5" />
+          <Stop offset="1" stopColor="#C49A45" />
+        </SvgGradient>
+      </Defs>
+      {/* Lighter green bands behind the gold, like the folded-paper look of the sample. */}
+      <Polygon points="0,0 70,0 0,62" fill="#0E4C42" />
+      <Polygon points="100,178 100,96 30,178" fill="#0D463D" />
+      {/* Gold corners. */}
+      <Polygon points="0,0 44,0 0,36" fill="url(#certGold)" />
+      <Polygon points="100,178 100,140 56,178" fill="url(#certGold)" />
+      {dots.map(([x, y]) => (
+        <Circle key={`${x}-${y}`} cx={x} cy={y} r={0.55} fill={GOLD} opacity={0.85} />
+      ))}
+      {/* Thin gold frame. */}
+      <Rect x={3} y={3} width={94} height={h - 6} fill="none" stroke={GOLD} strokeWidth={0.35} opacity={0.7} />
+
+      {/* Medal: ribbons, scalloped rim, laurels, "TIARO" and the year. */}
+      <G transform="translate(72 30)">
+        <Path d="M-7 6 L-12 24 L-7.5 21 L-5 26 L-1.5 9 Z" fill="#D9B45A" />
+        <Path d="M7 6 L12 24 L7.5 21 L5 26 L1.5 9 Z" fill="#C49A45" />
+        <Circle r={13} fill="#A9802F" />
+        <Circle r={11.6} fill="url(#certMedal)" />
+        <Circle r={9.2} fill="#0B3E35" />
+        <Circle r={8.4} fill="none" stroke={GOLD} strokeWidth={0.3} />
+        {leaves.map((i) => {
+          const a = (-200 + i * 22) * (Math.PI / 180);
+          const b = (20 - i * 22) * (Math.PI / 180);
+          return (
+            <G key={i}>
+              <Ellipse cx={6.6 * Math.cos(a)} cy={6.6 * Math.sin(a) + 1.2} rx={0.6} ry={1.25} fill={GOLD} transform={`rotate(${(a * 180) / Math.PI + 90} ${6.6 * Math.cos(a)} ${6.6 * Math.sin(a) + 1.2})`} />
+              <Ellipse cx={6.6 * Math.cos(b)} cy={6.6 * Math.sin(b) + 1.2} rx={0.6} ry={1.25} fill={GOLD} transform={`rotate(${(b * 180) / Math.PI + 90} ${6.6 * Math.cos(b)} ${6.6 * Math.sin(b) + 1.2})`} />
+            </G>
+          );
+        })}
+        <SvgText x={0} y={-2.6} fontSize={2} fill={GOLD} textAnchor="middle" letterSpacing={0.4} fontWeight="bold">
+          TIARO
+        </SvgText>
+        <SvgText x={0} y={2.4} fontSize={4.4} fill={GOLD} textAnchor="middle" fontWeight="bold">
+          {String(year)}
+        </SvgText>
+        <SvgText x={0} y={5.4} fontSize={1.5} fill={GOLD} textAnchor="middle" letterSpacing={0.3}>
+          AWARD
+        </SvgText>
+      </G>
+      {/* A small crown on the top-left gold corner. */}
+      <G transform="translate(9 9) scale(0.55)">
+        <Path d="M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z M3.4 19h17.2v2.2H3.4Z" fill="#0B3E35" />
+      </G>
+    </Svg>
   );
 }
 
-function Ornament({ size, corner }: { size: number; corner: 'tl' | 'tr' | 'bl' | 'br' }) {
-  const pos = { tl: { top: 6, left: 6 }, tr: { top: 6, right: 6 }, bl: { bottom: 6, left: 6 }, br: { bottom: 6, right: 6 } }[corner];
-  const rotate = { tl: '0deg', tr: '90deg', br: '180deg', bl: '270deg' }[corner];
-  return (
-    <View style={[styles.ornament, pos, { width: size, height: size, transform: [{ rotate }] }]}>
-      <Svg width={size} height={size} viewBox="0 0 40 40">
-        <Path d="M2 2 H24 M2 2 V24" stroke={GOLD} strokeWidth={2} />
-        <Path d="M8 8 H18 M8 8 V18" stroke={GOLD} strokeWidth={1} />
-        <Path d="M2 2 L10 10" stroke={GOLD} strokeWidth={1} />
-        <Circle cx={12} cy={12} r={2.2} fill={GOLD} />
-      </Svg>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
-  paper: { backgroundColor: '#EFE4C8' },
-  outer: { flex: 1, borderColor: GOLD, backgroundColor: PAPER },
-  inner: { flex: 1, borderColor: GOLD, alignItems: 'center' },
-  ornament: { position: 'absolute' },
-  brandRow: { flexDirection: 'row', alignItems: 'center', direction: 'ltr' },
-  brand: { fontFamily: serif, fontWeight: '700', color: INK, textAlign: 'center' },
-  kicker: { color: GOLD_DARK, fontWeight: '700', letterSpacing: 2, textAlign: 'center' },
-  head: { fontFamily: serif, fontWeight: '700', color: INK, textAlign: 'center' },
-  certify: { color: '#5B5248', fontStyle: 'italic', textAlign: 'center' },
-  name: { fontFamily: serif, fontStyle: 'italic', fontWeight: '700', color: '#3A2A06', textAlign: 'center' },
-  rule: { height: 1.5, backgroundColor: GOLD },
-  body: { color: INK, textAlign: 'center', maxWidth: '86%' },
-  foot: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', alignSelf: 'stretch' },
-  footSide: { flex: 1 },
-  small: { color: '#6B5A3A', textAlign: 'center' },
-  // Codes and links keep Latin letters and digits in every language (Text skips Persian digits for MONO).
+  content: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center' },
+  word: { fontFamily: serif, fontWeight: '700', color: WHITE, textAlign: 'center' },
+  kicker: { color: GOLD, fontWeight: '600', textAlign: 'center' },
+  head: { fontFamily: serif, fontWeight: '700', color: GOLD, textAlign: 'center' },
+  certify: { color: WHITE, fontWeight: '600', textAlign: 'center', opacity: 0.9 },
+  script: { fontFamily: 'GreatVibes', color: GOLD, textAlign: 'center', paddingHorizontal: 8 },
+  nameFa: { fontWeight: '700', color: GOLD, textAlign: 'center' },
+  rule: { height: 1, backgroundColor: GOLD, opacity: 0.8 },
+  body: { color: WHITE, textAlign: 'center', maxWidth: '92%' },
+  sign: { alignItems: 'center' },
+  signature: { fontFamily: 'GreatVibes', color: WHITE },
+  signLine: { height: 1, backgroundColor: WHITE, opacity: 0.85 },
+  small: { color: WHITE, opacity: 0.8, textAlign: 'center' },
   latin: { fontFamily: MONO },
-  signature: { fontFamily: serif, fontStyle: 'italic', color: '#2B3A67' },
-  signLine: { height: 1, backgroundColor: INK },
+  footer: { alignItems: 'center' },
 });

@@ -25,6 +25,8 @@ import { Text } from '@/components/text';
 
 /** Unlimited Puzzles tile height: one row of four needs TILE_MIN; two rows of two share all the free height. */
 const TILE_MIN = 76;
+/** Two rows of two only when each row gets at least this (big tiles hold bigger text, Persian lines are tall). */
+const TILE_BIG = 112;
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -105,7 +107,14 @@ export default function HomeScreen() {
     setInviteNote(r === 'earned' ? S.coinsEarned(COINS.rewardedAd) : r === 'limit' ? S.coinsAdLimit : r === 'unavailable' ? S.coinsAdUnavailable : null);
   };
   // Unlimited tiles: one row of four, or two rows of two when the screen leaves enough height (Amir: as big as possible).
-  const twoRows = gridHeight >= 2 * TILE_MIN + 8;
+  // Never scroll on a phone: if the content still comes out taller than the screen (fonts, languages, safe areas
+  // differ per phone), squeeze step by step: 1 = one row of tiles, 2 = no coins description (Amir 2026-10-13).
+  const [squeeze, setSqueeze] = useState(0);
+  const [viewH, setViewH] = useState(0);
+  const onContent = (_w: number, h: number) => {
+    if (viewH > 0 && h > viewH + 1 && squeeze < 2) setSqueeze(squeeze + 1);
+  };
+  const twoRows = squeeze === 0 && gridHeight >= 2 * TILE_BIG + 8;
 
   const state = todayGame?.solved ? 'solved' : todayGame && todayGame.seconds > 0 ? 'continue' : 'play';
   const cta =
@@ -119,7 +128,7 @@ export default function HomeScreen() {
   const { width: screenW, height: screenH } = useWindowDimensions();
   const narrow = screenW < 360;
   // Short phones (iPhone SE, 667 pt): the coins card drops its description so Home still fits.
-  const short = screenH < 720;
+  const short = screenH < 720 || squeeze >= 2;
   const open = (id: string) => router.push({ pathname: '/play/[id]', params: { id } });
 
   return (
@@ -135,7 +144,9 @@ export default function HomeScreen() {
         alwaysBounceVertical={false}
         bounces={false}
         overScrollMode="never"
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        onLayout={(e) => setViewH(Math.round(e.nativeEvent.layout.height))}
+        onContentSizeChange={onContent}>
         <View style={styles.header}>
           <View style={styles.brand}>
             <CrownIcon size={narrow ? 24 : 30} color={c.gold} />
@@ -243,7 +254,7 @@ export default function HomeScreen() {
           <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
           <View style={styles.grid} onLayout={(e) => setGridHeight(Math.round(e.nativeEvent.layout.height))}>
             {(twoRows ? [DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)] : [DIFFICULTIES]).map((row) => (
-              <View key={row.join()} style={[styles.gridRow, !twoRows && { maxHeight: TILE_MIN + 24 }]}>
+              <View key={row.join()} style={[styles.gridRow, twoRows ? { minHeight: TILE_BIG } : { maxHeight: TILE_MIN + 24 }]}>
                 {row.map((d) => (
                   <DifficultyTile
                     key={d}

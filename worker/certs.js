@@ -139,18 +139,25 @@ export async function certPage(env, id) {
 <title>${esc(head)} · ${esc(name)} · Tiaro</title>
 <meta property="og:title" content="${esc(`${head}: ${name}`)}"><meta property="og:description" content="${esc(text)}">
 <style>
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EFE7D6;font-family:Georgia,'Times New Roman',serif;color:#1F1B16;padding:16px;box-sizing:border-box}
-.c{max-width:760px;width:100%;background:#FFFCF4;border:3px solid #B8901F;outline:1px solid #B8901F;outline-offset:-12px;padding:44px 36px;text-align:center;box-sizing:border-box;box-shadow:0 10px 40px rgba(0,0,0,.12)}
-.k{letter-spacing:.3em;text-transform:uppercase;color:#8A6D0B;font-size:14px}.h{font-size:38px;margin:10px 0 22px}
-.n{font-size:34px;font-style:italic;border-bottom:1px solid #B8901F;display:inline-block;padding:0 24px 6px;margin:12px 0}
-.b{font-size:18px;line-height:1.6;max-width:520px;margin:10px auto 24px}.s{font-size:44px}.f{font-size:13px;color:#6B5A3A;margin-top:18px}
-a.btn{display:inline-block;margin-top:22px;background:#1F1B16;color:#FFFCF4;padding:12px 22px;border-radius:999px;text-decoration:none;font-family:system-ui,sans-serif}
-</style></head><body><div class="c">
-<div class="k">Tiaro · ${esc(t.title)}</div><div class="h">${esc(head)}</div>
-<div>${esc(t.certify)}</div><div class="n">${esc(name)}</div><div class="b">${esc(text)}</div>
-<div class="s">👑</div><div class="f">${esc(t.no)} ${esc(id.toUpperCase())} · ${esc(cert.at)}</div>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E9E4D8;font-family:Georgia,'Times New Roman',serif;padding:16px;box-sizing:border-box}
+.c{position:relative;overflow:hidden;width:min(440px,100%);aspect-ratio:9/16;background:linear-gradient(160deg,#11574B,#0A3B33 55%,#06231E);color:#F7F3EA;text-align:center;box-sizing:border-box;padding:44% 9% 10%;display:flex;flex-direction:column;align-items:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.c:before{content:'';position:absolute;left:0;top:0;width:44%;height:20%;background:linear-gradient(135deg,#F6E3A6,#D9B45A 55%,#A9802F);clip-path:polygon(0 0,100% 0,0 100%)}
+.c:after{content:'';position:absolute;right:0;bottom:0;width:44%;height:21%;background:linear-gradient(135deg,#F6E3A6,#D9B45A 55%,#A9802F);clip-path:polygon(100% 0,100% 100%,0 100%)}
+.f0{position:absolute;inset:2.5%;border:1px solid rgba(226,194,122,.7);pointer-events:none}
+.medal{position:absolute;top:6%;right:12%;width:22%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#0B3E35 58%,#C49A45 60%,#FBEAB5 72%,#A9802F 74%);display:flex;align-items:center;justify-content:center;color:#E2C27A;font-weight:700;font-size:20px}
+.w{font-size:34px;letter-spacing:.12em;font-weight:700;text-transform:uppercase}.k{color:#E2C27A;letter-spacing:.2em;font-size:12px;text-transform:uppercase;margin-top:4px}
+.h{color:#E2C27A;font-size:24px;font-weight:700;margin:14px 0 10px}.p{font-family:system-ui,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.9}
+.n{color:#E2C27A;font-size:44px;font-style:italic;margin:6px 0;border-bottom:1px solid rgba(226,194,122,.8);padding:0 18px 4px}
+.b{font-family:system-ui,sans-serif;font-size:14px;line-height:1.55;margin:10px 0 0}.s{margin-top:auto;font-style:italic;font-size:30px}
+.f{font-family:ui-monospace,Menlo,monospace;font-size:10px;opacity:.8;margin-top:10px;position:relative;z-index:1}
+a.btn{position:relative;z-index:1;display:inline-block;margin-top:14px;background:#E2C27A;color:#0A3B33;padding:10px 20px;border-radius:999px;text-decoration:none;font-family:system-ui,sans-serif;font-weight:700}
+.links{position:relative;z-index:1;margin-top:8px;font-family:system-ui,sans-serif;font-size:12px}.links a{color:#E2C27A}
+</style></head><body><div class="c"><div class="f0"></div><div class="medal">${esc(String(cert.period).slice(0, 4))}</div>
+<div class="w">${esc(t.title)}</div><div class="k">Tiaro</div><div class="h">${esc(head)}</div>
+<div class="p">${esc(t.certify)}</div><div class="n">${esc(name)}</div><div class="b">${esc(text)}</div>
+<div class="s">Tiaro</div><div class="f">${esc(t.no)} ${esc(id.toUpperCase())} · ${esc(cert.at)}</div>
 <a class="btn" href="/?r=${esc(cert.code ?? '')}&amp;lang=${cert.lang}">${esc(t.cta)}</a>
-<div class="f"><a href="${APP_PAGE[cert.lang] ?? APP_PAGE.en}" style="color:#6B5A3A">iPhone · Android</a></div>
+<div class="links"><a href="${APP_PAGE[cert.lang] ?? APP_PAGE.en}">iPhone · Android</a></div>
 </div></body></html>`;
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
 }

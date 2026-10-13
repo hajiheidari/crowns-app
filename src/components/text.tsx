@@ -7,6 +7,8 @@ import { Platform, Text as RNText, StyleSheet, type TextProps } from 'react-nati
 
 import { getLanguage, isRTL, localDigits } from '@/i18n';
 
+import { InlineCoin } from './coin-icon';
+
 const FA_FONT: Record<string, string> = {
   '100': 'Vazirmatn-Regular',
   '200': 'Vazirmatn-Regular',
@@ -26,6 +28,19 @@ export const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 export const RTL_TEXT = { textAlign: Platform.OS === 'web' ? 'right' : 'left', writingDirection: 'rtl' } as const;
 
+const COIN = '🪙';
+
+/** Every 🪙 in a string becomes the gold coin drawing (the emoji is silver on iPhone). */
+function withCoins(children: ReactNode, size: number): ReactNode {
+  return Children.map(children, (child) => {
+    if (typeof child !== 'string' || !child.includes(COIN)) return child;
+    const parts = child.split(COIN);
+    return parts.flatMap((part, i) => (i === 0 ? [part] : [<InlineCoin key={i} size={size} />, part]));
+  });
+}
+
+const fontSizeOf = (style: TextProps['style']) => (StyleSheet.flatten(style)?.fontSize as number | undefined) ?? 14;
+
 function persianDigits(children: ReactNode): ReactNode {
   return Children.map(children, (child) => {
     if (typeof child === 'string') return localDigits(child);
@@ -39,7 +54,7 @@ export function Text({ style, children, ...rest }: TextProps) {
   if (getLanguage() === 'en' || getLanguage() === 'ru') {
     return (
       <RNText style={style} {...rest}>
-        {children}
+        {withCoins(children, fontSizeOf(style) * 1.05)}
       </RNText>
     );
   }
@@ -60,7 +75,7 @@ export function Text({ style, children, ...rest }: TextProps) {
   const rtlText = isRTL() && (!flat.textAlign || flat.textAlign === 'auto' || flat.textAlign === 'left');
   return (
     <RNText style={[style, { fontFamily, fontWeight: 'normal' }, rtlText && RTL_TEXT]} {...rest}>
-      {persianDigits(children)}
+      {withCoins(persianDigits(children), fontSizeOf(style) * 1.05)}
     </RNText>
   );
 }

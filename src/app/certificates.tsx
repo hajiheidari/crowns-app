@@ -16,7 +16,7 @@ import { usePalette } from '@/hooks/use-palette';
 import { track } from '@/services/analytics';
 import { captureView } from '@/services/capture';
 import { canShareImages, shareImage, shareText } from '@/services/share';
-import { issueCertificates, useGameStore, type Cert, type CertKind } from '@/store/game-store';
+import { issueCertificates, uniqueCerts, useGameStore, type Cert, type CertKind } from '@/store/game-store';
 import { S } from '@/strings';
 
 const KINDS: CertKind[] = ['week', 'month', 'genius', 'streak30', 'streak100'];
@@ -27,14 +27,14 @@ export default function CertificatesScreen() {
   const certs = useGameStore((s) => s.meta.certs);
   const nickname = useGameStore((s) => s.meta.nickname);
   const { width } = useWindowDimensions();
-  const cardW = Math.min(width - 32, 720);
+  const cardW = Math.min(width - 48, 420);
 
   useEffect(() => {
     useGameStore.getState().updateMeta({ certsNew: 0 });
     void issueCertificates();
   }, []);
 
-  const shown = [...certs].reverse();
+  const shown = uniqueCerts(certs).reverse();
   const missing = KINDS.filter((k) => !certs.some((x) => x.kind === k) || k === 'week' || k === 'month' || k === 'genius');
 
   return (

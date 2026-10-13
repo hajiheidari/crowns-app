@@ -35,6 +35,8 @@ const VAZIRMATN = {
   'Vazirmatn-Medium': require('../../assets/fonts/Vazirmatn-Medium.ttf'),
   'Vazirmatn-SemiBold': require('../../assets/fonts/Vazirmatn-SemiBold.ttf'),
   'Vazirmatn-Bold': require('../../assets/fonts/Vazirmatn-Bold.ttf'),
+  // Script font for names on certificates (Latin letters only; OFL).
+  GreatVibes: require('../../assets/fonts/GreatVibes-Regular.ttf'),
 };
 
 export default function RootLayout() {

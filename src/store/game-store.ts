@@ -668,7 +668,29 @@ export function useHydrated(): boolean {
  * friends-league crown (from the server, once a day; the server checks it again before issuing). New ones are added
  * to `meta.certs` and counted in `meta.certsNew`. Returns how many were added.
  */
-export async function checkCertificates(today = dateKey()): Promise<number> {
+let certCheck: Promise<number> | null = null;
+
+export function checkCertificates(today = dateKey()): Promise<number> {
+  // Home calls this on open and on returning to the app: one check at a time, or both add the same certificate.
+  certCheck ??= findCertificates(today).finally(() => {
+    certCheck = null;
+  });
+  return certCheck;
+}
+
+const certKey = (c: Cert) => `${c.kind}:${c.period}`;
+
+/** One certificate per kind and period (1.1.0 builds could save the same one twice). */
+export function uniqueCerts(certs: Cert[]): Cert[] {
+  const seen = new Map<string, Cert>();
+  for (const c of certs) {
+    const prev = seen.get(certKey(c));
+    if (!prev || (!prev.id && c.id)) seen.set(certKey(c), c);
+  }
+  return [...seen.values()];
+}
+
+async function findCertificates(today: string): Promise<number> {
   const found: Cert[] = [];
   const st = useGameStore.getState();
   const have = (kind: CertKind, period?: string) => st.meta.certs.some((c) => c.kind === kind && (!period || c.period === period));
@@ -690,12 +712,14 @@ export async function checkCertificates(today = dateKey()): Promise<number> {
     }
     useGameStore.getState().updateMeta({ certCheckedDay: today });
   }
-  if (found.length) {
-    const m = useGameStore.getState().meta;
-    useGameStore.getState().updateMeta({ certs: [...m.certs, ...found], certsNew: m.certsNew + found.length });
+  const m = useGameStore.getState().meta;
+  const current = uniqueCerts(m.certs);
+  const added = found.filter((f) => !current.some((c) => certKey(c) === certKey(f)));
+  if (added.length || current.length !== m.certs.length) {
+    useGameStore.getState().updateMeta({ certs: [...current, ...added], certsNew: m.certsNew + added.length });
   }
   await issueCertificates();
-  return found.length;
+  return added.length;
 }
 
 /**

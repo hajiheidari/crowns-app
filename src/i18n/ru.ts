@@ -44,19 +44,21 @@ export const ru: Dict = {
   },
   fullDate: (key: string) => {
     const [y, m, d] = key.split('-').map(Number);
-    return `${d} ${MONTHS_GEN[m - 1]} ${y} г.`;
+    return `${d} ${MONTHS_GEN[m - 1]} ${y}`;
   },
   certsTitle: 'Сертификаты',
-  certKicker: 'Почётный сертификат',
+  certKicker: 'за достижение',
   certHeads: { week: 'Чемпион недели', month: 'Чемпион месяца', streak30: '30 дней подряд', streak100: '100 дней подряд', genius: 'Уровень «Гений»' },
-  certCertify: 'Настоящим удостоверяется, что',
+  certCertify: 'С гордостью вручается',
   certBody: {
-    week: (date: string) => `победил(а) в лиге друзей Tiaro за неделю с ${date}.`,
-    month: (date: string) => `победил(а) в лиге друзей Tiaro за месяц с ${date}.`,
-    streak30: (date: string) => `решал(а) ежедневную головоломку Tiaro 30 дней подряд и достиг(ла) этого ${date}.`,
-    streak100: (date: string) => `решал(а) ежедневную головоломку Tiaro 100 дней подряд и достиг(ла) этого ${date}.`,
-    genius: (date: string) => `достиг(ла) уровня «Гений» в недельном счёте ума Tiaro ${date}.`,
+    week: (date: string) => `за победу в лиге друзей Tiaro за неделю с ${date}.`,
+    month: (date: string) => `за победу в лиге друзей Tiaro за месяц с ${date}.`,
+    streak30: (date: string) => `за 30 дней подряд с ежедневной головоломкой Tiaro (${date}).`,
+    streak100: (date: string) => `за 100 дней подряд с ежедневной головоломкой Tiaro (${date}).`,
+    genius: (date: string) => `за уровень «Гений» в недельном счёте ума Tiaro (${date}).`,
   },
+  certWord: 'Сертификат',
+  certYearAward: (year: number) => `награда ${year}`,
   certPlayer: 'Игрок Tiaro',
   certNo: '№',
   certSigned: 'Tiaro · Ежедневная головоломка',
