@@ -1,6 +1,6 @@
 import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackButton } from '@/components/back-button';
@@ -29,6 +29,10 @@ import { getLanguage, S } from '@/strings';
 import { Text } from '@/components/text';
 
 export function GameScreen({ id, versus }: { id: string; versus?: number }) {
+  // The board is as big as the screen allows (iPad, unfolded phones): width minus margins, and the height minus the
+  // top bar, toolbar and room for a hint card. Phones keep their full-width board.
+  const { width: screenW, height: screenH } = useWindowDimensions();
+  const boardMax = Math.max(280, Math.min(screenW - 24, screenH - (screenH > 900 ? 400 : 300), 900));
   const { c } = usePalette();
   const router = useRouter();
   const focused = useIsFocused();
@@ -260,7 +264,7 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
         <Text style={[styles.status, { color: c.textSecondary }]}>
           {solved ? S.solvedIn(formatTime(game?.seconds ?? 0)) : S.crownsCount(crowns, puzzle.n)}
         </Text>
-        <View style={styles.boardBox}>
+        <View style={[styles.boardBox, { maxWidth: boardMax }]}>
           {game && (
             <Board
               puzzle={puzzle}
@@ -398,7 +402,7 @@ const styles = StyleSheet.create({
   timer: { fontSize: 15, fontVariant: ['tabular-nums'], marginTop: 2 },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, gap: 12 },
   status: { fontSize: 15, fontWeight: '600' },
-  boardBox: { width: '100%', maxWidth: 560 },
+  boardBox: { width: '100%' },
   pausedCover: { alignItems: 'center', justifyContent: 'center', gap: 16, borderRadius: 6 },
   pausedText: { fontSize: 22, fontWeight: '700' },
   help: { fontSize: 13, textAlign: 'center' },

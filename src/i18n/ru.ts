@@ -115,7 +115,7 @@ export const ru: Dict = {
   appName: 'Tiaro',
   tagline: 'Ежедневные логические головоломки',
   today: 'Сегодня',
-  daily: (n: number) => (n >= 1 ? `Головоломка дня №${n}` : 'Превью дня'),
+  daily: (n: number) => (n >= 1 ? `Задача дня №${n}` : 'Превью дня'),
   unlimitedTitle: (d: Difficulty, n: number) => `${DIFFICULTY[d]} №${n}`,
   play: 'Играть',
   continue: 'Продолжить',

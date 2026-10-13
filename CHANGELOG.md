@@ -2,6 +2,14 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.1.0 — 2026-10-13
+- Coins: a daily bonus (more for days in a row), coins for daily, hard and expert wins, and for friends who open your links. Spend them in the new Shop on hints, crowns and board styles.
+- Certificates: become champion of your friends league for a week or a month, keep a 30- or 100-day streak, or reach Genius, and get a certificate to share.
+- Brain score this month, this year and all time, and a monthly friends league.
+- Game Center on iPhone and iPad: worldwide leaderboards and achievements.
+- Русский язык. Bigger board on iPad and large screens; Home gives the free space to the Unlimited Puzzles tiles.
+- No more banner or full-screen ads: the only ads are optional, for coins.
+
 ## 1.0.13 — 2026-10-11
 - Backup: your progress is saved online under a recovery code (Settings → Backup). Enter it on a new phone or the web to get everything back; on iPhone a reinstall restores it by itself.
 - The brain score card is gold in every theme (also the iPhone widget) and grows to fill big screens; Home never scrolls on a normal phone.

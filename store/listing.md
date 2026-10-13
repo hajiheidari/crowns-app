@@ -51,14 +51,17 @@ Everyone gets the same daily puzzle. Your first week starts gently and grows wit
 NEVER GUESS
 Every puzzle has exactly one solution and can be solved by pure logic. When you get stuck, a hint teaches you the next step: first where to look, then why it works.
 
-YOUR WEEKLY BRAIN SCORE
-Every solve earns points for difficulty, speed and playing without hints. See your score for the last 7 days, your level from Warming up to Genius, and how you did against last week. Add the widget to your iPhone home screen to keep it in sight.
+YOUR BRAIN SCORE
+Every solve earns points for difficulty, speed and playing without hints. See your score this week, this month, this year and all time, your level from Warming up to Genius, and how you did against last week. Add the widget to your iPhone home screen to keep it in sight.
 
-FRIENDS LEAGUE
-Everyone who opens your invite or challenge link joins your weekly league. Pick a nickname and an animal, climb the table, and take the crown for the week.
+FRIENDS LEAGUE AND CERTIFICATES
+Everyone who opens your invite or challenge link joins your league. Pick a nickname and an animal, climb the weekly and monthly tables, and win a champion certificate to share. Long streaks and the Genius level earn certificates too.
 
-HINTS YOU EARN, NOT BUY
-There is nothing to buy here. Share a result or invite a friend and get free hints.
+GAME CENTER
+Compete on worldwide leaderboards and unlock achievements on iPhone and iPad.
+
+COINS AND SHOP
+Get a daily bonus for coming back, coins for daily and hard wins and for friends who open your links. Spend them on hints, royal crowns and board styles.
 
 PLAY AS MUCH AS YOU LIKE
 Unlimited Puzzles in four levels, from relaxing 5×5 boards to tough 11×11 grids.
@@ -72,13 +75,13 @@ MADE FOR YOU
 • Daily reminder at the time you choose
 • Puzzles work offline
 • Your progress is backed up: a recovery code brings it back on a new phone
-• In English, Arabic and Persian
+• In English, Arabic, Persian and Russian
 
 CHALLENGE YOUR FRIENDS
 Share your result without spoilers, or send a challenge link so a friend can race your time on the same puzzle.
 
 FREE, NO ADS, NO SUBSCRIPTION
-Tiaro is free to play. No ads, no subscription, no account needed.
+Tiaro is free to play. No banner ads, no subscription, no account needed.
 
 (Google Play / any build with ads: the last paragraph becomes "FREE, NO SUBSCRIPTION — Tiaro is free to play, with no subscription. Ever.")
 

@@ -23,9 +23,8 @@ import { DIFFICULTY_LABEL, DIFFICULTY_SIZES, isRTL, S } from '@/strings';
 import { APP_VERSION } from '@/constants/version';
 import { Text } from '@/components/text';
 
-/** Unlimited Puzzles tile heights: one row of four needs TILE_MIN; two rows of two grow up to TILE_MAX each. */
+/** Unlimited Puzzles tile height: one row of four needs TILE_MIN; two rows of two share all the free height. */
 const TILE_MIN = 76;
-const TILE_MAX = 170;
 
 const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia, serif' });
 
@@ -176,7 +175,7 @@ export default function HomeScreen() {
           <View style={styles.cardHead}>
             <View style={styles.flexShrink}>
               <Text style={[styles.cardEyebrow, { color: c.textSecondary }]}>{S.today.toUpperCase()}</Text>
-              <Text style={[styles.cardTitle, { color: c.text }]} numberOfLines={1}>
+              <Text style={[styles.cardTitle, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit>
                 {S.daily(info?.number ?? 0)}
               </Text>
             </View>
@@ -244,7 +243,7 @@ export default function HomeScreen() {
           <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
           <View style={styles.grid} onLayout={(e) => setGridHeight(Math.round(e.nativeEvent.layout.height))}>
             {(twoRows ? [DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)] : [DIFFICULTIES]).map((row) => (
-              <View key={row.join()} style={[styles.gridRow, { maxHeight: twoRows ? TILE_MAX : TILE_MIN + 24 }]}>
+              <View key={row.join()} style={[styles.gridRow, !twoRows && { maxHeight: TILE_MIN + 24 }]}>
                 {row.map((d) => (
                   <DifficultyTile
                     key={d}
@@ -327,7 +326,7 @@ function DifficultyTile({ difficulty, solved, big, onPress }: { difficulty: Diff
 const styles = StyleSheet.create({
   root: { flex: 1 },
   // Sized so the whole Home fits one phone screen without scrolling (still scrolls on tiny phones / big fonts).
-  scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 8, gap: 8, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 8, gap: 8, maxWidth: 680, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },

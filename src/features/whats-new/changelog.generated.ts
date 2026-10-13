@@ -3,6 +3,18 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.0",
+    "date": "2026-10-13",
+    "items": [
+      "Coins: a daily bonus (more for days in a row), coins for daily, hard and expert wins, and for friends who open your links. Spend them in the new Shop on hints, crowns and board styles.",
+      "Certificates: become champion of your friends league for a week or a month, keep a 30- or 100-day streak, or reach Genius, and get a certificate to share.",
+      "Brain score this month, this year and all time, and a monthly friends league.",
+      "Game Center on iPhone and iPad: worldwide leaderboards and achievements.",
+      "Русский язык. Bigger board on iPad and large screens; Home gives the free space to the Unlimited Puzzles tiles.",
+      "No more banner or full-screen ads: the only ads are optional, for coins."
+    ]
+  },
+  {
     "version": "1.0.13",
     "date": "2026-10-11",
     "items": [
