@@ -22,4 +22,5 @@ await shot('3-hint', 'game', '/play/' + seed.mid, async (pg) => { await pg.getBy
 await shot('4-stats', 'stats', '/stats');
 await shot('5-win', 'win', `/play/${seed.mid}?vs=104`, async (pg) => { await tapCell(pg, seed.lastRow, seed.lastCol, 2); await pg.waitForTimeout(2000); });
 await shot('6-dark', 'dark', '/play/' + seed.hard, null, 'dark');
+await shot('7-cert', 'home', '/certificates');
 await b.close(); srv.close();

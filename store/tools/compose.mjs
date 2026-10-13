@@ -11,6 +11,7 @@ const slides = [
   { raw: '4-stats', bg: '#FFF3C8', accent: '#B8891A', title: 'Build your<br>daily streak', sub: 'Every solve, best time and streak, tracked.' },
   { raw: '5-win', bg: '#DCEBFB', accent: '#3E73B8', title: 'Challenge<br>your friends', sub: 'Send a link and race the same puzzle.' },
   { raw: '6-dark', bg: '#1F1B16', accent: '#E0BD4A', title: 'Easy on<br>the eyes', sub: 'Dark mode and color-blind patterns.', dark: true },
+  { raw: '7-cert', bg: '#EFE4C8', accent: '#B8901F', title: 'Win certificates<br>to share', sub: 'Champion of the week, the month and more.' },
 ];
 function html(s, W, H) {
   const img = 'data:image/png;base64,' + b64(path.join(dir, 'raw', s.raw + '.png'));

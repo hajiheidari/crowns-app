@@ -18,6 +18,7 @@ const T = {
     ['Build your daily streak', 'Every solve, best time and streak, tracked.'],
     ['Challenge your friends', 'Send a link and race the same puzzle.'],
     ['Easy on the eyes', 'Dark mode and color-blind patterns.'],
+    ['Win certificates to share', 'Champion of the week, the month and more.'],
   ],
   ar: [
     ['لغز منطقي جديد كل يوم', 'مجاني، دون اشتراك.'],
@@ -26,11 +27,13 @@ const T = {
     ['ابنِ سلسلتك اليومية', 'كل حل وأفضل وقت وسلسلة، محفوظة.'],
     ['تحدَّ أصدقاءك', 'أرسل رابطًا وتسابقا على اللغز نفسه.'],
     ['مريح للعينين', 'وضع داكن وأنماط لعمى الألوان.'],
+    ['اربح شهادات وشاركها', 'بطل الأسبوع والشهر والمزيد.'],
   ],
 }[lang];
 const look = [
   ['1-home', '#FAF7F0', '#C9A227'], ['2-game', '#E8E1F5', '#7A5BB5'], ['3-hint', '#FCE9D6', '#C2742F'],
   ['4-stats', '#FFF3C8', '#B8891A'], ['5-win', '#DCEBFB', '#3E73B8'], ['6-dark', '#1F1B16', '#E0BD4A'],
+  ['7-cert', '#EFE4C8', '#B8901F'],
 ];
 const W = 2048, H = 2732, u = W / 100;
 function html(i) {
@@ -49,5 +52,5 @@ function html(i) {
 }
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
 const pg = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
-for (let i = 0; i < 6; i++) { await pg.setContent(html(i)); await pg.waitForTimeout(300); await pg.screenshot({ path: path.join(out, `${look[i][0]}.png`) }); }
+for (let i = 0; i < look.length; i++) { await pg.setContent(html(i)); await pg.waitForTimeout(300); await pg.screenshot({ path: path.join(out, `${look[i][0]}.png`) }); }
 await b.close(); console.log('ok');

@@ -59,6 +59,10 @@ const base = (over: Record<string, unknown> = {}) => ({
       lastInterstitialAt: null,
       removeAds: true,
       hintCredits: 3, // the hint shot shows a hint, not "no free hints left"
+      coins: 340,
+      certCheckedDay: "2026-10-22", // no certificate pop-up over the Home shot
+      nickname: "Alex",
+      certs: [{ kind: "week" as const, period: "2026-10-12", id: "k7m2qpa9" }],
       archiveUnlocked: [],
       lastRepairKey: null,
     },
