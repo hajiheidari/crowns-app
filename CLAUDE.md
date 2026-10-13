@@ -176,6 +176,22 @@ Read these before writing code:
   the scrollHeight script), the brain card takes all free height; only tiny screens (≤375×603) scroll. League week: Saturday in fa,
   Monday in en/ar (`weekFirstFor`; the client posts both week kinds). Shares never name the level or number (`S.challengeMessage`).
   Build credits: one iOS build per batch, cancel superseded builds; Android is built locally, web by Cloudflare (both free).
+- v1.1.0 (Amir 2026-10-13, after 1.0.13 went to App Review): **coins** (`features/coins/policy.ts`, tested: login 10→30 for days in
+  a row, daily win 10, hard 5 / expert 10 capped 50/day, rewarded ad 20 ×5/day, friend opens a link 25 (server count, as before);
+  hint 30, archive day 20, streak repair 100) and a **Shop** (`src/app/shop.tsx`, `features/shop/catalog.ts`: board styles keep
+  each region's hue so hint texts stay true; crowns with a gem; hint packs). `meta.coins/owned`, `settings.boardTheme/crownStyle`.
+  **Ads are rewarded only**: Adivery in Bazaar, `ad-networks/none` elsewhere (Amir will pick a non-AdMob network). AdMob,
+  RevenueCat, Remove Ads, banners, interstitials, ATT and `EXPO_PUBLIC_ADS` are gone. Brain points are kept per day
+  (`store.points`, never trimmed) → week/month/year/all (`periodScores`, Jalali month/year in fa) in Stats; friends league has a
+  month tab (worker `months` map, `?month=&prev=`). **Certificates** (`features/certificates`, `src/app/certificates.tsx`,
+  `worker/certs.js`): week/month champion (server re-checks the league), streak30/100, genius; `/cert/<id>` page
+  (`run_worker_first` includes `/cert/*`) whose play link carries the invite code. **Game Center**: local module
+  `modules/tiaro-game-center` (Swift, GameKit, iOS only, swift 5.9), `services/game-center.ts`; ASC setup in
+  `store/game-center/README.md` (weekly recurring board, all-time, best streak, 7 achievements) — add them to the version's
+  Game Center section when submitting 1.1. **Russian** (`i18n/ru.ts`, `plural()`, system font like en, engine `explainStepRu`
+  with declined unit names, `locales/ru.json`, `store/listing-ru.md`). Home: brain card height = daily card (`onLayout`),
+  Unlimited tiles take the free height (two rows of two when there is room), coins card drops its text on short phones;
+  game board `boardMax` from the window (iPad/unfolded phones up to 900). Store screenshots now 7 (certificates shot).
  Amir only wanted to save build credits; web (Cloudflare) and the local
   Android builds cost none, so web + Android + iPhone are updated together again (`web-release.json` hold = false).
   `web-release.json` `"hold": true` makes `scripts/build-site.mjs` reuse the live game files (the web game stays at 1.0.7) while the
