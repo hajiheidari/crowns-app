@@ -108,7 +108,10 @@ export default function HomeScreen() {
         : S.play;
 
   // Small phones (iPhone SE 1st gen, compact Androids): tighter header so the streak pill never overlaps the name.
-  const narrow = useWindowDimensions().width < 360;
+  const { width: screenW, height: screenH } = useWindowDimensions();
+  const narrow = screenW < 360;
+  // Short phones (iPhone SE, 667 pt): the coins card drops its description so Home still fits.
+  const short = screenH < 720;
   const open = (id: string) => router.push({ pathname: '/play/[id]', params: { id } });
 
   return (
@@ -211,7 +214,7 @@ export default function HomeScreen() {
               )}
             </Pressable>
           </View>
-          <Text style={[styles.hintsBody, { color: c.textSecondary }]} numberOfLines={2}>{S.coinsCardBody}</Text>
+          {!short && <Text style={[styles.hintsBody, { color: c.textSecondary }]} numberOfLines={2}>{S.coinsCardBody}</Text>}
           <View style={styles.coinsButtons}>
             <Button
               label={`🎁 ${S.inviteFriends}`}
