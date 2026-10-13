@@ -13,6 +13,7 @@ import { RTL_TEXT, Text } from '@/components/text';
 import { AVATARS } from '@/features/league/avatars';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { usePalette } from '@/hooks/use-palette';
+import { gameCenterAvailable, openGameCenter } from '@/services/game-center';
 import type { LeaguePlayer } from '@/services/invites';
 import { issueCertificates, loadLeague, syncLeague, useGameStore } from '@/store/game-store';
 import { getLanguage, isRTL, S } from '@/strings';
@@ -158,6 +159,8 @@ export default function LeagueScreen() {
 
         <Text style={[styles.note, { color: c.textSecondary }]}>{kind === 'week' ? S.leagueCrownNote : S.leagueCrownNoteMonth}</Text>
         <Button label={S.certOpen} variant="secondary" onPress={() => router.push('/certificates')} />
+        {gameCenterAvailable && <Button label={S.gameCenterOpen} variant="secondary" onPress={() => void openGameCenter()} />}
+
         <Button label={`🎁 ${S.leagueInvite}`} onPress={async () => setNote(shareNote(await shareInvite(), S.inviteCopied))} />
         {note && <Text selectable style={[styles.note, { color: c.text }]}>{note}</Text>}
       </ScrollView>

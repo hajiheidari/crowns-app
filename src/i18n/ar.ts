@@ -70,6 +70,7 @@ export const ar: Dict = {
   certNameHint: 'يُطبع لقبك في الدوري على شهاداتك.',
   certSetName: 'اختر لقبًا',
   certMore: 'احصل على المزيد',
+  gameCenterOpen: '🎮 لوحات Game Center',
   certOpen: '🏅 الشهادات',
   language: 'اللغة',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },

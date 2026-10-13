@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AdHost } from '@/features/monetization/ad-host';
 import { usePalette } from '@/hooks/use-palette';
 import { initAds } from '@/services/ads';
+import { initGameCenter } from '@/services/game-center';
 import { enableDailyReminder, remindersSupported } from '@/services/notifications';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
@@ -54,6 +55,7 @@ export default function RootLayout() {
     const asked = languageFromUrl();
     if (asked) s.updateSettings({ language: asked });
     initAds();
+    void initGameCenter(); // iPhone/iPad: Game Center sign-in (no-op elsewhere)
     // The daily reminder is on by default (Amir 2026-10-11): ask for notification permission once, at the first
     // launch, and keep it on only if the player allows it. Settings can turn it off or change the time.
     if (remindersSupported && !s.meta.reminderAsked) {

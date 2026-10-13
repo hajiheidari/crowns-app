@@ -63,6 +63,7 @@ export const en = {
   certNameHint: 'Your league nickname is printed on your certificates.',
   certSetName: 'Set nickname',
   certMore: 'Earn more',
+  gameCenterOpen: '🎮 Game Center leaderboards',
   certOpen: '🏅 Certificates',
   language: 'Language',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },

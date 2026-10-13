@@ -75,6 +75,7 @@ export const ru: Dict = {
   certNameHint: 'Ваш ник в лиге печатается на сертификатах.',
   certSetName: 'Выбрать ник',
   certMore: 'Получить ещё',
+  gameCenterOpen: '🎮 Рейтинги Game Center',
   certOpen: '🏅 Сертификаты',
   language: 'Язык',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },

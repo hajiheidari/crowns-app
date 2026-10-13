@@ -14,6 +14,7 @@ import { CoinsSheet } from '@/features/coins/coins-sheet';
 import { COINS } from '@/features/coins/policy';
 import { streakRepairOffer } from '@/features/monetization/policy';
 import { rewardedAvailable } from '@/services/ads';
+import { reportGameCenter } from '@/services/game-center';
 
 import { usePalette } from '@/hooks/use-palette';
 import { shareInvite, shareNote } from '@/features/share/actions';
@@ -78,6 +79,7 @@ export default function HomeScreen() {
       const login = claimLoginCoins();
       if (login) setInviteNote(S.loginBonus(login.coins, login.streak));
       void loadLeague(); // keeps the league rank on the brain card fresh
+      void reportGameCenter();
       const n = await syncEarnedCoins();
       if (n > 0) setInviteNote(S.hintEarned(n / COINS.perFriend));
       // Say so once, when a new certificate shows up.

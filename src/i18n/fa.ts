@@ -67,6 +67,7 @@ export const fa: Dict = {
   certNameHint: 'اسم مستعار لیگ روی گواهی‌نامه‌هایت چاپ می‌شود.',
   certSetName: 'انتخاب اسم مستعار',
   certMore: 'گواهی‌نامه‌های بیشتر',
+  gameCenterOpen: '🎮 رتبه‌بندی جهانی Game Center',
   certOpen: '🏅 گواهی‌نامه‌ها',
   language: 'زبان',
   languageNames: { en: 'English', fa: 'فارسی', ar: 'العربية', ru: 'Русский' },

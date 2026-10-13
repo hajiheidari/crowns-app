@@ -19,7 +19,10 @@
         "NSPhotoLibraryAddUsageDescription": "Tiaro saves your result picture only when you choose to share or save it."
       },
       "supportsTablet": true,
-      "requireFullScreen": true
+      "requireFullScreen": true,
+      "entitlements": {
+        "com.apple.developer.game-center": true
+      }
     },
     "android": {
       "adaptiveIcon": {

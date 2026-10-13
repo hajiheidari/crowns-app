@@ -13,6 +13,7 @@ import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
 import { ZOOM_MIN_N } from '@/features/game/zoom';
 import { CoinsSheet } from '@/features/coins/coins-sheet';
+import { reportGameCenter } from '@/services/game-center';
 import { COINS } from '@/features/coins/policy';
 import { streakMilestone } from '@/features/analytics/events';
 import { shareChallenge, shareNote } from '@/features/share/actions';
@@ -76,7 +77,8 @@ export function GameScreen({ id, versus }: { id: string; versus?: number }) {
       const result = complete(id, puzzle.difficulty);
       if (!result) return;
       void syncLeague(); // friends see the new weekly score
-      void syncBackup(id.startsWith('daily-')); // a daily win (streak) is backed up at once, others every few hours
+      void syncBackup(id.startsWith('daily-'));
+      void reportGameCenter(); // a daily win (streak) is backed up at once, others every few hours
       const mode = puzzleInfo(id)?.mode ?? 'unlimited';
       track('puzzle_complete', { mode, difficulty: puzzle.difficulty, n: puzzle.n, seconds: result.seconds, hints: result.hints });
       const milestone = result.streak !== undefined ? streakMilestone(result.streak) : null;

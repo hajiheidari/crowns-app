@@ -9,6 +9,7 @@ import { BrainTotals } from '@/features/brain/brain-totals';
 import { MonthCalendar } from '@/features/stats/month-calendar';
 import { Sparkline } from '@/features/stats/sparkline';
 import { usePalette } from '@/hooks/use-palette';
+import { gameCenterAvailable, openGameCenter } from '@/services/game-center';
 import { currentStreak, useGameStore } from '@/store/game-store';
 import { DIFFICULTY_LABEL, S } from '@/strings';
 import { Text } from '@/components/text';
@@ -26,6 +27,7 @@ export default function StatsScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <BrainTotals />
         <Button label={S.certOpen} variant="secondary" onPress={() => router.push('/certificates')} />
+        {gameCenterAvailable && <Button label={S.gameCenterOpen} variant="secondary" onPress={() => void openGameCenter()} />}
         <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
           <View style={styles.tiles}>
             <Tile label={S.currentStreak} value={`🔥 ${streak}`} />
