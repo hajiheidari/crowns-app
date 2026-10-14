@@ -7,6 +7,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { CoinIcon } from '@/components/coin-icon';
 import { CrownIcon } from '@/components/crown-icon';
 import { ScreenHeader } from '@/components/screen-header';
 import { Text } from '@/components/text';
@@ -74,7 +75,11 @@ export default function ShopScreen() {
           accessibilityRole="button"
           onPress={() => setNeed(0)}
           style={[styles.balance, { backgroundColor: c.gold + '2E', borderColor: c.gold }]}>
-          <Text style={[styles.balanceText, { color: c.text }]}>🪙 {coins}</Text>
+          {/* The big balance: coin and number side by side, centred on each other (an inline coin sat low here). */}
+          <View style={styles.balanceRow}>
+            <CoinIcon size={30} />
+            <Text style={[styles.balanceText, { color: c.text }]}>{coins}</Text>
+          </View>
           <Text style={[styles.balanceLink, { color: c.text }]}>{S.coinsWays}</Text>
         </Pressable>
         {note && <Text style={[styles.note, { color: c.text }]}>{note}</Text>}
@@ -163,6 +168,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { padding: 16, gap: 12, maxWidth: 720, width: '100%', alignSelf: 'center' },
   balance: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1.5, borderRadius: 18, padding: 14 },
+  balanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   balanceText: { fontSize: 26, fontWeight: '800', fontVariant: ['tabular-nums'] },
   balanceLink: { fontSize: 14, fontWeight: '700' },
   note: { fontSize: 14, fontWeight: '700', textAlign: 'center' },

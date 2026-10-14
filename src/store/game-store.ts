@@ -13,6 +13,7 @@ import { adAllowed, adReward, COINS, loginReward, winReward, type CoinDay } from
 import { rewardedAvailable, showRewarded } from '@/services/ads';
 import { track } from '@/services/analytics';
 import { brainLevel, calendarFor, leaguePoints, weekScore, periodScores, periodStart, pointsFromLog, solvePoints, weekFirstFor, weekStart, type DayPoints, type SolveLog } from '@/features/brain/score';
+import { sameCert, uniqueCerts, type Cert, type CertKind } from '@/features/certificates/certs';
 import { addDays, dateKey, CROSS, CROWN, DIFFICULTIES, EMPTY, type Difficulty, type Mark } from '@/engine';
 import { puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { DEFAULT_LANGUAGE, getLanguage, type Language } from '@/i18n';
@@ -123,14 +124,7 @@ export interface Meta {
   restoredAuto: boolean;
 }
 
-export type CertKind = 'week' | 'month' | 'streak30' | 'streak100' | 'genius';
-
-export interface Cert {
-  kind: CertKind;
-  /** Week/month start for champions, the day it was reached for milestones. */
-  period: string;
-  id: string | null;
-}
+export type { Cert, CertKind } from '@/features/certificates/certs';
 
 export interface WinResult {
   seconds: number;
@@ -678,22 +672,12 @@ export function checkCertificates(today = dateKey()): Promise<number> {
   return certCheck;
 }
 
-const certKey = (c: Cert) => `${c.kind}:${c.period}`;
-
-/** One certificate per kind and period (1.1.0 builds could save the same one twice). */
-export function uniqueCerts(certs: Cert[]): Cert[] {
-  const seen = new Map<string, Cert>();
-  for (const c of certs) {
-    const prev = seen.get(certKey(c));
-    if (!prev || (!prev.id && c.id)) seen.set(certKey(c), c);
-  }
-  return [...seen.values()];
-}
+export { uniqueCerts };
 
 async function findCertificates(today: string): Promise<number> {
   const found: Cert[] = [];
   const st = useGameStore.getState();
-  const have = (kind: CertKind, period?: string) => st.meta.certs.some((c) => c.kind === kind && (!period || c.period === period));
+  const have = (kind: CertKind, period?: string) => st.meta.certs.some((c) => (period ? sameCert(c, { kind, period }) : c.kind === kind));
   if (st.daily.bestStreak >= 30 && !have('streak30')) found.push({ kind: 'streak30', period: today, id: null });
   if (st.daily.bestStreak >= 100 && !have('streak100')) found.push({ kind: 'streak100', period: today, id: null });
   // Genius: once per league week.
@@ -714,7 +698,7 @@ async function findCertificates(today: string): Promise<number> {
   }
   const m = useGameStore.getState().meta;
   const current = uniqueCerts(m.certs);
-  const added = found.filter((f) => !current.some((c) => certKey(c) === certKey(f)));
+  const added = found.filter((f) => !current.some((c) => sameCert(c, f)));
   if (added.length || current.length !== m.certs.length) {
     useGameStore.getState().updateMeta({ certs: [...current, ...added], certsNew: m.certsNew + added.length });
   }

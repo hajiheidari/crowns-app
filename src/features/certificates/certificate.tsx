@@ -7,7 +7,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { forwardRef } from 'react';
 import { Platform, Text as RNText, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, Ellipse, G, Path, Polygon, Rect, Stop, LinearGradient as SvgGradient, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Defs, G, Path, Polygon, Rect, Stop, LinearGradient as SvgGradient, Text as SvgText } from 'react-native-svg';
 
 import { MONO, Text } from '@/components/text';
 import { LINK_BASE } from '@/constants/links';
@@ -91,8 +91,6 @@ function Decor({ width, height, year }: { width: number; height: number; year: n
   const dots: [number, number][] = [];
   // Dots in the bottom-left corner, away from the text and the signature.
   for (let x = 6; x <= 26; x += 3.2) for (let y = 146; y <= 172; y += 3.2) if (x - 6 + (172 - y) < 24) dots.push([x, y]);
-  // Laurel leaves around the medal: two arcs of small leaves.
-  const leaves = Array.from({ length: 9 }, (_, i) => i);
   return (
     <Svg width={width} height={height} viewBox={`0 0 100 ${h}`} style={StyleSheet.absoluteFill}>
       <Defs>
@@ -126,28 +124,23 @@ function Decor({ width, height, year }: { width: number; height: number; year: n
         <Circle r={11.6} fill="url(#certMedal)" />
         <Circle r={9.2} fill="#0B3E35" />
         <Circle r={8.4} fill="none" stroke={GOLD} strokeWidth={0.3} />
-        {leaves.map((i) => {
-          const a = (-200 + i * 22) * (Math.PI / 180);
-          const b = (20 - i * 22) * (Math.PI / 180);
-          return (
-            <G key={i}>
-              <Ellipse cx={6.6 * Math.cos(a)} cy={6.6 * Math.sin(a) + 1.2} rx={0.6} ry={1.25} fill={GOLD} transform={`rotate(${(a * 180) / Math.PI + 90} ${6.6 * Math.cos(a)} ${6.6 * Math.sin(a) + 1.2})`} />
-              <Ellipse cx={6.6 * Math.cos(b)} cy={6.6 * Math.sin(b) + 1.2} rx={0.6} ry={1.25} fill={GOLD} transform={`rotate(${(b * 180) / Math.PI + 90} ${6.6 * Math.cos(b)} ${6.6 * Math.sin(b) + 1.2})`} />
-            </G>
-          );
-        })}
-        <SvgText x={0} y={-2.6} fontSize={2} fill={GOLD} textAnchor="middle" letterSpacing={0.4} fontWeight="bold">
+        {/* Each word gets a fixed length (textLength), because iPhones draw SVG text in a wider font than the web and
+            the year ran into the rim. */}
+        <SvgText x={0} y={-3.3} fontSize={1.7} fill={GOLD} textAnchor="middle" fontWeight="bold" textLength={7.6} lengthAdjust="spacingAndGlyphs">
           TIARO
         </SvgText>
-        <SvgText x={0} y={2.4} fontSize={4.4} fill={GOLD} textAnchor="middle" fontWeight="bold">
+        <SvgText x={0} y={2.1} fontSize={4} fill={GOLD} textAnchor="middle" fontWeight="bold" textLength={10.4} lengthAdjust="spacingAndGlyphs">
           {String(year)}
         </SvgText>
-        <SvgText x={0} y={5.4} fontSize={1.5} fill={GOLD} textAnchor="middle" letterSpacing={0.3}>
+        <SvgText x={0} y={5.3} fontSize={1.3} fill={GOLD} textAnchor="middle" textLength={6.6} lengthAdjust="spacingAndGlyphs">
           AWARD
         </SvgText>
+        {/* Two small stars beside "AWARD" instead of laurels, which crowded the year. */}
+        <Circle cx={-5.2} cy={4.85} r={0.45} fill={GOLD} />
+        <Circle cx={5.2} cy={4.85} r={0.45} fill={GOLD} />
       </G>
-      {/* A small crown on the top-left gold corner. */}
-      <G transform="translate(9 9) scale(0.55)">
+      {/* A small crown inside the top-left gold corner, clear of its diagonal edge. */}
+      <G transform="translate(6.5 6) scale(0.45)">
         <Path d="M3.2 17.5 2 7.2l5.4 4.1L12 4.2l4.6 7.1L22 7.2l-1.2 10.3Z M3.4 19h17.2v2.2H3.4Z" fill="#0B3E35" />
       </G>
     </Svg>

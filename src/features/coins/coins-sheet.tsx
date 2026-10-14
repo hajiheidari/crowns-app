@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { CoinIcon } from '@/components/coin-icon';
 import { Text } from '@/components/text';
 import { shareInvite, shareNote } from '@/features/share/actions';
 import { usePalette } from '@/hooks/use-palette';
@@ -48,7 +49,10 @@ export function CoinsSheet({ visible, need, onClose }: Props) {
     <Modal transparent visible={visible} animationType="fade" onRequestClose={close}>
       <Pressable style={[styles.backdrop, dirStyle()]} onPress={close}>
         <Pressable style={[styles.card, { backgroundColor: c.surface }]} onPress={() => {}}>
-          <Text style={[styles.balance, { color: c.text }]}>🪙 {coins}</Text>
+          <View style={styles.balanceRow}>
+            <CoinIcon size={32} />
+            <Text style={[styles.balance, { color: c.text }]}>{coins}</Text>
+          </View>
           <Text style={[styles.title, { color: c.text }]}>{missing > 0 ? S.coinsNotEnough : S.coinsWays}</Text>
           {missing > 0 && <Text style={[styles.body, { color: c.textSecondary }]}>{S.coinsNeed(missing)}</Text>}
           {rewardedAvailable && (
@@ -96,6 +100,7 @@ function Way({ icon, title, sub, children }: { icon: string; title: string; sub:
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 20 },
   card: { width: '100%', maxWidth: 400, borderRadius: 22, padding: 18, gap: 10 },
+  balanceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   balance: { fontSize: 30, fontWeight: '800', textAlign: 'center', fontVariant: ['tabular-nums'] },
   title: { fontSize: 18, fontWeight: '800', textAlign: 'center' },
   body: { fontSize: 14, textAlign: 'center' },

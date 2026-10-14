@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 /** Gold coin (the 🪙 emoji is silver on iPhone). Text shows it in place of every 🪙 (components/text.tsx). */
@@ -21,10 +21,14 @@ export function CoinIcon({ size }: { size: number }) {
   );
 }
 
+// Inline views sit on the text baseline on iOS and Android, but react-native-web places them higher, so only the web
+// needs the nudge down (on phones it put the coin below the digits).
+const NUDGE = Platform.OS === 'web' ? 0.16 : 0;
+
 /** The coin as an inline piece of text, sized and nudged to sit on the text line. */
 export function InlineCoin({ size }: { size: number }) {
   return (
-    <View style={{ width: size, height: size, transform: [{ translateY: size * 0.16 }] }}>
+    <View style={{ width: size, height: size, transform: [{ translateY: size * NUDGE }] }}>
       <CoinIcon size={size} />
     </View>
   );

@@ -202,6 +202,9 @@ Read these before writing code:
   app.json, and ios-build.yml checks every @rpath framework is in the .ipa before submitting. A simulator build via plain
   xcodebuild (`ios-sim-test.yml`, commit marker "[sim test]") did NOT reproduce it. Crash logs: iPhone Settings → Privacy →
   Analytics Data → Tiaro-….ips (TestFlight sends none to ASC unless the tester shares feedback).
+- v1.1.3: `features/certificates/certs.ts` (pure, `tests/app/certs.test.ts`): `sameCert` treats week/genius certificates whose
+  periods are < 7 days apart as one (Saturday vs Monday weeks), `uniqueCerts` keeps the earliest. Medal text uses SVG `textLength`
+  (iPhone SVG fonts are wider). `InlineCoin` nudges down only on web; big balances use a row with `CoinIcon`.
 - **iOS builds now run on GitHub Actions** (`.github/workflows/ios-build.yml`, 2026-10-13): the repo is public, so the macos-26
   runner (Xcode 26.6) is free; `eas build --local` uses no Expo build credits, then `eas submit` to TestFlight (~45 min). Start it
   with the MCP `actions_run_trigger` (run_workflow, ref = this branch) or a commit message containing the trigger words (keep them

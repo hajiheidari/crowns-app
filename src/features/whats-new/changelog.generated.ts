@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.3",
+    "date": "2026-10-14",
+    "items": [
+      "Certificates: one per week even after switching languages (Saturday and Monday weeks were counted twice); a cleaner medal and corner crown.",
+      "The coin sits level with the number in the Shop and the coins sheet."
+    ]
+  },
+  {
     "version": "1.1.2",
     "date": "2026-10-14",
     "items": [
