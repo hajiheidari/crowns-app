@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.1.2 — 2026-10-14
+- Fixed: the iPhone app closed right after the splash screen in 1.1.1.
+
 ## 1.1.1 — 2026-10-13
 - New board styles in the Shop: toy bricks, football pitch, colored metal, marble, galaxy and khatam inlay.
 - Certificates have a new story-sized design (green and gold, with a medal), and a certificate is never shown twice.

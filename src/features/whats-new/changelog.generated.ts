@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.2",
+    "date": "2026-10-14",
+    "items": [
+      "Fixed: the iPhone app closed right after the splash screen in 1.1.1."
+    ]
+  },
+  {
     "version": "1.1.1",
     "date": "2026-10-13",
     "items": [

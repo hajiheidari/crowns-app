@@ -50,6 +50,23 @@ jobs:
           EXPO_NO_CAPABILITY_SYNC: '1'
         run: npx --yes eas-cli@latest build -p ios --profile production --local --non-interactive --output "$RUNNER_TEMP/tiaro.ipa"
 
+      - name: Check that every linked framework is in the app
+        # Build 27 (1.1.1) linked @rpath/React.framework from a precompiled Expo module without shipping it, so it
+        # closed at launch on phones (the simulator build was fine). Never upload such a build.
+        run: |
+          rm -rf "$RUNNER_TEMP/ipa" && mkdir -p "$RUNNER_TEMP/ipa" && unzip -q "$RUNNER_TEMP/tiaro.ipa" -d "$RUNNER_TEMP/ipa"
+          APP=$(ls -d "$RUNNER_TEMP"/ipa/Payload/*.app | head -1)
+          missing=0
+          for bin in "$APP/$(basename "$APP" .app)" "$APP"/Frameworks/*.framework/* "$APP"/PlugIns/*.appex/*; do
+            [ -f "$bin" ] && file "$bin" | grep -q 'Mach-O' || continue
+            for dep in $(otool -L "$bin" | awk '/@rpath\/.*\.framework/ {print $1}'); do
+              name=${dep#@rpath/}
+              [ -e "$APP/Frameworks/$name" ] || { echo "MISSING: $dep (needed by ${bin#$APP/})"; missing=1; }
+            done
+          done
+          [ "$missing" = 0 ] && echo "All linked frameworks are present."
+          exit $missing
+
       - name: Submit to TestFlight
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

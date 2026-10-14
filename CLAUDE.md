@@ -197,6 +197,11 @@ Read these before writing code:
   medal (`certificate.tsx`, GreatVibes script font for Latin names; `worker/certs.js` page matches). Certificates are de-duplicated
   (`uniqueCerts`, single-flight `checkCertificates`). Tap bug: a pan that never left its start cell is a tap (board.tsx `d.left`).
   `CoinIcon`: Text turns every 🪙 into the gold drawing. Home squeezes itself in steps (index.tsx `squeeze` 0–6) until it fits.
+- v1.1.2: build 27 (1.1.1) closed at launch on phones: dyld "Library not loaded: @rpath/React.framework/React" from the
+  precompiled ExpoModulesWorklets.framework (expo-build-properties `ios.usePrecompiledModules` defaults to true). Now false in
+  app.json, and ios-build.yml checks every @rpath framework is in the .ipa before submitting. A simulator build via plain
+  xcodebuild (`ios-sim-test.yml`, commit marker "[sim test]") did NOT reproduce it. Crash logs: iPhone Settings → Privacy →
+  Analytics Data → Tiaro-….ips (TestFlight sends none to ASC unless the tester shares feedback).
 - **iOS builds now run on GitHub Actions** (`.github/workflows/ios-build.yml`, 2026-10-13): the repo is public, so the macos-26
   runner (Xcode 26.6) is free; `eas build --local` uses no Expo build credits, then `eas submit` to TestFlight (~45 min). Start it
   with the MCP `actions_run_trigger` (run_workflow, ref = this branch) or a commit message containing the trigger words (keep them
