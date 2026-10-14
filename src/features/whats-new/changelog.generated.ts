@@ -3,6 +3,13 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.4",
+    "date": "2026-10-14",
+    "items": [
+      "Home: tap the streak 🔥 to open Stats; the Shop has its own button at the top."
+    ]
+  },
+  {
     "version": "1.1.3",
     "date": "2026-10-14",
     "items": [

@@ -2,6 +2,9 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.1.4 — 2026-10-14
+- Home: tap the streak 🔥 to open Stats; the Shop has its own button at the top.
+
 ## 1.1.3 — 2026-10-14
 - Certificates: one per week even after switching languages (Saturday and Monday weeks were counted twice); a cleaner medal and corner crown.
 - The coin sits level with the number in the Shop and the coins sheet.

@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CrownIcon } from '@/components/crown-icon';
-import { SettingsIcon, StatsIcon } from '@/components/icons';
+import { SettingsIcon, ShopIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { BrainCard } from '@/features/brain/brain-card';
@@ -173,15 +173,18 @@ export default function HomeScreen() {
               <Text style={styles.flame}>🪙</Text>
               <Text style={[styles.streakText, { color: c.text }]}>{meta.coins}</Text>
             </Pressable>
-            <View
-              accessible
-              accessibilityLabel={S.streakDays(streak)}
-              style={[styles.streak, { backgroundColor: c.surfaceMuted }]}>
+            {/* The streak opens Stats (Amir: no separate Stats button; the header has the Shop instead). */}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${S.streakDays(streak)}, ${S.stats}`}
+              onPress={() => router.push('/stats')}
+              hitSlop={4}
+              style={({ pressed }) => [styles.streak, { backgroundColor: c.surfaceMuted, opacity: pressed ? 0.7 : 1 }]}>
               <Text style={styles.flame}>🔥</Text>
               <Text style={[styles.streakText, { color: streak ? c.flame : c.textSecondary }]}>{streak}</Text>
-            </View>
-            <HeaderButton label={S.stats} onPress={() => router.push('/stats')}>
-              <StatsIcon size={22} color={c.text} />
+            </Pressable>
+            <HeaderButton label={S.shopTitle} onPress={() => router.push('/shop')}>
+              <ShopIcon size={22} color={c.text} />
             </HeaderButton>
             <HeaderButton label={S.settings} onPress={() => router.push('/settings')}>
               <SettingsIcon size={22} color={c.text} />

@@ -10,6 +10,16 @@ export function StatsIcon({ size, color }: { size: number; color: string }) {
   );
 }
 
+/** Shopping bag (Home header → Shop). */
+export function ShopIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M5.2 8.5h13.6l-1 11.2a1.6 1.6 0 0 1-1.6 1.5H7.8a1.6 1.6 0 0 1-1.6-1.5Z" fill={color} />
+      <Path d="M8.8 10V7a3.2 3.2 0 0 1 6.4 0v3" stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+    </Svg>
+  );
+}
+
 export function SettingsIcon({ size, color }: { size: number; color: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
