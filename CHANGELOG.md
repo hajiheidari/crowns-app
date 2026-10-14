@@ -2,6 +2,10 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.1.5 — 2026-10-14
+- A colorful Shop button at the top of Home.
+- A friendlier daily reminder.
+
 ## 1.1.4 — 2026-10-14
 - Home: tap the streak 🔥 to open Stats; the Shop has its own button at the top.
 

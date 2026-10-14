@@ -3,6 +3,14 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.1.5",
+    "date": "2026-10-14",
+    "items": [
+      "A colorful Shop button at the top of Home.",
+      "A friendlier daily reminder."
+    ]
+  },
+  {
     "version": "1.1.4",
     "date": "2026-10-14",
     "items": [

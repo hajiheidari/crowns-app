@@ -1,4 +1,4 @@
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 export function StatsIcon({ size, color }: { size: number; color: string }) {
   return (
@@ -10,15 +10,25 @@ export function StatsIcon({ size, color }: { size: number; color: string }) {
   );
 }
 
-/** Shopping bag (Home header → Shop). */
-export function ShopIcon({ size, color }: { size: number; color: string }) {
+/** Shopping bag for the Shop button: purple-to-pink bag, gold handle and star (Amir chose it, 2026-10-14). */
+export function ShopBagIcon({ size }: { size: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path d="M5.2 8.5h13.6l-1 11.2a1.6 1.6 0 0 1-1.6 1.5H7.8a1.6 1.6 0 0 1-1.6-1.5Z" fill={color} />
-      <Path d="M8.8 10V7a3.2 3.2 0 0 1 6.4 0v3" stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Defs>
+        <LinearGradient id="shopBag" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#B07CF2" />
+          <Stop offset="1" stopColor="#E05FA6" />
+        </LinearGradient>
+      </Defs>
+      <Path d="M8.6 9V7a3.4 3.4 0 0 1 6.8 0v2" stroke="#D9A82E" strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Path d="M4.8 8.4h14.4l-1.1 11.6a1.8 1.8 0 0 1-1.8 1.6H7.7a1.8 1.8 0 0 1-1.8-1.6Z" fill="url(#shopBag)" />
+      <Path d="M12 11.6l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3Z" fill="#FFE08A" />
     </Svg>
   );
 }
+
+/** Tint of the Shop button's frame. */
+export const SHOP_TINT = '#8E5BD8';
 
 export function SettingsIcon({ size, color }: { size: number; color: string }) {
   return (

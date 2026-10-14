@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CrownIcon } from '@/components/crown-icon';
-import { SettingsIcon, ShopIcon } from '@/components/icons';
+import { SettingsIcon, SHOP_TINT, ShopBagIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
 import { BrainCard } from '@/features/brain/brain-card';
@@ -183,9 +183,15 @@ export default function HomeScreen() {
               <Text style={styles.flame}>🔥</Text>
               <Text style={[styles.streakText, { color: streak ? c.flame : c.textSecondary }]}>{streak}</Text>
             </Pressable>
-            <HeaderButton label={S.shopTitle} onPress={() => router.push('/shop')}>
-              <ShopIcon size={22} color={c.text} />
-            </HeaderButton>
+            {/* Shop: a framed chip like the coins one, with the colorful bag (Amir's pick of four designs). */}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={S.shopTitle}
+              onPress={() => router.push('/shop')}
+              hitSlop={4}
+              style={({ pressed }) => [styles.streak, styles.shopChip, { backgroundColor: SHOP_TINT + '2E', borderColor: SHOP_TINT + '55', opacity: pressed ? 0.7 : 1 }]}>
+              <ShopBagIcon size={22} />
+            </Pressable>
             <HeaderButton label={S.settings} onPress={() => router.push('/settings')}>
               <SettingsIcon size={22} color={c.text} />
             </HeaderButton>
@@ -366,6 +372,7 @@ const styles = StyleSheet.create({
   wordmark: { fontFamily: serif, fontSize: 28, fontWeight: '600', flexShrink: 1 },
   wordmarkSmall: { fontSize: 24 },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  shopChip: { paddingHorizontal: 10, paddingVertical: 3.5, borderWidth: 1.5 },
   flame: { fontSize: 16 },
   streakText: { fontSize: 17, fontWeight: '700', fontVariant: ['tabular-nums'] },
   card: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 9, gap: 7 },

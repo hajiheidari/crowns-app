@@ -205,6 +205,9 @@ Read these before writing code:
 - v1.1.3: `features/certificates/certs.ts` (pure, `tests/app/certs.test.ts`): `sameCert` treats week/genius certificates whose
   periods are < 7 days apart as one (Saturday vs Monday weeks), `uniqueCerts` keeps the earliest. Medal text uses SVG `textLength`
   (iPhone SVG fonts are wider). `InlineCoin` nudges down only on web; big balances use a row with `CoinIcon`.
+- v1.1.4–1.1.5 (Amir): Home header = coins chip, 🔥 streak chip (opens Stats; no Stats button), Shop chip (`ShopBagIcon` +
+  `SHOP_TINT` frame, option 1 of 4 mock-ups), Settings. Reminder text is casual (Amir's Persian); `refreshDailyReminder` re-schedules
+  it on every launch when allowed, so old installs get new text/language (never prompts).
 - **iOS builds now run on GitHub Actions** (`.github/workflows/ios-build.yml`, 2026-10-13): the repo is public, so the macos-26
   runner (Xcode 26.6) is free; `eas build --local` uses no Expo build credits, then `eas submit` to TestFlight (~45 min). Start it
   with the MCP `actions_run_trigger` (run_workflow, ref = this branch) or a commit message containing the trigger words (keep them
