@@ -34,6 +34,12 @@ export async function enableDailyReminder(hour: number, minute: number): Promise
   return true;
 }
 
+/** Schedule the reminder again (new text or language) only if notifications are already allowed: never asks. */
+export async function refreshDailyReminder(hour: number, minute: number): Promise<void> {
+  if (!remindersSupported || !(await Notifications.getPermissionsAsync()).granted) return;
+  await enableDailyReminder(hour, minute);
+}
+
 export async function disableDailyReminder(): Promise<void> {
   if (remindersSupported) await Notifications.cancelAllScheduledNotificationsAsync();
 }

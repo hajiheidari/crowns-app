@@ -13,7 +13,7 @@ import { AdHost } from '@/features/monetization/ad-host';
 import { usePalette } from '@/hooks/use-palette';
 import { initAds } from '@/services/ads';
 import { initGameCenter } from '@/services/game-center';
-import { enableDailyReminder, remindersSupported } from '@/services/notifications';
+import { enableDailyReminder, refreshDailyReminder, remindersSupported } from '@/services/notifications';
 import { APP_VERSION } from '@/constants/version';
 import { dateKey } from '@/engine';
 import { useGameStore, useHydrated } from '@/store/game-store';
@@ -67,6 +67,11 @@ export default function RootLayout() {
         const st = useGameStore.getState();
         st.updateSettings({ reminder: { ...st.settings.reminder, enabled: on } });
       });
+    } else if (remindersSupported && s.settings.reminder.enabled) {
+      // A scheduled notification keeps the text it was made with: schedule it again so new wording and the current
+      // language reach players who turned the reminder on in an older version (never asks for permission again).
+      const { hour, minute } = s.settings.reminder;
+      void refreshDailyReminder(hour, minute);
     }
     if (s.meta.installedKey) return;
     const hadProgress = Object.keys(s.games).length > 0 || s.meta.wins > 0;
