@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { CoinIcon } from '@/components/coin-icon';
 import { CrownIcon } from '@/components/crown-icon';
 import { SettingsIcon, SHOP_TINT, ShopBagIcon } from '@/components/icons';
 import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
@@ -170,7 +171,8 @@ export default function HomeScreen() {
               onPress={() => setCoinsSheet(null)}
               hitSlop={4}
               style={({ pressed }) => [styles.streak, { backgroundColor: c.gold + '2E', opacity: pressed ? 0.7 : 1 }]}>
-              <Text style={styles.flame}>🪙</Text>
+              {/* The coin as a drawing next to the number (an inline coin in Text sat too high on iPhone). */}
+              <CoinIcon size={18} />
               <Text style={[styles.streakText, { color: c.text }]}>{meta.coins}</Text>
             </Pressable>
             {/* The streak opens Stats (Amir: no separate Stats button; the header has the Shop instead). */}
