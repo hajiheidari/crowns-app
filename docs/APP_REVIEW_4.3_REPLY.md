@@ -30,7 +30,7 @@ I am an individual developer and tested it myself on my iPhone, in the web versi
 - share pictures that were cut off
 
 5. Standalone or suite
-Standalone. This is my personal developer account; Espadna is my brand name. My only published app is Dorehami: Pantomime & Heads Up, a charades and word-guessing game. I built my other games over the past weeks, one at a time, each with its own code, rules and art, and submitted the finished ones close together. That is why Tiaro, Adadi, Mafia God and Shah Dozd Vazir reached review at the same time. I will space out future submissions. Tiaro is the only one with this logic puzzle and teaching hints.
+Standalone. This is my personal developer account; Espadna is my brand name. My only published app is Dorehami: Pantomime & Heads Up, a charades and word-guessing game. I built my other games over the past weeks, one at a time, each with its own code, rules and art, and submitted the finished ones close together. That is why Tiaro, Adadi, Mafia God, Shah Dozd Vazir and Ludo Dosti reached review at the same time. I will space out future submissions. Tiaro is the only one with this logic puzzle and teaching hints.
 
 6. Could it be part of another app?
 No. The nearest is Adadi, an arithmetic crossword with number tiles and age groups. Tiaro is a logic puzzle with no numbers, its own engine, its own controls and its own audience. Players search for them separately.
