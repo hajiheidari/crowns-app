@@ -7,9 +7,10 @@ import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CoinIcon } from '@/components/coin-icon';
 import { CrownIcon } from '@/components/crown-icon';
-import { SettingsIcon, SHOP_TINT, ShopBagIcon } from '@/components/icons';
-import { dateKey, DIFFICULTIES, formatTime, type Difficulty } from '@/engine';
+import { PathIcon, SettingsIcon, SHOP_TINT, ShopBagIcon } from '@/components/icons';
+import { dateKey, DIFFICULTIES, formatTime, PATH_LEVELS, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { pathDailyId, pathUnlimitedId } from '@/features/puzzles/path-catalog';
 import { BrainCard } from '@/features/brain/brain-card';
 import { CoinsSheet } from '@/features/coins/coins-sheet';
 import { COINS } from '@/features/coins/policy';
@@ -60,6 +61,11 @@ export default function HomeScreen() {
   // A new player's first week starts easy (see `dailyIdFor`).
   const todayId = dailyIdFor(today, meta.installedKey);
   const todayGame = useGameStore((s) => s.games[todayId]);
+  const extraDaily = useGameStore((s) => s.extraDaily);
+  const extraIndex = useGameStore((s) => s.extraIndex);
+  const pathToday = useGameStore((s) => s.extra[pathDailyId(today)]);
+  // Which puzzle type the Unlimited tiles open (1.2: crowns or path).
+  const [kind, setKind] = useState<'crowns' | 'path'>('crowns');
   const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();
   const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [coinsSheet, setCoinsSheet] = useState<number | null | undefined>(undefined); // undefined = closed
@@ -218,6 +224,16 @@ export default function HomeScreen() {
             )}
           </View>
           <Button label={cta} variant={state === 'solved' ? 'secondary' : 'primary'} onPress={() => open(todayId)} style={styles.compactButton} />
+          {/* The day's other puzzles (1.2): one button each, ✓ with the time once solved. */}
+          <View style={styles.moreRow}>
+            <MiniDaily
+              icon={<PathIcon size={18} color={c.text} />}
+              label={S.pathName}
+              solved={extraDaily.path[today]}
+              started={!!pathToday && pathToday.seconds > 0}
+              onPress={() => router.push({ pathname: '/path/[id]', params: { id: pathDailyId(today) } })}
+            />
+          </View>
           <View style={styles.cardFoot}>
             <Text style={[styles.countdown, { color: c.textSecondary }]}>
               {S.nextDailyIn} {formatTime(untilMidnight(now))}
@@ -273,7 +289,19 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.unlimited}>
-          <Text style={[styles.section, { color: c.text }]}>{S.unlimited}</Text>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, styles.flexShrink, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit>
+              {S.unlimited}
+            </Text>
+            <View style={[styles.kinds, { backgroundColor: c.surfaceMuted }]}>
+              <KindButton selected={kind === 'crowns'} label={S.crownsName} onPress={() => setKind('crowns')}>
+                <CrownIcon size={18} color={kind === 'crowns' ? c.background : c.text} />
+              </KindButton>
+              <KindButton selected={kind === 'path'} label={S.pathName} onPress={() => setKind('path')}>
+                <PathIcon size={18} color={kind === 'path' ? c.background : c.text} />
+              </KindButton>
+            </View>
+          </View>
           <View style={styles.grid} onLayout={(e) => setGridHeight(Math.round(e.nativeEvent.layout.height))}>
             {(twoRows ? [DIFFICULTIES.slice(0, 2), DIFFICULTIES.slice(2)] : [DIFFICULTIES]).map((row) => (
               <View key={row.join()} style={[styles.gridRow, twoRows ? { minHeight: TILE_BIG } : { maxHeight: TILE_MIN + 24 }]}>
@@ -281,10 +309,15 @@ export default function HomeScreen() {
                   <DifficultyTile
                     key={d}
                     difficulty={d}
-                    solved={unlimitedIndex[d]}
+                    sizes={kind === 'path' ? `${PATH_LEVELS[d].n}×${PATH_LEVELS[d].n}` : DIFFICULTY_SIZES[d]}
+                    solved={kind === 'path' ? extraIndex.path[d] : unlimitedIndex[d]}
                     big={twoRows}
                     compact={squeeze >= 5}
-                    onPress={() => open(unlimitedId(d, unlimitedIndex[d]))}
+                    onPress={() =>
+                      kind === 'path'
+                        ? router.push({ pathname: '/path/[id]', params: { id: pathUnlimitedId(d, extraIndex.path[d]) } })
+                        : open(unlimitedId(d, unlimitedIndex[d]))
+                    }
                   />
                 ))}
               </View>
@@ -335,7 +368,49 @@ function Chip({ text }: { text: string }) {
   );
 }
 
-function DifficultyTile({ difficulty, solved, big, compact, onPress }: { difficulty: Difficulty; solved: number; big: boolean; compact: boolean; onPress: () => void }) {
+/** Another of today's puzzles: icon, name, and ✓ with the time once solved. */
+function MiniDaily(p: { icon: ReactNode; label: string; solved: number | undefined; started: boolean; onPress: () => void }) {
+  const { c } = usePalette();
+  const done = p.solved !== undefined;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={done ? `${p.label}, ${S.solved} ${formatTime(p.solved!)}` : p.label}
+      onPress={p.onPress}
+      style={({ pressed }) => [
+        styles.mini,
+        { backgroundColor: done ? c.surfaceMuted : c.gold + '2E', borderColor: done ? c.border : c.gold, opacity: pressed ? 0.7 : 1 },
+      ]}>
+      {p.icon}
+      <Text style={[styles.miniText, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+        {p.label}
+      </Text>
+      <Text style={[styles.miniState, { color: done ? c.textSecondary : c.text }]} maxFontSizeMultiplier={1.3}>
+        {done ? `✓ ${formatTime(p.solved!)}` : p.started ? S.continue : '▶'}
+      </Text>
+    </Pressable>
+  );
+}
+
+function KindButton(p: { selected: boolean; label: string; onPress: () => void; children: ReactNode }) {
+  const { c } = usePalette();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={p.label}
+      accessibilityState={{ selected: p.selected }}
+      onPress={p.onPress}
+      hitSlop={4}
+      style={[styles.kind, p.selected && { backgroundColor: c.text }]}>
+      {p.children}
+      <Text style={[styles.kindText, { color: p.selected ? c.background : c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+        {p.label}
+      </Text>
+    </Pressable>
+  );
+}
+
+function DifficultyTile({ difficulty, sizes, solved, big, compact, onPress }: { difficulty: Difficulty; sizes: string; solved: number; big: boolean; compact: boolean; onPress: () => void }) {
   const { c, regions } = usePalette();
   const accent = { easy: regions[3], medium: regions[2], hard: regions[1], expert: regions[0] }[difficulty];
   return (
@@ -348,7 +423,7 @@ function DifficultyTile({ difficulty, solved, big, compact, onPress }: { difficu
       <View style={[styles.tileAccent, isRTL() ? { right: 0 } : { left: 0 }, { backgroundColor: accent }]} />
       <Text style={[styles.tileTitle, big && styles.tileTitleBig, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.3}>{DIFFICULTY_LABEL[difficulty]}</Text>
       <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
-        {DIFFICULTY_SIZES[difficulty]}
+        {sizes}
       </Text>
       {!compact && (
         <Text style={[styles.tileSub, big && styles.tileSubBig, { color: c.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.2}>
@@ -360,6 +435,14 @@ function DifficultyTile({ difficulty, solved, big, compact, onPress }: { difficu
 }
 
 const styles = StyleSheet.create({
+  moreRow: { flexDirection: 'row', gap: 8 },
+  mini: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 },
+  miniText: { flex: 1, fontSize: 15, fontWeight: '700' },
+  miniState: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  kinds: { flexDirection: 'row', borderRadius: 999, padding: 3, gap: 2 },
+  kind: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  kindText: { fontSize: 13, fontWeight: '700' },
   root: { flex: 1 },
   // Sized so the whole Home fits one phone screen without scrolling (still scrolls on tiny phones / big fonts).
   scroll: { flexGrow: 1, paddingHorizontal: 18, paddingVertical: 8, gap: 8, maxWidth: 680, width: '100%', alignSelf: 'center' },

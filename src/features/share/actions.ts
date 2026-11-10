@@ -7,7 +7,7 @@ import { shareText, type ShareStatus } from '@/services/share';
 import { getRefCode } from '@/store/game-store';
 import { S } from '@/strings';
 
-import { challengeText, inviteText } from './messages';
+import { challengeText, inviteText, resultText, type ShareResult } from './messages';
 
 export interface ShareOutcome {
   status: ShareStatus;
@@ -26,6 +26,12 @@ export async function shareInvite() {
 export async function shareChallenge(r: { puzzleId: string; seconds: number }) {
   track('challenge_sent');
   return share(challengeText(r, getRefCode()));
+}
+
+/** The result as text (puzzle types without a picture card yet). */
+export async function shareResultText(r: ShareResult) {
+  track('share_result', { type: 'text' });
+  return share(resultText(r, getRefCode()));
 }
 
 /**

@@ -27,6 +27,17 @@ export function ShopBagIcon({ size }: { size: number }) {
   );
 }
 
+/** The path puzzle: a winding line between two numbered dots. */
+export function PathIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M5 5h9a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h10" stroke={color} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Circle cx={5} cy={5} r={3} fill={color} />
+      <Circle cx={19} cy={17} r={3} fill={color} />
+    </Svg>
+  );
+}
+
 /** Tint of the Shop button's frame. */
 export const SHOP_TINT = '#8E5BD8';
 

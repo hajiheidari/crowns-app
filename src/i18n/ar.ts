@@ -147,6 +147,17 @@ export const ar: Dict = {
   hintWhy: 'لماذا؟',
   hintApply: 'نفّذ',
   hintClose: 'إغلاق',
+  // Path puzzle (1.2)
+  pathName: 'المسار',
+  crownsName: 'التيجان',
+  todayMore: 'المزيد اليوم',
+  pathStatus: (k: number, n: number) => `الخانات ${k}/${n}`,
+  pathControls: 'اسحب من 1 مرورًا بالأرقام بالترتيب واملأ كل الخانات. اسحب إلى الخلف للتراجع خطوة.',
+  pathHintTitle: 'إلى أين يذهب الخط',
+  pathHintBody: (wrong: boolean) =>
+    wrong
+      ? 'انعطف خطك في مكان خاطئ؛ وهو صحيح حتى موضع القطع. الخانات الخضراء تُظهر الطريق.'
+      : 'خطك صحيح حتى الآن. الخانات الخضراء تُظهر الخطوات التالية.',
   hintMistakeTitle: 'هناك خطأ ما',
   hintMistakeBody: (k: number) =>
     k === 1 ? 'العلامة المميزة لا تتوافق مع الحل.' : `العلامات المميزة (${k}) لا تتوافق مع الحل.`,

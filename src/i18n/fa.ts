@@ -143,6 +143,17 @@ export const fa: Dict = {
   hintWhy: 'چرا؟',
   hintApply: 'انجامش بده',
   hintClose: 'بستن',
+  // Path puzzle (1.2)
+  pathName: 'مسیر',
+  crownsName: 'تاج',
+  todayMore: 'پازل‌های دیگر امروز',
+  pathStatus: (k: number, n: number) => `خانه‌ها ${k}/${n}`,
+  pathControls: 'از ۱ بکش، به ترتیب از روی عددها رد شو و همه‌ی خانه‌ها را پر کن. برای برگشتن، به عقب بکش.',
+  pathHintTitle: 'خط از کجا برود',
+  pathHintBody: (wrong: boolean) =>
+    wrong
+      ? 'خطت یک جا اشتباه پیچیده؛ تا جایی که بریده شده درست است. خانه‌های سبز راه ادامه را نشان می‌دهند.'
+      : 'خطت تا اینجا درست است. خانه‌های سبز قدم‌های بعدی را نشان می‌دهند.',
   hintMistakeTitle: 'یک جای کار ایراد دارد',
   hintMistakeBody: (k: number) =>
     k === 1 ? 'علامت مشخص‌شده با جواب جور نیست.' : `${k} علامت مشخص‌شده با جواب جور نیستند.`,

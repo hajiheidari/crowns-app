@@ -36,6 +36,15 @@ export default function ChallengeRoute() {
 
   const home = () => router.replace('/');
 
+  // Challenges on the newer puzzle types go straight to that puzzle, with the friend's time to beat.
+  const otherKind = challenge && /^path-/.test(challenge.puzzleId) ? '/path/[id]' : null;
+  useEffect(() => {
+    if (!challenge || !otherKind) return;
+    const params = challenge.seconds > 0 ? { id: challenge.puzzleId, vs: String(challenge.seconds) } : { id: challenge.puzzleId };
+    router.replace({ pathname: otherKind, params });
+  }, [challenge, otherKind, router]);
+  if (otherKind) return null;
+
   if (!challenge || !puzzle) {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: c.background }]}>

@@ -142,6 +142,17 @@ export const en = {
   hintWhy: 'Why?',
   hintApply: 'Apply',
   hintClose: 'Close',
+  // Path puzzle (1.2)
+  pathName: 'Path',
+  crownsName: 'Crowns',
+  todayMore: 'More today',
+  pathStatus: (k: number, n: number) => `Cells ${k}/${n}`,
+  pathControls: 'Drag from 1 through the numbers in order and fill every cell. Drag back to undo a step.',
+  pathHintTitle: 'Where the line goes next',
+  pathHintBody: (wrong: boolean): string =>
+    wrong
+      ? 'Your line takes a wrong turn: it is right up to where it is cut. The green cells show the way on.'
+      : 'Your line is right so far. The green cells show the next steps.',
   hintMistakeTitle: "Something's off",
   hintMistakeBody: (k: number) =>
     k === 1 ? "The highlighted mark doesn't fit the solution." : `The ${k} highlighted marks don't fit the solution.`,

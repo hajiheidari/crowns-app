@@ -136,6 +136,20 @@ export interface WinResult {
   coins: number;
 }
 
+/** The newer puzzle types (1.2): path and sun/moon. */
+export type ExtraKind = 'path' | 'binary';
+export const EXTRA_KINDS: ExtraKind[] = ['path', 'binary'];
+
+/** A game of a newer puzzle type: `cells` is the drawn line (path) or one value per cell (sun/moon). */
+export interface ExtraGame {
+  cells: number[];
+  undo: number[][];
+  redo: number[][];
+  seconds: number;
+  hints: number;
+  solved: boolean;
+}
+
 interface Store {
   games: Record<string, GameState>;
   unlimitedIndex: Record<Difficulty, number>;
@@ -148,6 +162,21 @@ interface Store {
   log: SolveLog[];
   /** Brain points per day, all time (month/year/lifetime scores; `log` is trimmed, this is not). */
   points: DayPoints;
+  /** Games of the newer puzzle types, by id (path-…, binary-…). */
+  extra: Record<string, ExtraGame>;
+  /** Next Unlimited puzzle per newer type and difficulty. */
+  extraIndex: Record<ExtraKind, Record<Difficulty, number>>;
+  /** Solved dailies of the newer types: date → seconds. */
+  extraDaily: Record<ExtraKind, Record<string, number>>;
+
+  startExtra: (id: string, cells: number[]) => void;
+  /** New cells for a game; `record` adds an undo step (one per stroke or tap). */
+  setExtra: (id: string, cells: number[], record?: boolean) => void;
+  undoExtra: (id: string) => void;
+  redoExtra: (id: string) => void;
+  tickExtra: (id: string) => void;
+  hintExtra: (id: string) => void;
+  completeExtra: (kind: ExtraKind, id: string, difficulty: Difficulty, daily: string | null, unlimitedNext: boolean) => WinResult | null;
 
   startGame: (id: string, n: number) => void;
   commit: (id: string, cells: number[], to: Mark[]) => void;
@@ -165,6 +194,10 @@ interface Store {
 }
 
 const LOG_MAX = 500;
+
+function mergeExtraIndex(base: Store['extraIndex'], saved?: Partial<Store['extraIndex']>): Store['extraIndex'] {
+  return { path: { ...base.path, ...saved?.path }, binary: { ...base.binary, ...saved?.binary } };
+}
 
 /** Saves from before the brain score had no log: start it from the dated daily solves (hints unknown → 0). */
 function seedLog(daily: DailyRecord | undefined): SolveLog[] {
@@ -268,6 +301,9 @@ export const useGameStore = create<Store>()(
       return {
         games: {},
         unlimitedIndex: perDifficulty(() => 0),
+        extra: {},
+        extraIndex: { path: perDifficulty(() => 0), binary: perDifficulty(() => 0) },
+        extraDaily: { path: {}, binary: {} },
         stats: perDifficulty(newStats),
         daily: { streak: 0, bestStreak: 0, lastSolvedKey: null, solved: {} },
         settings: DEFAULT_SETTINGS,
@@ -370,6 +406,59 @@ export const useGameStore = create<Store>()(
           return result;
         },
 
+        startExtra: (id, cells) => {
+          const extra = { ...get().extra };
+          if (extra[id]) return;
+          // Finished Unlimited games are not needed any more; dailies stay for the archive.
+          for (const key of Object.keys(extra)) if (extra[key].solved && !/-\d{4}-\d{2}-\d{2}$/.test(key)) delete extra[key];
+          extra[id] = { cells, undo: [], redo: [], seconds: 0, hints: 0, solved: false };
+          set({ extra });
+        },
+        setExtra: (id, cells, record = true) => {
+          const g = get().extra[id];
+          if (!g || g.solved) return;
+          const next = record ? { ...g, cells, undo: [...g.undo, g.cells].slice(-200), redo: [] } : { ...g, cells };
+          set({ extra: { ...get().extra, [id]: next } });
+        },
+        undoExtra: (id) => {
+          const g = get().extra[id];
+          if (!g || g.solved || !g.undo.length) return;
+          const prev = g.undo[g.undo.length - 1];
+          set({ extra: { ...get().extra, [id]: { ...g, cells: prev, undo: g.undo.slice(0, -1), redo: [...g.redo, g.cells] } } });
+        },
+        redoExtra: (id) => {
+          const g = get().extra[id];
+          if (!g || g.solved || !g.redo.length) return;
+          const next = g.redo[g.redo.length - 1];
+          set({ extra: { ...get().extra, [id]: { ...g, cells: next, redo: g.redo.slice(0, -1), undo: [...g.undo, g.cells] } } });
+        },
+        tickExtra: (id) => {
+          const g = get().extra[id];
+          if (g && !g.solved) set({ extra: { ...get().extra, [id]: { ...g, seconds: g.seconds + 1 } } });
+        },
+        hintExtra: (id) => {
+          const g = get().extra[id];
+          if (g) set({ extra: { ...get().extra, [id]: { ...g, hints: g.hints + 1 } } });
+        },
+        completeExtra: (kind, id, difficulty, dailyKey, unlimitedNext) => {
+          const s = get();
+          const g = s.extra[id];
+          if (!g || g.solved) return null;
+          const extra = { ...s.extra, [id]: { ...g, solved: true, undo: [], redo: [] } };
+          const extraDaily = dailyKey ? { ...s.extraDaily, [kind]: { ...s.extraDaily[kind], [dailyKey]: g.seconds } } : s.extraDaily;
+          const extraIndex = unlimitedNext
+            ? { ...s.extraIndex, [kind]: { ...s.extraIndex[kind], [difficulty]: s.extraIndex[kind][difficulty] + 1 } }
+            : s.extraIndex;
+          // Every puzzle type counts for the brain score and coins, like a crowns puzzle of the same level.
+          const entry: SolveLog = { day: dateKey(), d: difficulty, s: g.seconds, h: g.hints, daily: !!dailyKey };
+          const log = [...s.log, entry].slice(-LOG_MAX);
+          const points = { ...s.points, [entry.day]: (s.points[entry.day] ?? 0) + solvePoints(entry) };
+          const reward = winReward(difficulty, entry.daily, s.meta.coinDay, entry.day);
+          const meta = { ...s.meta, wins: s.meta.wins + 1, coins: s.meta.coins + reward.coins, coinDay: reward.next };
+          set({ extra, extraDaily, extraIndex, log, points, meta });
+          return { seconds: g.seconds, hints: g.hints, newBest: false, coins: reward.coins };
+        },
+
         updateSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
 
         addHint: (id) => update(id, (g) => ({ ...g, hints: g.hints + 1 })),
@@ -389,7 +478,10 @@ export const useGameStore = create<Store>()(
       name: 'crowns-store',
       version: 1,
       storage: persistStorage,
-      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points }) => ({
+      partialize: ({ games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points, extra, extraIndex, extraDaily }) => ({
+        extra,
+        extraIndex,
+        extraDaily,
         log,
         points,
         games,
@@ -413,6 +505,9 @@ export const useGameStore = create<Store>()(
           meta: { ...DEFAULT_META, ...p.meta },
           log: p.log ?? seedLog(p.daily),
           points: p.points ?? pointsFromLog(p.log ?? seedLog(p.daily)),
+          extra: p.extra ?? {},
+          extraIndex: mergeExtraIndex(current.extraIndex, p.extraIndex),
+          extraDaily: { path: {}, binary: {}, ...p.extraDaily },
         };
       },
     },
@@ -563,7 +658,8 @@ export function parseBackupKey(text: string): string | null {
 
 /** What a backup holds: everything except bookkeeping about the backup/league uploads themselves. */
 function snapshot(): object {
-  const { games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points } = useGameStore.getState();
+  const { games, unlimitedIndex, stats, daily, settings, tutorialSeen, meta, log, points, extra, extraIndex, extraDaily } = useGameStore.getState();
+  const extraKept = Object.fromEntries(Object.entries(extra).slice(-60).map(([id, g]) => [id, { ...g, undo: [], redo: [] }]));
   // Unfinished games and solved dailies (Home/Archive show them); undo history is left out to keep it small.
   const kept = Object.fromEntries(
     Object.entries(games)
@@ -572,7 +668,7 @@ function snapshot(): object {
       .map(([id, g]) => [id, { ...g, undo: [], redo: [] }]),
   );
   const { backupSent: _sent, backupAt: _at, restoredAuto: _auto, leagueSent: _league, leagueRank: _rank, ...rest } = meta;
-  return { v: 1, games: kept, unlimitedIndex, stats, daily, settings, tutorialSeen, meta: rest, log, points };
+  return { v: 1, games: kept, unlimitedIndex, stats, daily, settings, tutorialSeen, meta: rest, log, points, extra: extraKept, extraIndex, extraDaily };
 }
 
 function fingerprint(text: string): string {
@@ -613,6 +709,9 @@ export async function restoreBackup(key: string): Promise<'ok' | 'missing' | 'of
     tutorialSeen: d.tutorialSeen ?? s.tutorialSeen,
     log: d.log ?? [],
     points: d.points ?? pointsFromLog(d.log ?? []),
+    extra: d.extra ?? {},
+    extraIndex: mergeExtraIndex(s.extraIndex, d.extraIndex),
+    extraDaily: { path: {}, binary: {}, ...d.extraDaily },
     meta: { ...DEFAULT_META, ...d.meta, ref: backup.code, backupKey: key, backupSent: '', backupAt: 0, leagueSent: '', leagueRank: null },
   });
   keyTask = Promise.resolve(key);
