@@ -64,7 +64,8 @@
     "test:app": "tsx --test tests/app/*.test.ts",
     "test": "tsx --test tests/engine/*.test.ts tests/app/*.test.ts",
     "changelog": "tsx scripts/changelog.ts",
-    "build:path-packs": "tsx scripts/build-path-packs.ts"
+    "build:path-packs": "tsx scripts/build-path-packs.ts",
+    "build:binary-packs": "tsx scripts/build-binary-packs.ts"
   },
   "private": true,
   "expo": {

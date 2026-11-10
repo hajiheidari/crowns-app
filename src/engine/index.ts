@@ -10,3 +10,4 @@ export * from './daily';
 export * from './share';
 export * from './packs';
 export * from './path';
+export * from './binary';

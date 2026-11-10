@@ -8,9 +8,11 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CoinIcon } from '@/components/coin-icon';
 import { CrownIcon } from '@/components/crown-icon';
 import { PathIcon, SettingsIcon, SHOP_TINT, ShopBagIcon } from '@/components/icons';
-import { dateKey, DIFFICULTIES, formatTime, PATH_LEVELS, type Difficulty } from '@/engine';
+import { BINARY_LEVELS, dateKey, DIFFICULTIES, formatTime, PATH_LEVELS, type Difficulty } from '@/engine';
 import { dailyIdFor, getPuzzle, puzzleInfo, unlimitedId } from '@/features/puzzles/catalog';
+import { binaryDailyId, binaryUnlimitedId } from '@/features/puzzles/binary-catalog';
 import { pathDailyId, pathUnlimitedId } from '@/features/puzzles/path-catalog';
+import { SunMoonIcon } from '@/features/binary/binary-board';
 import { BrainCard } from '@/features/brain/brain-card';
 import { CoinsSheet } from '@/features/coins/coins-sheet';
 import { COINS } from '@/features/coins/policy';
@@ -64,8 +66,9 @@ export default function HomeScreen() {
   const extraDaily = useGameStore((s) => s.extraDaily);
   const extraIndex = useGameStore((s) => s.extraIndex);
   const pathToday = useGameStore((s) => s.extra[pathDailyId(today)]);
-  // Which puzzle type the Unlimited tiles open (1.2: crowns or path).
-  const [kind, setKind] = useState<'crowns' | 'path'>('crowns');
+  const binaryToday = useGameStore((s) => s.extra[binaryDailyId(today)]);
+  // Which puzzle type the Unlimited tiles open (1.2).
+  const [kind, setKind] = useState<'crowns' | 'path' | 'binary'>('crowns');
   const { r: invitedBy } = useLocalSearchParams<{ r?: string }>();
   const [inviteNote, setInviteNote] = useState<string | null>(null);
   const [coinsSheet, setCoinsSheet] = useState<number | null | undefined>(undefined); // undefined = closed
@@ -233,6 +236,13 @@ export default function HomeScreen() {
               started={!!pathToday && pathToday.seconds > 0}
               onPress={() => router.push({ pathname: '/path/[id]', params: { id: pathDailyId(today) } })}
             />
+            <MiniDaily
+              icon={<SunMoonIcon size={18} />}
+              label={S.binaryName}
+              solved={extraDaily.binary[today]}
+              started={!!binaryToday && binaryToday.seconds > 0}
+              onPress={() => router.push({ pathname: '/binary/[id]', params: { id: binaryDailyId(today) } })}
+            />
           </View>
           <View style={styles.cardFoot}>
             <Text style={[styles.countdown, { color: c.textSecondary }]}>
@@ -300,6 +310,9 @@ export default function HomeScreen() {
               <KindButton selected={kind === 'path'} label={S.pathName} onPress={() => setKind('path')}>
                 <PathIcon size={18} color={kind === 'path' ? c.background : c.text} />
               </KindButton>
+              <KindButton selected={kind === 'binary'} label={S.binaryName} onPress={() => setKind('binary')}>
+                <SunMoonIcon size={18} />
+              </KindButton>
             </View>
           </View>
           <View style={styles.grid} onLayout={(e) => setGridHeight(Math.round(e.nativeEvent.layout.height))}>
@@ -309,14 +322,16 @@ export default function HomeScreen() {
                   <DifficultyTile
                     key={d}
                     difficulty={d}
-                    sizes={kind === 'path' ? `${PATH_LEVELS[d].n}×${PATH_LEVELS[d].n}` : DIFFICULTY_SIZES[d]}
-                    solved={kind === 'path' ? extraIndex.path[d] : unlimitedIndex[d]}
+                    sizes={kind === 'crowns' ? DIFFICULTY_SIZES[d] : `${(kind === 'path' ? PATH_LEVELS : BINARY_LEVELS)[d].n}×${(kind === 'path' ? PATH_LEVELS : BINARY_LEVELS)[d].n}`}
+                    solved={kind === 'crowns' ? unlimitedIndex[d] : extraIndex[kind][d]}
                     big={twoRows}
                     compact={squeeze >= 5}
                     onPress={() =>
                       kind === 'path'
                         ? router.push({ pathname: '/path/[id]', params: { id: pathUnlimitedId(d, extraIndex.path[d]) } })
-                        : open(unlimitedId(d, unlimitedIndex[d]))
+                        : kind === 'binary'
+                          ? router.push({ pathname: '/binary/[id]', params: { id: binaryUnlimitedId(d, extraIndex.binary[d]) } })
+                          : open(unlimitedId(d, unlimitedIndex[d]))
                     }
                   />
                 ))}
@@ -382,7 +397,7 @@ function MiniDaily(p: { icon: ReactNode; label: string; solved: number | undefin
         { backgroundColor: done ? c.surfaceMuted : c.gold + '2E', borderColor: done ? c.border : c.gold, opacity: pressed ? 0.7 : 1 },
       ]}>
       {p.icon}
-      <Text style={[styles.miniText, { color: c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+      <Text style={[styles.miniText, { color: c.text }]} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={1.3}>
         {p.label}
       </Text>
       <Text style={[styles.miniState, { color: done ? c.textSecondary : c.text }]} maxFontSizeMultiplier={1.3}>
@@ -403,9 +418,12 @@ function KindButton(p: { selected: boolean; label: string; onPress: () => void; 
       hitSlop={4}
       style={[styles.kind, p.selected && { backgroundColor: c.text }]}>
       {p.children}
-      <Text style={[styles.kindText, { color: p.selected ? c.background : c.text }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
-        {p.label}
-      </Text>
+      {/* Only the chosen type shows its name, so the row stays short next to the section title. */}
+      {p.selected && (
+        <Text style={[styles.kindText, { color: c.background }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+          {p.label}
+        </Text>
+      )}
     </Pressable>
   );
 }

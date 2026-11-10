@@ -146,6 +146,20 @@ export const en = {
   pathName: 'Path',
   crownsName: 'Crowns',
   todayMore: 'More today',
+  // Sun & moon puzzle (1.2)
+  binaryName: 'Sun & Moon',
+  binaryStatus: (k: number, n: number) => `Cells ${k}/${n}`,
+  binaryControls: 'Tap: sun → moon → empty. Each row and column: as many suns as moons, never three alike side by side. = same, × different.',
+  binaryTitles: { pair: 'No three in a row', gap: 'No three in a row', balance: 'Half and half', sign: '= and ×', line: 'Only one way' },
+  binaryWhy: (rule: 'pair' | 'gap' | 'balance' | 'sign' | 'line', kind: 'sun' | 'moon', line: 'row' | 'column'): string => {
+    const k = kind === 'sun' ? 'sun' : 'moon';
+    const l = line;
+    if (rule === 'pair') return `Two ${k}s sit side by side in this ${l}. A third would make three in a row, so the next cell is the other kind.`;
+    if (rule === 'gap') return `There is a ${k} on both sides of an empty cell in this ${l}. The middle must be the other kind, or there would be three.`;
+    if (rule === 'balance') return `This ${l} already has all its ${k}s (half of it), so the empty cells are the other kind.`;
+    if (rule === 'sign') return '= joins two cells that are the same, × two that are different. One side is known, so the other follows.';
+    return `Think of every way to finish this ${l} that keeps the rules: they all agree on the marked cells.`;
+  },
   pathStatus: (k: number, n: number) => `Cells ${k}/${n}`,
   pathControls: 'Drag from 1 through the numbers in order and fill every cell. Drag back to undo a step.',
   pathHintTitle: 'Where the line goes next',
