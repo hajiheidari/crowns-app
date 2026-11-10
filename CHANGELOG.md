@@ -2,6 +2,12 @@
 
 Each entry is also shown in the in-app "What's new" sheet.
 
+## 1.2.0 — 2026-11-10
+- Two new puzzles, every day and unlimited: Path (draw one line through every cell, passing the numbers in order) and Sun & Moon (half suns, half moons in every line, never three alike, = and × signs).
+- Home shows all three daily puzzles; the Unlimited tiles switch between Crowns, Path and Sun & Moon.
+- Each new puzzle has a short how-to-play card and hints (Sun & Moon hints explain the reasoning).
+- The coin at the top of Home sits level with the number.
+
 ## 1.1.5 — 2026-10-14
 - A colorful Shop button at the top of Home.
 - A friendlier daily reminder.

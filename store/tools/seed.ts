@@ -6,6 +6,8 @@ import { writeFileSync } from 'node:fs';
 
 import { APP_VERSION } from '@/constants/version';
 import { CROSS, CROWN, EMPTY } from '@/engine';
+import { binaryUnlimitedId, getBinaryPuzzle } from '@/features/puzzles/binary-catalog';
+import { getPathPuzzle, pathUnlimitedId } from '@/features/puzzles/path-catalog';
 import { getPuzzle, unlimitedId } from '@/features/puzzles/catalog';
 
 const out = process.argv[2];
@@ -62,10 +64,15 @@ const base = (over: Record<string, unknown> = {}) => ({
       coins: 340,
       certCheckedDay: "2026-10-22", // no certificate pop-up over the Home shot
       nickname: "Alex",
-      certs: [{ kind: "week" as const, period: "2026-10-12", id: "k7m2qpa9" }],
+      certs: [{ kind: "week" as const, period: "2026-10-12", id: "k7m2qpa9" }, { kind: "genius" as const, period: "2026-10-19", id: "k7m2qpb3" }, { kind: "genius" as const, period: "2026-10-17", id: "k7m2qpb4" }],
       archiveUnlocked: [],
       lastRepairKey: null,
+      rulesSeen: ['path', 'binary'], // no rules card over the new puzzle shots
     },
+    // Today's Path daily is done (✓ on Home), Sun & Moon is still to play.
+    extra: {},
+    extraIndex: { path: { easy: 18, medium: 9, hard: 5, expert: 1 }, binary: { easy: 15, medium: 8, hard: 3, expert: 1 } },
+    extraDaily: { path: { '2026-10-22': 96 }, binary: {} },
     ...over,
   },
   version: 1,
@@ -88,6 +95,14 @@ function board(id: string, crownRows: number[], extraCross: number) {
 const game = (b: number[], seconds: number) => ({ board: b, undo: [], redo: [], seconds, hints: 0, solved: false });
 
 const mid = unlimitedId('medium', idx.medium);
+// The new puzzle types, half done: a path drawn part of the way, a sun & moon grid partly filled.
+const pathId = pathUnlimitedId('hard', 5);
+const pp = getPathPuzzle(pathId)!;
+const pathGame = { cells: pp.solution.slice(0, 22), undo: [], redo: [], seconds: 73, hints: 0, solved: false };
+const binId = binaryUnlimitedId('medium', 8);
+const bp = getBinaryPuzzle(binId)!;
+const binCells = bp.givens.map((v, i) => (v || (i < bp.n * 3 ? bp.solution[i] : 0)));
+const binGame = { cells: binCells, undo: [], redo: [], seconds: 58, hints: 0, solved: false };
 const hard = unlimitedId('hard', idx.hard);
 const lastRow = 6;
 const pm = getPuzzle(mid)!;
@@ -98,10 +113,14 @@ writeFileSync(
   JSON.stringify({
     mid,
     hard,
+    pathId,
+    binId,
     lastRow,
     lastCol: pm.solution[lastRow],
     scenarios: {
       home: base(),
+      path: base({ extra: { [pathId]: pathGame } }),
+      binary: base({ extra: { [binId]: binGame } }),
       stats: base(),
       game: base({ games: { [mid]: game(board(mid, [0, 2, 3, 5], 6), 134) } }),
       win: base({ games: { [mid]: game(board(mid, allButLast, 0), 87) } }),

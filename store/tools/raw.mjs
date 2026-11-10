@@ -4,7 +4,7 @@ const seed = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
 // VIEW=1024x1366@2 for the iPad set (default: 6.9" iPhone, 430x932@3 → 1290×2796).
 const [vw, vh, vs] = (process.env.VIEW ?? '430x932@3').split(/[x@]/).map(Number);
 const srv = http.createServer((q, r) => { let p = path.join(root, decodeURIComponent(q.url.split('?')[0])); if (!fs.existsSync(p) || fs.statSync(p).isDirectory()) p = path.join(root, 'index.html'); r.end(fs.readFileSync(p)); }).listen(8130);
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome' });
 async function shot(name, scenario, url, act, scheme = 'light') {
   const ctx = await b.newContext({ viewport: { width: vw, height: vh }, deviceScaleFactor: vs, timezoneId: 'America/New_York', locale: 'en-US', colorScheme: scheme });
   await ctx.addInitScript((s) => { if (!sessionStorage.getItem('seeded')) { localStorage.clear(); localStorage.setItem('crowns-store', JSON.stringify(s)); sessionStorage.setItem('seeded', '1'); } }, seed.scenarios[scenario]);
@@ -23,4 +23,6 @@ await shot('4-stats', 'stats', '/stats');
 await shot('5-win', 'win', `/play/${seed.mid}?vs=104`, async (pg) => { await tapCell(pg, seed.lastRow, seed.lastCol, 2); await pg.waitForTimeout(2000); });
 await shot('6-dark', 'dark', '/play/' + seed.hard, null, 'dark');
 await shot('7-cert', 'home', '/certificates');
+await shot('8-path', 'path', '/path/' + seed.pathId);
+await shot('9-binary', 'binary', '/binary/' + seed.binId);
 await b.close(); srv.close();

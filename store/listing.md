@@ -1,4 +1,4 @@
-# Store listing — Tiaro (v1.0)
+# Store listing — Tiaro (v1.2: three daily puzzles)
 
 English (US). Lengths are checked by `store/tools/check-listing.mjs`; limits in brackets.
 Never use other companies' brand names here (LinkedIn, NYT, Queens, Zip, Tango): Apple and Google reject them.
@@ -6,7 +6,8 @@ Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS ke
 
 ## Both stores
 
-- **App name** [30]: Tiaro: Daily Logic Puzzle
+- **App name** [30]: Tiaro: Daily Logic Puzzles
+  (v1.2: plural, because Tiaro has three puzzle types now; the App Store name changes with the next version.)
 - **Category:** Games → Puzzle (App Store secondary: Board). Google Play: Game → Puzzle.
 - **Price:** Free. **v1.0 (App Store) has no ads and no in-app purchase** (Amir 2026-10-10: ship before AdMob is approved).
   Later update: ads + one in-app purchase "Remove Ads" $3.99 (non-consumable, id `remove_ads`).
@@ -17,13 +18,13 @@ Plan for "queens" (Amir left the timing to us): not in v1.0; try it as an iOS ke
 ## App Store (iOS)
 
 **Subtitle** [30]
-One crown. Every row. Daily.
+3 brain puzzles, every day
 
 **Promotional text** [170] (can be changed any time without a new build)
-A fresh logic puzzle every day. Place one crown in each row, column and color. Track your weekly brain score and beat your friends. Free, no ads.
+Three fresh logic puzzles every day: Crowns, Path and Sun & Moon. Hints that teach, a weekly brain score and a league with friends.
 
 **Keywords** [100] (comma-separated, no spaces after commas; the name and subtitle words already count, so they are not repeated)
-logic,brain,star battle,grid,sudoku,nonogram,teaser,mind,crowns,game,games,iq,riddle,calm,offline
+brain,star battle,line,binary,sun,moon,grid,sudoku,nonogram,teaser,mind,crown,iq,riddle,calm,offline
 
 **Description** [4000]
 (same text as the Google Play full description below)
@@ -36,20 +37,22 @@ The app is portrait-only, so the iPad build runs full screen (`ios.requireFullSc
 ## Google Play
 
 **Short description** [80]
-A fresh crown logic puzzle every day. Free, offline, no subscription.
+Three new logic puzzles every day: crowns, a one-line path and sun & moon.
 
 **Full description** [4000]
 
-Tiaro is a calm, clever logic puzzle you can play in a few minutes a day.
+Tiaro is a set of calm, clever logic puzzles: three new ones every day, each solved in a few minutes.
 
-THE RULES FIT IN ONE LINE
-Place one crown in every row, every column and every color region. Crowns never touch, not even diagonally. That's it.
+THREE PUZZLES, ONE HABIT
+• Crowns: place one crown in every row, every column and every color region. Crowns never touch, not even diagonally.
+• Path: start at 1 and draw one line through every cell, passing the numbers in order. Thick walls cannot be crossed.
+• Sun & Moon: fill the grid with suns and moons. Every row and column is half and half, never three alike side by side, and the = and × signs say which neighbors match.
 
-A NEW PUZZLE EVERY DAY
-Everyone gets the same daily puzzle. Your first week starts gently and grows with you. Keep your streak alive, then compare times with friends.
+A NEW SET EVERY DAY
+Everyone gets the same daily puzzles. Your first week starts gently and grows with you. Keep your streak alive, then compare times with friends.
 
 NEVER GUESS
-Every puzzle has exactly one solution and can be solved by pure logic. When you get stuck, a hint teaches you the next step: first where to look, then why it works.
+Every puzzle has exactly one solution, made and checked by Tiaro's own puzzle engine. Crowns and Sun & Moon can always be solved by pure logic, and their hints teach the next step and explain why it works. On a Path, a hint shows where the line goes next.
 
 YOUR BRAIN SCORE
 Every solve earns points for difficulty, speed and playing without hints. See your score this week, this month, this year and all time, your level from Warming up to Genius, and how you did against last week. Add the widget to your iPhone home screen to keep it in sight.
@@ -64,10 +67,10 @@ COINS AND SHOP
 Get a daily bonus for coming back, coins for daily and hard wins and for friends who open your links. Spend them on hints, royal crowns and board styles.
 
 PLAY AS MUCH AS YOU LIKE
-Unlimited Puzzles in four levels, from relaxing 5×5 boards to tough 11×11 grids.
+Unlimited Puzzles of all three types in four levels, from relaxing 5×5 boards to tough 11×11 grids.
 
 MADE FOR YOU
-• Tap to mark, drag to fill, long-press for a crown
+• Tap to mark, drag to fill, long-press for a crown, drag to draw a path
 • Undo, redo and automatic X marks
 • Pinch to zoom on big boards
 • Dark mode and color-blind patterns

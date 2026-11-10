@@ -3,6 +3,16 @@ import type { ChangelogEntry } from './types';
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    "version": "1.2.0",
+    "date": "2026-11-10",
+    "items": [
+      "Two new puzzles, every day and unlimited: Path (draw one line through every cell, passing the numbers in order) and Sun & Moon (half suns, half moons in every line, never three alike, = and × signs).",
+      "Home shows all three daily puzzles; the Unlimited tiles switch between Crowns, Path and Sun & Moon.",
+      "Each new puzzle has a short how-to-play card and hints (Sun & Moon hints explain the reasoning).",
+      "The coin at the top of Home sits level with the number."
+    ]
+  },
+  {
     "version": "1.1.5",
     "date": "2026-10-14",
     "items": [

@@ -9,7 +9,7 @@ Ready to upload:
   1024×1366 @2x viewport).
 - `screenshots/android/` — Google Play phone screenshots, 1080×1920, plus `feature-graphic-1024x500.png`.
 
-Order: 1 daily puzzle, 2 rules, 3 hints, 4 streak/stats, 5 challenge a friend, 6 dark mode.
+Order (1.2): 1 home with the three dailies, 2 crowns, 3 path, 4 sun & moon, 5 hints, 6 stats, 7 challenge, 8 dark mode, 9 certificates. The iPad and Arabic sets still show 1.1 (no path / sun & moon shots yet).
 
 ## Rebuilding (after UI changes)
 

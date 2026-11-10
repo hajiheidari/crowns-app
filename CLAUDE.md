@@ -208,6 +208,16 @@ Read these before writing code:
 - v1.1.4–1.1.5 (Amir): Home header = coins chip, 🔥 streak chip (opens Stats; no Stats button), Shop chip (`ShopBagIcon` +
   `SHOP_TINT` frame, option 1 of 4 mock-ups), Settings. Reminder text is casual (Amir's Persian); `refreshDailyReminder` re-schedules
   it on every launch when allowed, so old installs get new text/language (never prompts).
+- v1.2.0 (Amir, after a 4.3 rejection: "make it a multi-puzzle app"): **Path** (`engine/path.ts`: backbite random Hamiltonian
+  path, checkpoints added until `countPathSolutions` = 1 then thinned, optional walls; packs `assets/packs/path-*.json` via
+  `npm run build:path-packs`) and **Sun & Moon** (`engine/binary.ts`: grids built row by row, givens removed while the logic
+  solver (`nextBinaryStep`: pair/gap/sign/balance, + whole-line reasoning for hard/expert) still solves it; packs `binary-*.json`
+  via `npm run build:binary-packs`). Ids `path-<date>`, `path-<level>-0001`, `binary-…` (catalogs in `features/puzzles/`).
+  Store: `extra` games (cells + undo snapshots), `extraIndex`, `extraDaily`, `meta.rulesSeen`; they count for brain points
+  and coins like crowns. Shared screen `features/extra/extra-screen.tsx` (+ `rules-card.tsx`), boards in `features/path`,
+  `features/binary`; routes `/path/[id]`, `/binary/[id]`; challenge links redirect there. Home: two mini daily buttons in
+  the daily card, Unlimited switch (crowns/path/binary). Streak + archive + share picture are still crowns-only.
+  Listings (en/ar/ru) now sell "3 daily puzzles"; new App Store name "Tiaro: Daily Logic Puzzles".
 - **iOS builds now run on GitHub Actions** (`.github/workflows/ios-build.yml`, 2026-10-13): the repo is public, so the macos-26
   runner (Xcode 26.6) is free; `eas build --local` uses no Expo build credits, then `eas submit` to TestFlight (~45 min). Start it
   with the MCP `actions_run_trigger` (run_workflow, ref = this branch) or a commit message containing the trigger words (keep them

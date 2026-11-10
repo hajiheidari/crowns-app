@@ -5,8 +5,10 @@ const fonts = `@font-face{font-family:Fraunces;font-weight:700;src:url(data:font
 @font-face{font-family:Inter;font-weight:500;src:url(data:font/ttf;base64,${b64(F + '/font3.ttf')})}
 @font-face{font-family:Inter;font-weight:600;src:url(data:font/ttf;base64,${b64(F + '/font4.ttf')})}`;
 const slides = [
-  { raw: '1-home', bg: '#FAF7F0', accent: '#C9A227', title: 'A fresh logic puzzle<br>every day', sub: 'And a weekly brain score. Free, no ads.' },
+  { raw: '1-home', bg: '#FAF7F0', accent: '#C9A227', title: 'Three new logic<br>puzzles every day', sub: 'Crowns, Path and Sun & Moon. Free.' },
   { raw: '2-game', bg: '#E8E1F5', accent: '#7A5BB5', title: 'One crown per row,<br>column and color', sub: 'Simple rules. Deep, satisfying logic.' },
+  { raw: '8-path', bg: '#FFF0D9', accent: '#D9A82E', title: 'Draw one line<br>through it all', sub: 'Path: every cell, the numbers in order.' },
+  { raw: '9-binary', bg: '#E2ECFA', accent: '#5B7FD6', title: 'Balance the suns<br>and moons', sub: 'Sun & Moon: half and half, never three.' },
   { raw: '3-hint', bg: '#FCE9D6', accent: '#C2742F', title: 'Stuck? Get hints<br>that teach', sub: 'See why a move works, not just where.' },
   { raw: '4-stats', bg: '#FFF3C8', accent: '#B8891A', title: 'Build your<br>daily streak', sub: 'Every solve, best time and streak, tracked.' },
   { raw: '5-win', bg: '#DCEBFB', accent: '#3E73B8', title: 'Challenge<br>your friends', sub: 'Send a link and race the same puzzle.' },
@@ -32,7 +34,7 @@ function html(s, W, H) {
   </style></head><body><div class="cap"><div class="bar"></div><h1>${s.title}</h1><p>${s.sub}</p></div>
   <div class="phone"><img src="${img}"></div></body></html>`;
 }
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: process.env.CHROME ?? '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome' });
 for (const [tag, W, H] of [['ios-6.9', 1290, 2796], ['android', 1080, 1920]]) {
   fs.mkdirSync(path.join(out, tag), { recursive: true });
   const pg = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
