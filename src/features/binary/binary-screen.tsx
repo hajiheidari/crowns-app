@@ -32,6 +32,8 @@ export function BinaryScreen({ id, versus }: { id: string; versus?: number }) {
       solved={(cells) => isBinarySolved(puzzle, cells as Sky[])}
       hint={(cells) => hintFor(puzzle, cells as Sky[])}
       nextId={() => (info.mode === 'unlimited' ? binaryUnlimitedId(info.difficulty, nextIndex()) : null)}
+      name={S.binaryName}
+      rules={S.binaryRules}
       route="/binary/[id]"
       versus={versus}
       board={({ cells, locked, highlight, onChange }) => (

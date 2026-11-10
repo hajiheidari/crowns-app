@@ -150,6 +150,9 @@ export const en = {
   binaryName: 'Sun & Moon',
   binaryStatus: (k: number, n: number) => `Cells ${k}/${n}`,
   binaryControls: 'Tap: sun → moon → empty. Each row and column: as many suns as moons, never three alike side by side. = same, × different.',
+  rulesTitle: (name: string) => `How to play ${name}`,
+  pathRules: ['Start at 1 and draw one line through every cell.', 'Pass the numbers in order: 1, 2, 3…', 'The line ends on the last number and never crosses a thick wall.'],
+  binaryRules: ['Fill every cell with a sun or a moon.', 'Each row and column has as many suns as moons, and never three alike side by side.', '= joins two cells that are the same, × two that are different.'],
   binaryTitles: { pair: 'No three in a row', gap: 'No three in a row', balance: 'Half and half', sign: '= and ×', line: 'Only one way' },
   binaryWhy: (rule: 'pair' | 'gap' | 'balance' | 'sign' | 'line', kind: 'sun' | 'moon', line: 'row' | 'column'): string => {
     const k = kind === 'sun' ? 'sun' : 'moon';

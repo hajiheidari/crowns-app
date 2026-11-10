@@ -14,6 +14,7 @@ import { Text } from '@/components/text';
 import { formatTime, type Difficulty } from '@/engine';
 import { CoinsSheet } from '@/features/coins/coins-sheet';
 import { COINS } from '@/features/coins/policy';
+import { RulesCard } from '@/features/extra/rules-card';
 import { HintCard } from '@/features/game/hint-card';
 import { useGameTimer } from '@/features/game/use-game-timer';
 import { WinOverlay } from '@/features/game/win-overlay';
@@ -47,6 +48,9 @@ interface Props {
   initial: number[];
   status: (cells: number[]) => string;
   controls: string;
+  /** Name and rules for the rules card (first visit and the "?" button). */
+  name: string;
+  rules: string[];
   solved: (cells: number[]) => boolean;
   hint: (cells: number[]) => ExtraHint | null;
   /** Id of the next Unlimited puzzle (after a win), or null for dailies. */
@@ -75,6 +79,12 @@ export function ExtraScreen(props: Props) {
   const [hint, setHint] = useState<{ hint: ExtraHint; cells: number[]; hidden?: boolean } | null>(null);
   const [noHints, setNoHints] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [rulesOpen, setRulesOpen] = useState(() => !useGameStore.getState().meta.rulesSeen.includes(kind));
+  const closeRules = () => {
+    setRulesOpen(false);
+    const { rulesSeen } = useGameStore.getState().meta;
+    if (!rulesSeen.includes(kind)) useGameStore.getState().updateMeta({ rulesSeen: [...rulesSeen, kind] });
+  };
 
   useEffect(() => {
     const isNew = !useGameStore.getState().extra[id];
@@ -86,7 +96,7 @@ export function ExtraScreen(props: Props) {
   const solved = !!game?.solved;
   const locked = solved || paused;
   const onTick = useCallback(() => useGameStore.getState().tickExtra(id), [id]);
-  useGameTimer(!!game && !solved && !paused && focused, onTick);
+  useGameTimer(!!game && !solved && !paused && !rulesOpen && focused, onTick);
   const cells = game?.cells ?? props.initial;
 
   const change = (next: number[]) => {
@@ -151,6 +161,16 @@ export function ExtraScreen(props: Props) {
         </View>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={S.howToPlay}
+          onPress={() => setRulesOpen(true)}
+          hitSlop={8}
+          style={({ pressed }) => [styles.iconButton, { opacity: pressed ? 0.6 : 1 }]}>
+          <Text style={[styles.iconText, { color: c.text }]} maxFontSizeMultiplier={1.2}>
+            ?
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel={paused ? S.resume : S.pause}
           onPress={() => setPaused(!paused)}
           disabled={solved}
@@ -213,6 +233,7 @@ export function ExtraScreen(props: Props) {
         <Tool label={S.clear} glyph="⌫" onPress={() => setConfirmClear(true)} disabled={locked || sameCells(cells, props.initial)} />
       </View>
 
+      <RulesCard visible={rulesOpen} title={S.rulesTitle(props.name)} rules={props.rules} onClose={closeRules} />
       <CoinsSheet visible={noHints} need={COINS.hint} onClose={() => setNoHints(false)} />
       <ConfirmDialog
         visible={confirmClear}

@@ -73,6 +73,8 @@ export interface Settings {
 
 /** Bookkeeping that is not gameplay: install date, "What's new", review prompt. */
 export interface Meta {
+  /** Puzzle types whose rules card was shown (1.2). */
+  rulesSeen: string[];
   installedKey: string | null;
   lastSeenVersion: string | null;
   wins: number;
@@ -243,6 +245,7 @@ const DEFAULT_META: Meta = {
   lastSeenVersion: null,
   wins: 0,
   reminderAsked: false,
+  rulesSeen: [],
   lastReviewPromptKey: null,
   ref: null,
   invitedBy: null,

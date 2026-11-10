@@ -30,6 +30,8 @@ export function PathScreen({ id, versus }: { id: string; versus?: number }) {
       solved={(line) => isPathSolved(puzzle, line)}
       hint={(line) => lineHint(puzzle, line)}
       nextId={() => (info.mode === 'unlimited' ? pathUnlimitedId(info.difficulty, useGameStore.getState().extraIndex.path[info.difficulty]) : null)}
+      name={S.pathName}
+      rules={S.pathRules}
       route="/path/[id]"
       versus={versus}
       board={({ cells, locked, highlight, onChange }) => (
